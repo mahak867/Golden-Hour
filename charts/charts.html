@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Golden Hour charts</title>
+<style>
+:root { --text: #eef2fb; --text-2: #b4bdd3; --muted: #8b95ae; --grid: #2a3657; --blue: #3987e5; --orange: #d95926; --accent: #d9ff43; }
+body { margin: 0; background: #0d1530; font-family: "Inter", "Segoe UI", system-ui, sans-serif; color: var(--text); }
+.fig { display: inline-block; padding: 0; }
+svg text { font-family: "Inter", "Segoe UI", system-ui, sans-serif; }
+.t { font-size: 17px; font-weight: 700; fill: var(--text); }
+.s { font-size: 12.5px; fill: var(--text-2); }
+.lbl { font-size: 14px; fill: var(--text); font-weight: 600; }
+.val { font-size: 15px; fill: var(--text); font-weight: 700; }
+.note { font-size: 12.5px; fill: var(--text-2); }
+.src { font-size: 10.5px; fill: var(--muted); }
+.ax { font-size: 11.5px; fill: var(--muted); }
+/* architecture */
+.lane { fill: #121a30; stroke: #2a3657; }
+.box { fill: #18223d; stroke: #3a4766; stroke-width: 1.5; }
+.box.hot { stroke: var(--accent); }
+.bt { font-size: 13.5px; font-weight: 700; fill: var(--text); }
+.bs { font-size: 11px; fill: var(--text-2); }
+.lt { font-size: 13px; font-weight: 700; fill: var(--accent); letter-spacing: .5px; }
+.rail { fill: #1b1f2c; stroke: #3a4058; stroke-dasharray: 4 3; }
+.rt { font-size: 11.5px; fill: var(--text-2); font-weight: 600; }
+.arrow { stroke: #8b95ae; stroke-width: 1.8; fill: none; marker-end: url(#ah); }
+.darrow { stroke: #6d7896; stroke-width: 1.4; fill: none; stroke-dasharray: 4 3; marker-end: url(#ah2); }
+</style></head>
+<body>
+
+<!-- Chart 1: TN 2024 funnel (horizontal bars, single measure) -->
+<div class="fig" id="c1"><svg width="500" height="390" viewBox="0 0 500 390">
+  <text class="t" x="8" y="24">Tamil Nadu 2024: where scam money went</text>
+  <text class="s" x="8" y="44">Reported cyber-fraud money, ₹ crore</text>
+  <g id="c1bars"></g>
+  <text class="src" x="8" y="358">Source: TN Cyber Crime Wing, via The News Minute and DT Next (2025).</text>
+  <text class="src" x="8" y="372">Returned reported as ₹83.3–83.8 cr across outlets.</text>
+</svg></div>
+
+<!-- Chart 2: share of frozen money returned -->
+<div class="fig" id="c2"><svg width="500" height="390" viewBox="0 0 500 390">
+  <text class="t" x="8" y="24">Frozen money that reached victims</text>
+  <text class="s" x="8" y="44">Returned ÷ frozen, %</text>
+  <g id="c2bars"></g>
+  <text class="src" x="8" y="358">Sources: TN Cyber Crime Wing via The News Minute (2024); DT Next (TN Jan–Jul 2025:</text>
+  <text class="src" x="8" y="372">₹62.4 cr of ₹314 cr; Chennai Jan–May 2025: ₹10.45 cr of ₹48 cr).</text>
+</svg></div>
+
+<!-- Chart 3: India losses by year -->
+<div class="fig" id="c3"><svg width="500" height="390" viewBox="0 0 500 390">
+  <text class="t" x="8" y="24">Cyber-fraud losses reported in India</text>
+  <text class="s" x="8" y="44">₹ crore per year</text>
+  <g id="c3bars"></g>
+  <text class="src" x="8" y="358">Sources: MHA/I4C in Lok Sabha via Scroll (2023, 2024: +206%);</text>
+  <text class="src" x="8" y="372">I4C/NCRP 2025 figure as reported in the press.</text>
+</svg></div>
+
+<!-- Architecture diagram -->
+<div class="fig" id="arch"><svg width="1260" height="400" viewBox="0 0 1260 400">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8b95ae"/></marker>
+    <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6d7896"/></marker>
+  </defs>
+  <!-- victim lane -->
+  <rect class="lane" x="4" y="4" width="842" height="262" rx="14"/>
+  <text class="lt" x="20" y="28">VICTIM CREW · LangGraph state machine · every transition audit-logged</text>
+  <rect class="box" x="20" y="64" width="96" height="78" rx="10"/>
+  <text class="bt" x="68" y="94" text-anchor="middle">Telegram</text>
+  <text class="bs" x="68" y="112" text-anchor="middle">Tamil voice</text>
+  <text class="bs" x="68" y="127" text-anchor="middle">Tanglish text</text>
+  <g id="agentsRow"></g>
+  <rect x="134" y="50" width="698" height="112" rx="12" fill="none" stroke="#d9ff43" stroke-dasharray="6 4" stroke-width="1.4"/>
+  <text class="bs" x="146" y="184" style="fill:#d9ff43;font-weight:700">⑥ Safety &amp; Consent wraps ①–⑤:</text>
+  <text class="bs" x="338" y="184">DPDP consent · PII redaction · information, not legal advice · victim approves</text>
+  <!-- rails -->
+  <text class="bs" x="20" y="214" style="font-weight:700;fill:#b4bdd3">Official rails (victim files personally):</text>
+  <g id="rails"></g>
+  <!-- packet -->
+  <rect class="box hot" x="868" y="98" width="128" height="72" rx="10"/>
+  <text class="bt" x="932" y="126" text-anchor="middle">Case packet</text>
+  <text class="bs" x="932" y="144" text-anchor="middle">JSON + PDF</text>
+  <text class="bs" x="932" y="159" text-anchor="middle">consented, redacted</text>
+  <path class="arrow" d="M832,134 L864,134"/>
+  <path class="arrow" d="M996,134 L1018,134"/>
+  <!-- bank lane -->
+  <rect class="lane" x="1020" y="4" width="236" height="392" rx="14"/>
+  <text class="lt" x="1034" y="28">BANK CREW</text>
+  <text class="bs" x="1034" y="44">fraud-ops console</text>
+  <rect class="box" x="1034" y="58" width="208" height="76" rx="10"/>
+  <text class="bt" x="1046" y="80">⑦ Reconciliation</text>
+  <text class="bs" x="1046" y="98">lien vs claims per mule account</text>
+  <text class="bs" x="1046" y="113">multi-victim pro-rata split draft</text>
+  <rect class="box" x="1034" y="146" width="208" height="92" rx="10"/>
+  <text class="bt" x="1046" y="168">⑧ Mule-graph explainer</text>
+  <text class="bs" x="1046" y="186">victim ↔ VPA ↔ account ↔ phone</text>
+  <text class="bs" x="1046" y="201">clusters + a reason for every flag</text>
+  <g transform="translate(1190,222)"><circle r="5" cx="0" cy="0" fill="#3987e5"/><circle r="5" cx="18" cy="-8" fill="#eda100"/><circle r="5" cx="36" cy="0" fill="#e66767"/><line x1="0" y1="0" x2="18" y2="-8" stroke="#6d7896"/><line x1="18" y1="-8" x2="36" y2="0" stroke="#6d7896"/></g>
+  <rect class="box hot" x="1034" y="250" width="208" height="62" rx="10"/>
+  <text class="bt" x="1046" y="274">Human analyst</text>
+  <text class="bs" x="1046" y="293">approve / query · audit log</text>
+  <path class="arrow" d="M1138,134 L1138,144"/>
+  <path class="arrow" d="M1138,238 L1138,248"/>
+  <text class="bs" x="1034" y="336">→ status back to victim</text>
+  <text class="bs" x="1034" y="353">→ FCM-style alert queue</text>
+  <text class="bs" x="1034" y="370">→ MuleHunter.AI / Suspect Registry</text>
+  <text class="bs" x="1034" y="385" style="fill:#8b95ae">(after analyst review)</text>
+  <!-- data strip -->
+  <rect x="4" y="282" width="1000" height="114" rx="14" fill="#0f1527" stroke="#2a3657"/>
+  <text class="lt" x="20" y="306">DATA &amp; STACK</text>
+  <text class="bs" x="20" y="328">Supabase Postgres + encrypted storage (row-level security) · labelled mock MRM / NCRP / bank portals (no public APIs) · synthetic data only</text>
+  <text class="bs" x="20" y="348">LangGraph · Claude / Gemini vision → strict JSON · Sarvam / AI4Bharat Tamil STT · Presidio PII redaction · NetworkX graph · Telegram Bot API</text>
+  <text class="bs" x="20" y="368">Production path: Setu Account Aggregator for statements · bank integration via fraud-ops console · no fees, no custody of funds, no representation</text>
+</svg></div>
+
+<script>
+const fmt = n => n.toLocaleString("en-IN", { maximumFractionDigits: 2 });
+// Chart 1
+(function () {
+  const d = [["Lost", 1673.85, "#3987e5", ""], ["Frozen", 771.98, "#3987e5", "46% of lost"], ["Returned", 83.84, "#d95926", "≈5% of lost · ≈11% of frozen"]];
+  const x0 = 98, w = 330, max = 1700, g = document.getElementById("c1bars"); let s = "";
+  [0, 500, 1000, 1500].forEach(v => { const x = x0 + w * v / max; s += `<line x1="${x}" x2="${x}" y1="66" y2="316" stroke="#2a3657" stroke-width="1"/><text class="ax" x="${x}" y="334" text-anchor="middle">${fmt(v)}</text>`; });
+  d.forEach(([l, v, c, n], i) => { const y = 78 + i * 80, bw = Math.max(4, w * v / max);
+    s += `<text class="lbl" x="${x0 - 12}" y="${y + 26}" text-anchor="end">${l}</text>`;
+    s += `<path d="M${x0},${y} h${bw - 4} a4,4 0 0 1 4,4 v34 a4,4 0 0 1 -4,4 h-${bw - 4} z" fill="${c}"/>`;
+    s += `<text class="val" x="${x0 + bw + 8}" y="${y + 20}">₹${fmt(Math.round(v))} cr</text>`;
+    if (n) s += `<text class="note" x="${x0 + bw + 8}" y="${y + 38}">${n}</text>`; });
+  s += `<line x1="${x0}" x2="${x0}" y1="66" y2="316" stroke="#5a6684" stroke-width="1.5"/>`;
+  g.innerHTML = s;
+})();
+// Chart 2
+(function () {
+  const d = [["TN 2024", 83.84 / 771.98], ["TN Jan–Jul 2025", 62.4 / 314], ["Chennai Jan–May 2025", 10.45 / 48]];
+  const x0 = 196, w = 240, g = document.getElementById("c2bars"); let s = "";
+  [0, 25, 50, 75, 100].forEach(v => { const x = x0 + w * v / 100; s += `<line x1="${x}" x2="${x}" y1="66" y2="300" stroke="#2a3657"/><text class="ax" x="${x}" y="318" text-anchor="middle">${v}%</text>`; });
+  d.forEach(([l, v], i) => { const y = 82 + i * 74, bw = w * v;
+    s += `<text class="lbl" x="${x0 - 12}" y="${y + 24}" text-anchor="end">${l}</text>`;
+    s += `<rect x="${x0}" y="${y}" width="${w}" height="38" rx="4" fill="#1a2440"/>`;
+    s += `<path d="M${x0},${y} h${bw - 4} a4,4 0 0 1 4,4 v30 a4,4 0 0 1 -4,4 h-${bw - 4} z" fill="#d95926"/>`;
+    s += `<text class="val" x="${x0 + bw + 8}" y="${y + 25}">${(v * 100).toFixed(1)}%</text>`; });
+  s += `<line x1="${x0}" x2="${x0}" y1="66" y2="300" stroke="#5a6684" stroke-width="1.5"/>`;
+  g.innerHTML = s;
+})();
+// Chart 3
+(function () {
+  const d = [["2023", 7465], ["2024", 22845.73], ["2025", 19813]];
+  const y0 = 310, h = 230, max = 25000, g = document.getElementById("c3bars"); let s = "";
+  [0, 5000, 10000, 15000, 20000, 25000].forEach(v => { const y = y0 - h * v / max; s += `<line x1="60" x2="480" y1="${y}" y2="${y}" stroke="#2a3657"/><text class="ax" x="54" y="${y + 4}" text-anchor="end">${fmt(v)}</text>`; });
+  d.forEach(([l, v], i) => { const x = 100 + i * 130, bh = h * v / max, bw = 80;
+    s += `<path d="M${x},${y0} v-${bh - 4} a4,4 0 0 1 4,-4 h${bw - 8} a4,4 0 0 1 4,4 v${bh - 4} z" fill="#3987e5"/>`;
+    s += `<text class="val" x="${x + bw / 2}" y="${y0 - bh - 8}" text-anchor="middle">₹${fmt(Math.round(v))} cr</text>`;
+    s += `<text class="lbl" x="${x + bw / 2}" y="${y0 + 20}" text-anchor="middle">${l}</text>`; });
+  s += `<line x1="60" x2="480" y1="${y0}" y2="${y0}" stroke="#5a6684" stroke-width="1.5"/>`;
+  g.innerHTML = s;
+})();
+// Architecture agents
+(function () {
+  const a = [["① Intake & Triage", "Sarvam STT", "Tamil / Tanglish"], ["② Evidence", "vision LLM → JSON", "UTR check, redaction"], ["③ Route Planner", "deterministic rules", "SOP · BNSS · RBI"], ["④ Drafter", "forms, petition,", "Tamil read-back"], ["⑤ Deadlines", "90-day hold, bank", "& Ombudsman clocks"]];
+  const g = document.getElementById("agentsRow"); let s = ""; const bw = 126, gap = 12; let x = 146;
+  s += `<path class="arrow" d="M116,103 L${x - 2},103"/>`;
+  a.forEach(([t, l1, l2], i) => { s += `<rect class="box" x="${x}" y="62" width="${bw}" height="82" rx="10"/><text class="bt" x="${x + 8}" y="84" style="font-size:12px">${t}</text><text class="bs" x="${x + 8}" y="104">${l1}</text><text class="bs" x="${x + 8}" y="119">${l2}</text>`;
+    if (i < a.length - 1) s += `<path class="arrow" d="M${x + bw},103 L${x + bw + gap - 1},103"/>`; x += bw + gap; });
+  g.innerHTML = s;
+  const r = ["1930 / NCRP", "Money Restoration Module", "Magistrate · BNSS s.503", "Bank dispute", "RB-IOS Ombudsman"];
+  const g2 = document.getElementById("rails"); let t = ""; let rx = 20;
+  r.forEach(n => { const w = n.length * 7 + 26; t += `<rect class="rail" x="${rx}" y="226" width="${w}" height="28" rx="8"/><text class="rt" x="${rx + w / 2}" y="245" text-anchor="middle">${n}</text>`; rx += w + 10; });
+  t += `<path class="darrow" d="M630,144 C630,190 560,200 520,224"/>`;
+  g2.innerHTML = t;
+})();
+</script>
+</body></html>

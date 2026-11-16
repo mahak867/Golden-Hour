@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golden Hour Prototype</title>
+<style>
+@font-face { font-family: "Noto Sans Tamil"; src: url("fonts/NotoSansTamil.ttf") format("truetype"); font-weight: 100 900; }
+:root {
+  --bg: #0b1020; --panel: #121a30; --panel-2: #18223d; --line: #26324f;
+  --text: #eef2fb; --text-2: #b4bdd3; --muted: #7d88a3;
+  --accent: #d9ff43; --blue: #3987e5; --blue-soft: #1c2c4f;
+  --good: #0ca30c; --warn: #fab219; --serious: #ec835a; --critical: #d03b3b;
+  --tg-bg: #0e1621; --tg-in: #182533; --tg-out: #2b5278;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, "Noto Sans Tamil", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); }
+body { min-height: 100vh; font-size: 14px; line-height: 1.45; }
+.ta { font-family: "Noto Sans Tamil", system-ui, sans-serif; }
+header { display: flex; align-items: center; gap: 16px; padding: 12px 20px; border-bottom: 1px solid var(--line); background: #0d1428; }
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand b { font-size: 20px; letter-spacing: .5px; color: var(--accent); }
+.brand span { color: var(--text-2); font-size: 13px; }
+.tabs { display: flex; gap: 6px; margin-left: 12px; }
+.tab { background: transparent; border: 1px solid var(--line); color: var(--text-2); padding: 7px 14px; border-radius: 8px; cursor: pointer; font: inherit; }
+.tab.active { background: var(--blue-soft); color: var(--text); border-color: var(--blue); }
+.badge-syn { margin-left: auto; font-size: 12px; color: var(--warn); border: 1px solid #5a4a1a; background: #2a2210; padding: 4px 10px; border-radius: 999px; }
+main { padding: 18px 20px 90px; }
+.view { display: none; } .view.active { display: block; }
+
+/* Victim view */
+.victim { display: grid; grid-template-columns: 400px 1fr; gap: 20px; align-items: start; }
+.phone { background: var(--tg-bg); border: 1px solid var(--line); border-radius: 28px; height: 760px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px #0008; }
+.tg-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #17212b; border-bottom: 1px solid #0b1118; }
+.avatar { width: 36px; height: 36px; font-size: 13px; border-radius: 50%; background: linear-gradient(135deg, #d9ff43, #3987e5); display: grid; place-items: center; color: #0b1020; font-weight: 800; }
+.tg-head small { color: #6c7f94; display: block; font-size: 12px; }
+.chat { flex: 1; overflow-y: auto; padding: 12px 10px; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth; }
+.msg { max-width: 86%; padding: 8px 10px; border-radius: 12px; font-size: 13.5px; animation: pop .25s ease-out; }
+.msg.in { background: var(--tg-in); align-self: flex-start; border-bottom-left-radius: 4px; }
+.msg.out { background: var(--tg-out); align-self: flex-end; border-bottom-right-radius: 4px; }
+.msg .meta { display: block; font-size: 11px; color: #8da2b8; margin-top: 4px; text-align: right; }
+.msg .tr { display: block; color: #9fb4c9; font-size: 12px; margin-top: 4px; border-top: 1px dashed #36506b; padding-top: 4px; }
+.voice { display: flex; align-items: center; gap: 8px; }
+.voice .play { width: 30px; height: 30px; border-radius: 50%; background: #5288c1; display: grid; place-items: center; font-size: 12px; }
+.wave { display: flex; gap: 2px; align-items: center; height: 24px; }
+.wave i { width: 3px; background: #9cc3ec; border-radius: 2px; display: block; }
+.receipt { background: #fff; color: #111; border-radius: 10px; padding: 12px; width: 230px; position: relative; overflow: hidden; font-size: 12px; }
+.receipt .ok { color: #188038; font-weight: 700; font-size: 13px; }
+.receipt .amt { font-size: 24px; font-weight: 800; margin: 4px 0; }
+.receipt .row { display: flex; justify-content: space-between; gap: 8px; margin-top: 3px; }
+.receipt .row span:first-child { color: #666; }
+.receipt .wm { position: absolute; inset: 0; display: grid; place-items: center; transform: rotate(-24deg); font-weight: 900; font-size: 30px; color: #d03b3b33; letter-spacing: 3px; pointer-events: none; }
+.btnrow { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.chip { background: #24384f; border: 1px solid #3a5878; color: #d4e5f7; border-radius: 8px; padding: 5px 9px; font-size: 12px; }
+.typing { color: #8da2b8; font-size: 12px; padding: 0 12px 8px; height: 22px; }
+.compose { display: flex; gap: 8px; padding: 10px; background: #17212b; }
+.compose input { flex: 1; background: #0e1621; border: 1px solid #22303d; color: var(--text); border-radius: 18px; padding: 8px 12px; font: inherit; }
+.compose button { background: #5288c1; border: 0; color: white; border-radius: 18px; padding: 0 14px; font: inherit; cursor: pointer; }
+
+.trace h2, .bank h2 { margin: 0 0 10px; font-size: 15px; color: var(--text-2); font-weight: 600; letter-spacing: .3px; text-transform: uppercase; }
+.agents { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 14px; }
+.agent { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; transition: all .3s; min-height: 64px; }
+.agent .n { font-size: 11px; color: var(--muted); }
+.agent .t { font-size: 13px; font-weight: 600; }
+.agent.run { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.agent.done { border-color: #2d5a2d; }
+.agent.done .n::after { content: " ✓ done"; color: var(--good); }
+.agent.run .n::after { content: " ● running"; color: var(--accent); }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; animation: pop .3s ease-out; }
+.card h3 { margin: 0 0 8px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.card h3 .tag { font-size: 11px; font-weight: 500; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+.card.wide { grid-column: span 2; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+td.mono:first-child { white-space: nowrap; }
+td, th { text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; font-size: 12px; }
+.conf { display: inline-block; height: 6px; border-radius: 3px; background: var(--good); vertical-align: middle; margin-right: 6px; }
+.mono { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 12.5px; }
+.redact { background: #2a3350; color: var(--text-2); border-radius: 4px; padding: 0 5px; }
+.route { border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; margin-bottom: 8px; background: var(--panel-2); }
+.route .why { color: var(--text-2); font-size: 12.5px; margin-top: 3px; }
+.route .src { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; border-radius: 999px; padding: 2px 9px; border: 1px solid; white-space: nowrap; }
+.pill.good { color: #7ee07e; border-color: #2d5a2d; background: #0f2a10; }
+.pill.warn { color: #ffd166; border-color: #6b5214; background: #2b220b; }
+.pill.crit { color: #ff8a8a; border-color: #6b2222; background: #2b0f0f; }
+.pill.info { color: #9cc3ec; border-color: #2b4a73; background: #10203a; }
+.timeline { position: relative; margin: 6px 4px 4px; height: 92px; }
+.timeline .bar { position: absolute; left: 0; right: 0; top: 40px; height: 4px; background: var(--line); border-radius: 2px; }
+.timeline .prog { position: absolute; left: 0; top: 40px; height: 4px; background: var(--accent); border-radius: 2px; }
+.tick { position: absolute; top: 0; transform: translateX(-50%); text-align: center; font-size: 11.5px; width: 130px; }
+.tick .dot { width: 12px; height: 12px; border-radius: 50%; margin: 34px auto 6px; border: 2px solid var(--bg); }
+.tick .lbl { color: var(--text-2); }
+.tick .d { color: var(--text); font-weight: 600; position: absolute; top: 4px; left: 0; right: 0; }
+.doc { background: #f7f7f2; color: #1a1a1a; border-radius: 8px; padding: 12px 14px; font-size: 12px; line-height: 1.5; max-height: 210px; overflow: hidden; position: relative; font-family: Georgia, serif; }
+.doc::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 40px; background: linear-gradient(transparent, #f7f7f2); }
+.doc b { font-family: system-ui, sans-serif; }
+.approve { display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
+.btn { background: var(--accent); color: #0b1020; border: 0; border-radius: 8px; padding: 7px 12px; font-weight: 700; cursor: pointer; font: inherit; font-weight: 700; }
+.btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); font-weight: 500; }
+.note { font-size: 12px; color: var(--muted); }
+
+/* Bank view */
+.bank { display: grid; grid-template-columns: 1.05fr 1fr; gap: 16px; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; grid-column: span 2; }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.kpi .v { font-size: 24px; font-weight: 800; }
+.kpi .l { color: var(--text-2); font-size: 12.5px; }
+tr.sel td { background: #1a2a4a; }
+tr.click { cursor: pointer; }
+.split { display: flex; height: 26px; border-radius: 6px; overflow: hidden; gap: 2px; margin: 8px 0 4px; }
+.split div { display: grid; place-items: center; font-size: 11.5px; color: #0b1020; font-weight: 700; }
+#graph { width: 100%; height: 290px; background: var(--panel-2); border-radius: 10px; border: 1px solid var(--line); }
+#graph text { fill: var(--text-2); font-size: 10.5px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--text-2); margin-top: 6px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+.explain { background: var(--panel-2); border-left: 3px solid var(--accent); padding: 8px 10px; border-radius: 6px; font-size: 13px; margin-top: 8px; }
+
+#card { position: fixed; inset: 0; background: radial-gradient(circle at 30% 30%, #1c2c4f, #0b1020 70%); display: none; place-items: center; z-index: 20; text-align: center; padding: 40px; }
+#card.show { display: grid; animation: pop .4s ease-out; }
+#card h1 { font-size: 64px; margin: 0; color: var(--accent); letter-spacing: 1px; }
+#card p { font-size: 22px; color: var(--text-2); margin: 10px auto 0; max-width: 1000px; }
+#card .big { font-size: 30px; color: var(--text); margin-top: 26px; }
+#card .big b { color: var(--accent); }
+/* captions for recorded walkthrough */
+#caption { position: fixed; left: 50%; bottom: 34px; transform: translateX(-50%); max-width: 1100px; width: calc(100% - 40px); background: #000c; border: 1px solid #ffffff22; color: #fff; padding: 12px 18px; border-radius: 12px; font-size: 18px; text-align: center; display: none; z-index: 10; backdrop-filter: blur(6px); }
+#caption b { color: var(--accent); }
+#caption.show { display: block; animation: pop .3s ease-out; }
+@keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+#caption.show { transform: translateX(-50%); }
+.disclaimer { position: fixed; left: 0; right: 0; bottom: 0; text-align: center; padding: 5px; font-size: 11px; color: var(--muted); background: #0b1020e6; border-top: 1px solid var(--line); }
+@media (max-width: 1100px) { .victim, .bank { grid-template-columns: 1fr; } .kpis { grid-column: auto; grid-template-columns: repeat(2, 1fr); } .agents { grid-template-columns: repeat(3, 1fr); } .cards { grid-template-columns: 1fr; } .card.wide { grid-column: auto; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><b>Golden Hour</b> <span>· post-scam money restoration copilot</span></div>
+  <div class="tabs">
+    <button class="tab active" data-view="victim">Victim crew (Telegram)</button>
+    <button class="tab" data-view="bank">Bank crew (fraud-ops console)</button>
+  </div>
+  <div class="badge-syn">Concept prototype · synthetic data only · no real portals</div>
+</header>
+
+<main>
+  <section class="view active" id="v-victim">
+    <div class="victim">
+      <div class="phone">
+        <div class="tg-head"><div class="avatar">GH</div><div><b>Golden Hour Bot</b><small>bot · Tamil / Tanglish / English</small></div></div>
+        <div class="chat" id="chat"></div>
+        <div class="typing" id="typing"></div>
+        <div class="compose"><input id="inp" placeholder="Type in Tamil, Tanglish or English…"><button id="send">Send</button></div>
+      </div>
+      <div class="trace">
+        <h2>Agent trace · case C-1041</h2>
+        <div class="agents" id="agents"></div>
+        <div class="cards" id="cards"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-bank">
+    <div class="bank">
+      <div class="kpis" id="kpis"></div>
+      <div>
+        <h2>Incoming case packets</h2>
+        <div class="card" style="padding:8px 10px"><table id="queue"></table></div>
+      </div>
+      <div>
+        <h2>Lien reconciliation · <span id="recon-acc"></span></h2>
+        <div class="card" id="recon" style="margin-bottom:14px"></div>
+        <h2>Mule-graph explainer</h2>
+        <svg id="graph" viewBox="0 0 640 300" role="img" aria-label="Graph of victims, payee VPAs, mule accounts and linked phone numbers"></svg>
+        <div class="legend"><span><i style="background:#3987e5"></i>Victim case</span><span><i style="background:#eda100"></i>Payee VPA</span><span><i style="background:#e66767"></i>Mule account</span><span><i style="background:#9085e9"></i>Linked phone</span></div>
+        <div id="clusters"></div>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="caption"></div>
+<div id="card"></div>
+<div class="disclaimer">Information, not legal advice · Victim reviews and files every document personally · No fees, never holds money, never asks for OTP/PIN</div>
+
+<script>
+/* ---------------- Synthetic data ---------------- */
+const TODAY = new Date("2026-11-16T10:00:00+05:30");
+const CASES = [
+  { id: "C-1041", victim: "Selvi K.", city: "Coimbatore", amount: 48000, vpa: "fastgains.demo@upi", acct: "XXXX4471", type: "Investment scam (authorised UPI)", fraudAt: "2026-11-12T14:05:00+05:30", reportedAt: "2026-11-12T14:52:00+05:30", ack: "31211260045871", status: "Packet received" },
+  { id: "C-1037", victim: "Arun P.", city: "Chennai", amount: 35000, vpa: "quickreturn.demo@upi", acct: "XXXX4471", type: "Investment scam (authorised UPI)", fraudAt: "2026-11-09T11:20:00+05:30", reportedAt: "2026-11-09T12:10:00+05:30", ack: "31211260041102", status: "Bank verified" },
+  { id: "C-1029", victim: "Fathima S.", city: "Madurai", amount: 22000, vpa: "fastgains.demo@upi", acct: "XXXX4471", type: "Task / part-time job scam", fraudAt: "2026-11-05T19:40:00+05:30", reportedAt: "2026-11-05T21:02:00+05:30", ack: "31211260037219", status: "Bank verified" },
+  { id: "C-1022", victim: "Ravi M.", city: "Trichy", amount: 40000, vpa: "stockguru.demo@upi", acct: "XXXX8820", type: "Investment scam (authorised UPI)", fraudAt: "2026-11-02T10:15:00+05:30", reportedAt: "2026-11-02T13:30:00+05:30", ack: "31211260031544", status: "Query sent" },
+  { id: "C-1018", victim: "Meena R.", city: "Salem", amount: 15500, vpa: "parcelhelp.demo@upi", acct: "XXXX1190", type: "Courier / customs scam", fraudAt: "2026-10-29T16:00:00+05:30", reportedAt: "2026-10-29T16:35:00+05:30", ack: "31210260027810", status: "Bank verified" },
+  { id: "C-1015", victim: "Karthik V.", city: "Chennai", amount: 62000, vpa: "parcelhelp.demo@upi", acct: "XXXX1190", type: "Digital-arrest scam", fraudAt: "2026-10-27T09:30:00+05:30", reportedAt: "2026-10-27T15:45:00+05:30", ack: "31210260025003", status: "Restoration filed" },
+  { id: "C-1009", victim: "Priya N.", city: "Vellore", amount: 9800, vpa: "kycupdate.demo@upi", acct: "XXXX7302", type: "KYC-update phishing", fraudAt: "2026-10-20T12:10:00+05:30", reportedAt: "2026-10-20T12:40:00+05:30", ack: "31210260019876", status: "Restoration filed" },
+];
+const LIENS = { "XXXX4471": 80000, "XXXX8820": 30000, "XXXX1190": 77500, "XXXX7302": 9800 };
+const ACCT_PHONE = { "XXXX4471": "+91 9XXXX 21407", "XXXX8820": "+91 9XXXX 21407", "XXXX1190": "+91 8XXXX 66310", "XXXX7302": "+91 7XXXX 90452" };
+
+/* ---------------- Rules engine (deterministic; rules as configured, verify before production) ---------------- */
+const RULES = {
+  smallHoldNoCourt: 50000,   // MHA SOP (Jan 2026), as reported: holds up to this per account restorable without court order
+  holdLiftDays: 90,          // banks lift hold if no restoration/court order (as reported)
+  bankReportWorkingDays: 3,  // RBI customer-liability framework (2017)
+  ombudsmanDays: 90,         // RB-IOS 2026 escalation window (as reported)
+};
+function addWorkingDays(d, n) { const x = new Date(d); let c = 0; while (c < n) { x.setDate(x.getDate() + 1); const w = x.getDay(); if (w !== 0 && w !== 6) c++; } return x; }
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+const fmt = d => d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+const inr = n => "₹" + Math.round(n).toLocaleString("en-IN");
+
+function planRoutes(c) {
+  const held = LIENS[c.acct];
+  const fraud = new Date(c.fraudAt), rep = new Date(c.reportedAt);
+  const mins = Math.round((rep - fraud) / 60000);
+  const routes = [];
+  if (held <= RULES.smallHoldNoCourt) {
+    routes.push({ name: "NCRP Money Restoration Module (MRM) request", pill: ["good", "Primary"], why: `Held in payee account ${inr(held)} ≤ ${inr(RULES.smallHoldNoCourt)} → restoration request without a court order.`, src: "MHA SOP for CFCFRMS, 02.01.2026 (threshold as reported)" });
+  } else {
+    routes.push({ name: "NCRP Money Restoration Module (MRM) request + FIR", pill: ["good", "Primary"], why: `Held in payee account ${inr(held)} > ${inr(RULES.smallHoldNoCourt)} → FIR needed with the restoration request. Golden Hour pre-fills both.`, src: "MHA SOP for CFCFRMS, 02.01.2026 (threshold as reported)" });
+    routes.push({ name: "Magistrate release petition (BNSS s.503)", pill: ["info", "Parallel"], why: "Multiple victims claim against one held account → court-ordered pro-rata release is the fallback route.", src: "BNSS s.503 · Madras HC: no separate FIR where NCRP ack exists" });
+  }
+  routes.push({ name: "Bank dispute (remitting bank)", pill: ["warn", "Time-bound"], why: `Report to your bank within ${RULES.bankReportWorkingDays} working days; deceived-but-authorised UPI covered by RBI 2026 amendment (verify final text).`, src: "RBI customer-liability framework 2017 + 2026 Amendment Directions" });
+  routes.push({ name: "RBI Ombudsman (RB-IOS 2026)", pill: ["info", "If bank rejects"], why: `Escalate if the bank rejects or does not resolve; window ${RULES.ombudsmanDays} days.`, src: "RB-IOS 2026" });
+  const deadlines = [
+    { d: fraud, lbl: "Fraud", c: "#7d88a3" },
+    { d: rep, lbl: `1930 report (${mins} min)`, c: "#0ca30c" },
+    { d: addWorkingDays(fraud, RULES.bankReportWorkingDays), lbl: "Bank report due", c: "#fab219" },
+    { d: addDays(rep, RULES.holdLiftDays), lbl: "Hold may lift", c: "#d03b3b" },
+  ];
+  return { routes, deadlines, mins, held };
+}
+
+function proRata(acct) {
+  const claims = CASES.filter(c => c.acct === acct);
+  const total = claims.reduce((s, c) => s + c.amount, 0);
+  const lien = LIENS[acct];
+  const ratio = Math.min(1, lien / total);
+  let shares = claims.map(c => ({ ...c, share: Math.floor(c.amount * ratio) }));
+  let rem = Math.min(lien, total) - shares.reduce((s, x) => s + x.share, 0);
+  shares.sort((a, b) => b.amount - a.amount); for (let i = 0; rem > 0; i = (i + 1) % shares.length, rem--) shares[i].share++;
+  return { claims: shares, total, lien, ratio };
+}
+
+/* union-find over victim–VPA–account–phone edges */
+function clusters() {
+  const parent = {}; const f = x => (parent[x] ??= x, parent[x] === x ? x : (parent[x] = f(parent[x])));
+  const u = (a, b) => { parent[f(a)] = f(b); };
+  const edges = [];
+  CASES.forEach(c => { edges.push(["case:" + c.id, "vpa:" + c.vpa], ["vpa:" + c.vpa, "acct:" + c.acct]); });
+  Object.entries(ACCT_PHONE).forEach(([a, p]) => edges.push(["acct:" + a, "phone:" + p]));
+  edges.forEach(([a, b]) => u(a, b));
+  const groups = {}; Object.keys(parent).forEach(n => (groups[f(n)] ??= []).push(n));
+  return { edges, groups: Object.values(groups).sort((a, b) => b.length - a.length) };
+}
+
+/* ---------------- Victim view ---------------- */
+const AGENTS = ["Intake & Triage", "Evidence", "Route Planner", "Drafter", "Deadline Guardian", "Safety & Consent"];
+const agentsEl = document.getElementById("agents");
+AGENTS.forEach((a, i) => { const d = document.createElement("div"); d.className = "agent"; d.id = "ag" + i; d.innerHTML = `<div class="n">${"①②③④⑤⑥"[i]}</div><div class="t">${a}</div>`; agentsEl.appendChild(d); });
+const setAgent = (i, s) => { const el = document.getElementById("ag" + i); el.classList.remove("run", "done"); if (s) el.classList.add(s); };
+const chat = document.getElementById("chat"), cards = document.getElementById("cards"), typing = document.getElementById("typing");
+const sleep = ms => new Promise(r => setTimeout(r, ms * (window.SPEED || 1)));
+function addMsg(dir, html) { const m = document.createElement("div"); m.className = "msg " + dir; m.innerHTML = html; chat.appendChild(m); chat.scrollTop = chat.scrollHeight; return m; }
+function addCard(html, wide) { const c = document.createElement("div"); c.className = "card" + (wide ? " wide" : ""); c.innerHTML = html; cards.appendChild(c); return c; }
+async function botSay(html, ms = 900) { typing.textContent = "Golden Hour is typing…"; await sleep(ms); typing.textContent = ""; botMin++; const m = 58 + botMin; return addMsg("in", html + `<span class="meta">${14 + Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}</span>`); }
+let botMin = 0;
+const wave = () => `<div class="wave">${Array.from({ length: 34 }, (_, i) => `<i style="height:${6 + Math.abs(Math.sin(i * 1.7)) * 16}px"></i>`).join("")}</div>`;
+const C = CASES[0];
+
+async function runVictim() {
+  cards.innerHTML = ""; chat.innerHTML = ""; botMin = 0; AGENTS.forEach((_, i) => setAgent(i, null));
+  caption("A scam victim in Coimbatore sends a <b>Tanglish voice note</b> to the Golden Hour Telegram bot.");
+  await sleep(700);
+  addMsg("out", `<div class="voice"><div class="play">▶</div>${wave()}<span>0:19</span></div><span class="tr"><b>Transcript (Tanglish):</b> "Sir, oru trading app la ₹48,000 pottuten. Withdraw panna mudiyala. 1930 ku call panninen, ack number vandhuchu. Panam thirumba kidaikuma?"</span><span class="meta">14:58 ✓✓</span>`);
+  setAgent(0, "run"); await sleep(1300);
+  await botSay(`<span class="ta">கவலைப்படாதீர்கள். நீங்கள் 47 நிமிடத்தில் 1930-க்கு புகார் செய்தீர்கள் — பணம் முடக்கப்பட்டிருக்க வாய்ப்பு அதிகம். அதைத் திரும்பப் பெற நான் உதவுகிறேன்.</span><span class="tr">Don't worry. You reported to 1930 within 47 minutes, so the money is likely frozen. I'll help you get it back.</span><div class="btnrow"><span class="chip">Send payment screenshot</span><span class="chip">Send NCRP ack SMS</span></div>`);
+  setAgent(5, "run");
+  await botSay(`<b>Consent (DPDP):</b> I will use your screenshot and SMS only to prepare your forms, mask Aadhaar/PAN, and delete them after 30 days. <span class="ta">இது தகவல் மட்டுமே, சட்ட ஆலோசனை அல்ல.</span><div class="btnrow"><span class="chip">✅ I agree</span></div>`, 700);
+  setAgent(0, "done");
+  addMsg("out", "✅ I agree<span class='meta'>14:59 ✓✓</span>");
+  caption("<b>Intake agent</b> replies in Tamil, takes DPDP consent, then asks for evidence.");
+  await sleep(1200);
+  addMsg("out", `<div class="receipt"><div class="wm">SYNTHETIC</div><div class="ok">✔ Payment successful</div><div class="amt">₹48,000</div><div class="row"><span>To</span><span>fastgains.demo@upi</span></div><div class="row"><span>UPI Ref No.</span><span>436512907781</span></div><div class="row"><span>Date</span><span>12 Nov 2026, 2:05 pm</span></div><div class="row"><span>From</span><span>XXXX 2210 · demo bank</span></div></div><span class="meta">15:00 ✓✓</span>`);
+  addMsg("out", `SMS: Your complaint is registered on NCRP. Ack No. 31211260045871<span class="meta">15:00 ✓✓</span>`);
+  caption("The victim sends a payment screenshot and the NCRP acknowledgement SMS.");
+  setAgent(1, "run"); await sleep(1600);
+  addCard(`<h3>② Evidence agent <span class="tag">vision LLM → strict JSON · regex-validated</span></h3>
+    <table><tr><th>Field</th><th>Value</th><th>Check</th></tr>
+    <tr><td>Amount</td><td class="mono">${inr(C.amount)}</td><td><span class="conf" style="width:46px"></span>0.99</td></tr>
+    <tr><td>UTR / UPI Ref</td><td class="mono">436512907781</td><td><span class="pill good">12 digits ✓</span></td></tr>
+    <tr><td>Payee VPA</td><td class="mono">${C.vpa}</td><td><span class="conf" style="width:44px"></span>0.97</td></tr>
+    <tr><td>Paid at</td><td class="mono">12 Nov 2026 14:05</td><td><span class="conf" style="width:42px"></span>0.95</td></tr>
+    <tr><td>NCRP ack</td><td class="mono">${C.ack}</td><td><span class="pill good">14 digits ✓</span></td></tr>
+    <tr><td>Aadhaar in SMS</td><td><span class="redact">XXXX XXXX 4417</span></td><td><span class="pill info">masked</span></td></tr></table>`);
+  setAgent(1, "done");
+  caption("<b>Evidence agent</b> extracts and validates every field, and masks Aadhaar before anything leaves the device.");
+  await sleep(2600);
+  setAgent(2, "run"); await sleep(1100);
+  const plan = planRoutes(C);
+  addCard(`<h3>③ Route planner <span class="tag">deterministic rules + cited sources</span></h3>` + plan.routes.map(r => `<div class="route"><b>${r.name}</b> <span class="pill ${r.pill[0]}">${r.pill[1]}</span><div class="why">${r.why}</div><div class="src">Source: ${r.src}</div></div>`).join(""));
+  setAgent(2, "done");
+  caption("<b>Route planner</b> picks the official recovery routes with deterministic rules, each with a cited source.");
+  await sleep(3200);
+  setAgent(4, "run"); await sleep(900);
+  const P = [8, 36, 64, 92];
+  const pos = d => { const ts = plan.deadlines.map(x => x.d.getTime()); const t = d.getTime(); for (let i = 0; i < 3; i++) if (t <= ts[i + 1]) return P[i] + (P[i + 1] - P[i]) * Math.max(0, (t - ts[i]) / (ts[i + 1] - ts[i])); return 92; };
+  const nowPos = pos(TODAY);
+  addCard(`<h3>⑤ Deadline guardian <span class="tag">reminders on Telegram</span></h3>
+    <div class="timeline"><div class="bar"></div><div class="prog" style="width:${nowPos}%"></div>
+    ${plan.deadlines.map((x, i) => `<div class="tick" style="left:${P[i]}%"><div class="d">${fmt(x.d)}</div><div class="dot" style="background:${x.c}"></div><div class="lbl">${x.lbl}</div></div>`).join("")}
+    <div class="tick" style="left:${nowPos}%;top:-2px;width:60px"><div class="dot" style="background:#d9ff43;width:8px;height:8px;margin-top:40px;border:0"></div></div>
+    </div>
+    <div class="note">Not to scale · lime marker = today (${fmt(TODAY)}) · bank report due <b>${fmt(plan.deadlines[2].d)}</b> · if no restoration request or court order, the hold may lift around <b>${fmt(plan.deadlines[3].d)}</b>.</div>`, true);
+  setAgent(4, "done");
+  caption("<b>Deadline guardian</b> tracks the clocks that decide whether frozen money is lost: the bank report and the hold-lift date.");
+  await sleep(3000);
+  setAgent(3, "run"); await sleep(1100);
+  addCard(`<h3>④ Drafter <span class="tag">victim reviews &amp; files personally</span></h3>
+    <div class="doc"><b>NCRP · Money Restoration request (pre-filled draft)</b><br>Acknowledgement No.: ${C.ack}<br>Transaction: UPI Ref 436512907781 · ${inr(C.amount)} · 12-11-2026 14:05<br>Beneficiary: ${C.vpa} → A/c ${C.acct} (held)<br>Victim bank: demo bank A/c XXXX2210 · PAN: <span class="redact">masked</span><br>Attachments: payment screenshot, NCRP SMS, FIR copy (required: held amount above SOP threshold)<br><br><b>Bank dispute letter</b><br>To the Branch Manager, I report a fraudulent UPI debit of ₹48,000 on 12-11-2026 induced by deception…</div>
+    <div class="approve"><button class="btn">Approve &amp; download</button><button class="btn ghost">Read back in Tamil 🔊</button><span class="note">Nothing is filed for you · no fees · we never ask for OTP/PIN</span></div>`);
+  setAgent(3, "done");
+  addCard(`<h3>⑥ Safety &amp; consent <span class="tag">wraps every step</span></h3>
+    <table><tr><td>DPDP notice + consent</td><td><span class="pill good">recorded 14:59</span></td></tr>
+    <tr><td>PII redaction before LLM calls</td><td><span class="pill good">Aadhaar, PAN masked</span></td></tr>
+    <tr><td>Advice boundary</td><td><span class="pill info">information + self-filing + legal-aid referral</span></td></tr>
+    <tr><td>Recovery-scam guard</td><td><span class="pill good">zero fees · zero custody</span></td></tr>
+    <tr><td>Audit log</td><td><span class="mono">7 transitions · hash-chained</span></td></tr></table>`);
+  setAgent(5, "done");
+  caption("<b>Drafter</b> pre-fills the restoration request and bank letter. The victim approves and files them personally.");
+  await sleep(1400);
+  await botSay(`<span class="ta">ஆவணங்கள் தயார். சரிபார்த்து நீங்களே சமர்ப்பிக்கவும். நினைவூட்டல்: வங்கி புகார் கடைசி நாள் 17 நவம்பர்.</span><span class="tr">Documents ready. Please check and submit them yourself. Reminder: bank report due 17 Nov.</span><div class="btnrow"><span class="chip">📄 Restoration request</span><span class="chip">📄 Bank letter</span><span class="chip">🔔 Remind me</span></div>`);
+  await sleep(2600);
+}
+
+/* ---------------- Bank view ---------------- */
+let selAcct = "XXXX4471";
+function renderBank() {
+  const totalHeld = Object.values(LIENS).reduce((a, b) => a + b, 0);
+  const totalClaimed = CASES.reduce((a, c) => a + c.amount, 0);
+  const cl = clusters();
+  document.getElementById("kpis").innerHTML = [
+    [CASES.length, "case packets this week"], [inr(totalHeld), "held under lien (4 accounts)"], [inr(totalClaimed), "claimed by victims"], [cl.groups.length, "mule clusters found"]
+  ].map(([v, l]) => `<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  const stPill = s => ({ "Packet received": "warn", "Bank verified": "good", "Query sent": "info", "Restoration filed": "good" }[s]);
+  document.getElementById("queue").innerHTML = `<tr><th>Case</th><th>Victim</th><th>Amount</th><th>Payee → account</th><th>Reported</th><th>Status</th></tr>` +
+    CASES.map(c => { const mins = Math.round((new Date(c.reportedAt) - new Date(c.fraudAt)) / 60000); return `<tr class="click ${c.acct === selAcct ? "sel" : ""}" data-acct="${c.acct}"><td class="mono">${c.id}</td><td>${c.victim}<br><span class="note">${c.city} · ${c.type}</span></td><td class="mono">${inr(c.amount)}</td><td class="mono">${c.vpa}<br>→ ${c.acct}</td><td>${mins < 60 ? `<span class="pill good">${mins} min</span>` : `<span class="pill warn">${(mins / 60).toFixed(1)} h</span>`}</td><td><span class="pill ${stPill(c.status)}">${c.status}</span></td></tr>`; }).join("");
+  document.querySelectorAll("#queue tr.click").forEach(tr => tr.onclick = () => { selAcct = tr.dataset.acct; renderBank(); });
+  const pr = proRata(selAcct);
+  document.getElementById("recon-acc").textContent = selAcct;
+  const cols = ["#3987e5", "#1baf7a", "#eda100", "#e87ba4"];
+  document.getElementById("recon").innerHTML = `
+    <table><tr><th>Victim</th><th>Claimed</th><th>Pro-rata release</th></tr>${pr.claims.map((c, i) => `<tr><td><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${cols[i]};margin-right:6px"></i>${c.victim} <span class="note">${c.id}</span></td><td class="mono">${inr(c.amount)}</td><td class="mono"><b>${inr(c.share)}</b></td></tr>`).join("")}
+    <tr><td><b>Total</b></td><td class="mono">${inr(pr.total)}</td><td class="mono"><b>${inr(Math.min(pr.lien, pr.total))}</b></td></tr></table>
+    <div class="split">${pr.claims.map((c, i) => `<div style="flex:${c.share};background:${cols[i]}">${Math.round(100 * c.share / pr.lien)}%</div>`).join("")}</div>
+    <div class="note">Lien held ${inr(pr.lien)} vs claims ${inr(pr.total)} → ${pr.ratio < 1 ? `over-claimed; each victim receives ${(pr.ratio * 100).toFixed(1)}% (draft for SOP multi-victim / BNSS s.503 order)` : "fully covered; release in full"}.</div>
+    <div class="approve"><button class="btn">Approve split draft</button><button class="btn ghost">Query victim</button><span class="note">Human analyst decides · every action audit-logged</span></div>`;
+  drawGraph(cl);
+}
+function drawGraph(cl) {
+  const svg = document.getElementById("graph");
+  const nodes = {}; const colorOf = n => n.startsWith("case") ? "#3987e5" : n.startsWith("vpa") ? "#eda100" : n.startsWith("acct") ? "#e66767" : "#9085e9";
+  const label = n => { const v = n.split(":")[1]; if (n.startsWith("case")) { const c = CASES.find(x => x.id === v); return c.victim.split(" ")[0]; } if (n.startsWith("vpa")) return v.replace(".demo@upi", "@"); return v; };
+  // layout: each cluster in its own column band, layered by type
+  const layer = n => n.startsWith("case") ? 0 : n.startsWith("vpa") ? 1 : n.startsWith("acct") ? 2 : 3;
+  const W = 640, H = 300; const widths = cl.groups.map(g => Math.max(...[0, 1, 2, 3].map(l => g.filter(n => layer(n) === l).length)));
+  const totalW = widths.reduce((a, b) => a + b, 0); let x0 = 20;
+  cl.groups.forEach((g, gi) => {
+    const bw = (W - 40) * widths[gi] / totalW;
+    [0, 1, 2, 3].forEach(l => { const ns = g.filter(n => layer(n) === l); ns.forEach((n, i) => { nodes[n] = { x: x0 + bw * (i + 0.5) / ns.length, y: 46 + l * 72 }; }); });
+    g.x0 = x0; g.bw = bw; x0 += bw;
+  });
+  let s = "";
+  cl.groups.forEach((g, gi) => { s += `<rect x="${g.x0 + 4}" y="12" width="${g.bw - 8}" height="${H - 24}" rx="10" fill="none" stroke="${gi === 0 ? "#d9ff43" : "#26324f"}" stroke-dasharray="${gi === 0 ? "0" : "4 4"}"/>`; s += `<text x="${g.x0 + 12}" y="28" style="fill:${gi === 0 ? "#d9ff43" : "#7d88a3"};font-weight:600">Cluster ${String.fromCharCode(65 + gi)}</text>`; });
+  cl.edges.forEach(([a, b]) => { s += `<line x1="${nodes[a].x}" y1="${nodes[a].y}" x2="${nodes[b].x}" y2="${nodes[b].y}" stroke="#3a4766" stroke-width="2"/>`; });
+  Object.entries(nodes).forEach(([n, p]) => { s += `<circle cx="${p.x}" cy="${p.y}" r="9" fill="${colorOf(n)}" stroke="#18223d" stroke-width="2"><title>${n}</title></circle><text x="${p.x}" y="${p.y + 22}" text-anchor="middle">${label(n)}</text>`; });
+  svg.innerHTML = s;
+  const big = cl.groups[0]; const vic = big.filter(n => n.startsWith("case")).length; const accts = big.filter(n => n.startsWith("acct")).map(n => n.split(":")[1]); const vpas = big.filter(n => n.startsWith("vpa")).length;
+  const amt = CASES.filter(c => accts.includes(c.acct)).reduce((a, c) => a + c.amount, 0);
+  document.getElementById("clusters").innerHTML = `<div class="explain"><b>Why Cluster A is flagged:</b> ${vic} victims paid ${vpas} different VPAs that settle into ${accts.length} accounts (${accts.join(", ")}). Both accounts list the same phone (${ACCT_PHONE[accts[0]]}). Combined claims ${inr(amt)}. <span class="note">Explanation generated from graph edges · analyst confirms before any report to MuleHunter.AI / Suspect Registry.</span></div>`;
+}
+
+/* ---------------- Tabs, captions, autoplay ---------------- */
+function show(view) { document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === view)); document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "v-" + view)); if (view === "bank") renderBank(); }
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => show(t.dataset.view));
+const capEl = document.getElementById("caption"); const params = new URLSearchParams(location.search);
+function caption(html) { if (!params.has("captions")) return; capEl.innerHTML = html; capEl.classList.remove("show"); void capEl.offsetWidth; capEl.classList.add("show"); }
+document.getElementById("send").onclick = () => { const v = document.getElementById("inp").value.trim(); if (!v) return; addMsg("out", v + "<span class='meta'>✓✓</span>"); document.getElementById("inp").value = ""; botSay("Thanks. In this prototype, press <b>Replay demo</b> or watch the scripted case C-1041.", 600); };
+
+function titleCard(html) { const c = document.getElementById("card"); c.innerHTML = `<div>${html}</div>`; c.classList.add("show"); }
+function hideCard() { document.getElementById("card").classList.remove("show"); }
+async function autoplay() {
+  titleCard(`<h1>Golden Hour</h1><p>Multi-agent post-scam money restoration · FinTech · K! Hacks 4.0</p><div class="big">Tamil Nadu 2024: <b>₹772 cr frozen</b>, only <b>~₹84 cr returned</b>.</div><p style="font-size:15px;margin-top:22px">Sources: TN Cyber Crime Wing via The News Minute / DT Next · Concept prototype on synthetic data</p>`);
+  await sleep(5200); hideCard();
+  caption("<b>Golden Hour</b>: scam money gets frozen but rarely comes back. Tamil Nadu 2024: ₹772 cr frozen, only ~₹84 cr returned.");
+  await sleep(4200);
+  await runVictim();
+  caption("The same <b>case packet</b> reaches the bank crew's fraud-ops console.");
+  await sleep(1200); show("bank"); await sleep(2600);
+  caption("<b>Reconciliation agent</b>: three victims claim ₹1,05,000 against a ₹80,000 lien, so it drafts a pro-rata split for the analyst.");
+  await sleep(5200);
+  caption("<b>Mule-graph explainer</b> links two accounts through one phone number and says why. A human analyst decides.");
+  await sleep(5200);
+  selAcct = "XXXX1190"; renderBank();
+  caption("Click any case to reconcile its account. Every action is audit-logged.");
+  await sleep(3800);
+  caption("<b>Golden Hour</b>: no fees · never holds money · victim files personally. Concept prototype on synthetic data.");
+  await sleep(4200);
+  titleCard(`<h1>Golden Hour</h1><p>Two agent crews, one case packet: the victim gets guided recovery in Tamil, the bank gets reconciled, explainable cases.</p><div class="big"><b>No fees</b> · <b>never holds money</b> · <b>human approves every decision</b></div><p style="font-size:15px;margin-top:22px">Team Golden Hour · Chennai Institute of Technology</p>`);
+  await sleep(5000);
+  document.title = "DONE";
+}
+if (params.has("autoplay")) { window.SPEED = Number(params.get("speed") || 1); autoplay(); }
+else if (params.get("view") === "bank") show("bank");
+else { window.SPEED = 0.35; runVictim(); }
+</script>
+</body>
+</html>
