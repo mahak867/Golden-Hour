@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Golden Hour Prototype</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%23f2b84b%27/%3E%3Ccircle cx=%2716%27 cy=%2717.5%27 r=%275.5%27 fill=%27%231a1305%27/%3E%3Cpath d=%27M5 24h22%27 stroke=%27%231a1305%27 stroke-width=%272.4%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
 <meta name="description" content="Golden Hour: a multi-agent copilot that turns frozen scam money into filed refund claims. Concept prototype on synthetic data.">
 <style>
 @font-face { font-family: "Inter"; src: url("fonts/Inter.ttf") format("truetype"); font-weight: 100 900; font-display: swap; }
@@ -268,14 +269,14 @@ tr:last-child td { border-bottom: 0; }
 .json .k { color: #a9cbff; } .json .s { color: #8eeac0; } .json .n { color: #ffd98a; } .json .b { color: #ff9ea1; }
 
 /* ---------- Console ---------- */
-.console { display: grid; grid-template-rows: auto 1fr; gap: 16px; height: 100%; }
+.console { display: grid; grid-template-rows: auto 1fr; gap: 16px; min-height: 100%; }
 .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .kpi { padding: 12px 16px 10px; position: relative; overflow: hidden; }
 .kpi .l { font-size: 12px; color: var(--text-2); display: flex; align-items: center; gap: 7px; }
 .kpi .v { font-size: 24px; font-weight: 700; letter-spacing: -.02em; margin: 6px 0 2px; font-variant-numeric: tabular-nums; }
 .kpi .d { font-size: 11.5px; color: var(--muted); }
 .kpi .d b { color: #8eeac0; font-weight: 600; }
-.kpi svg.spark { position: absolute; right: 12px; bottom: 12px; }
+.kpi svg.spark { position: absolute; right: 14px; top: 14px; }
 .cgrid { display: grid; grid-template-columns: 1.08fr 1fr; gap: 16px; min-height: 0; }
 .queue { display: grid; grid-template-rows: auto 1fr; min-height: 0; overflow: hidden; }
 .queue .tbl { overflow: auto; }
@@ -298,7 +299,7 @@ tr:last-child td { border-bottom: 0; }
 .recon .scale { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin: 0 16px; }
 .recon table td, .recon table th { padding: 6px 16px; }
 .recon .foot { display: flex; align-items: center; gap: 10px; padding: 8px 16px 10px; border-top: 1px solid var(--line); margin-top: 4px; }
-.graphcard { display: grid; grid-template-rows: auto 1fr auto; min-height: 0; overflow: hidden; }
+.graphcard { display: grid; grid-template-rows: auto minmax(200px, 1fr) auto; min-height: 0; overflow: hidden; }
 .graphwrap { position: relative; margin: 0 14px; min-height: 180px; border-radius: 12px; background: radial-gradient(600px 240px at 30% 30%, rgba(242,184,75,.05), transparent 70%), #090c14; border: 1px solid var(--line); min-height: 0; }
 .graphwrap svg { width: 100%; height: 100%; }
 .gnode { cursor: pointer; }
@@ -380,6 +381,48 @@ tr:last-child td { border-bottom: 0; }
 #card .chips { display: flex; gap: 10px; justify-content: center; margin-top: 22px; }
 #card .chips span { padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(242,184,75,.35); background: rgba(242,184,75,.08); color: var(--gold-2); font-size: 15px; }
 
+
+/* ---------- Robustness at smaller sizes ---------- */
+.nav button svg { flex: none; }
+.search { white-space: nowrap; overflow: hidden; }
+.view { overflow-y: auto; scrollbar-width: thin; }
+.recon .scale { justify-content: center; }
+.queue td.flow { font-size: 11px; }
+@media (max-width: 1380px) { .queue th:nth-child(4), .queue td:nth-child(4) { display: none; } .clock { display: none; } }
+@media (max-height: 800px) and (min-width: 1181px) { .device { max-height: none; } .journey { min-height: 760px; } .orch { max-height: none; } .ibody { min-height: 420px; } }
+@media (max-width: 640px) {
+  .app { grid-template-columns: minmax(0, 1fr) !important; } .main { grid-template-columns: minmax(0, 1fr); } .content, .view, .panel { min-width: 0; max-width: 100%; }
+  .ph .end .pill { white-space: normal; }
+  .content { padding: 14px 12px; }
+  .top { padding: 0 12px; gap: 8px; } .top .search, .top .clock, .top .iconbtn, .envpill { display: none; }
+  .crumb { font-size: 12px; overflow: hidden; } .crumb .pill { display: none; }
+  .device { width: 100%; max-width: 368px; height: 720px; border-radius: 46px; }
+  .orch-head { flex-wrap: wrap; gap: 10px; } .orch-head .stats { margin-left: 0; } .trybtn { margin-left: 0; }
+  .pipeline { grid-template-columns: repeat(3, 1fr); row-gap: 16px; } .pipeline .rail { display: none; }
+  .itabs { overflow-x: auto; scrollbar-width: none; } .itab { white-space: nowrap; }
+  .kpis, .hero { grid-template-columns: 1fr; }
+  .ph { flex-wrap: wrap; } .ph .end { margin-left: 0; }
+  .queue .tbl, .rules, .recon { overflow-x: auto; }
+  .queue th:nth-child(3), .queue td:nth-child(3) { display: none; }
+  .rules table { min-width: 720px; }
+  .graphwrap { min-height: 240px; }
+  .mbox { max-height: calc(100vh - 16px); width: calc(100vw - 16px); }
+  .mgrid { padding: 10px 12px 16px; }
+  .res .tbl2 td:first-child { width: auto; white-space: normal; }
+  .res .tbl2 td:last-child { display: none; }
+  #caption { font-size: 13px; bottom: 12px; }
+}
+
+.mnav { display: none; }
+@media (max-width: 1180px) {
+  .mnav { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: rgba(10,13,21,.94); backdrop-filter: blur(12px); border-top: 1px solid var(--line-2); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
+  .mnav button { border: 0; background: transparent; color: var(--muted); display: grid; justify-items: center; gap: 3px; font-size: 10.5px; padding: 6px 2px; border-radius: 10px; cursor: pointer; }
+  .mnav button.active { color: var(--gold-2); background: rgba(242,184,75,.08); }
+  .mnav button.try { color: #8eeac0; }
+  .content { padding-bottom: 84px !important; }
+  #caption { bottom: 76px; }
+  .toasts { bottom: 76px; }
+}
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-property: opacity, color, background-color, border-color !important; } }
 @media (max-width: 1180px) { body { overflow: auto; } .app { grid-template-columns: 1fr; height: auto; } .side { display: none; } .view { position: static; display: none; opacity: 1; transform: none; } .view.active { display: block; } .content { overflow: visible; } .journey, .cgrid, .impact, .ev, .routes, .dl, .drafts, .safety { grid-template-columns: 1fr; } .device { margin: 0 auto; height: 760px; } .orch { max-height: none; } .kpis, .hero { grid-template-columns: repeat(2, 1fr); } .hero { grid-column: auto; } .ibody { min-height: 560px; } }
 </style>
@@ -422,7 +465,7 @@ tr:last-child td { border-bottom: 0; }
       <div class="grp">Workspace</div>
       <button data-view="victim" class="active"><svg width="18" height="18"><use href="#i-phone"/></svg>Victim journey<span class="count" style="color:var(--gold-2);border-color:rgba(242,184,75,.3)">live</span></button>
       <button data-view="console"><svg width="18" height="18"><use href="#i-bank"/></svg>Fraud-ops console<span class="count">7</span></button>
-      <button id="tryNav" class="trynav"><svg width="18" height="18"><use href="#i-scan"/></svg>Try your screenshot<span class="count" style="color:#8eeac0;border-color:rgba(60,207,142,.3)">real OCR</span></button>
+      <button id="tryNav" class="trynav"><svg width="18" height="18"><use href="#i-scan"/></svg>Try it live<span class="count" style="color:#8eeac0;border-color:rgba(60,207,142,.3)">real OCR</span></button>
       <div class="grp">Evidence</div>
       <button data-view="impact"><svg width="18" height="18"><use href="#i-chart"/></svg>Impact (real data)</button>
       <button data-view="rules"><svg width="18" height="18"><use href="#i-book"/></svg>Rules &amp; sources</button>
@@ -440,7 +483,7 @@ tr:last-child td { border-bottom: 0; }
       <div class="search"><svg width="15" height="15"><use href="#i-search"/></svg>Search cases, UTR, VPA…<kbd>⌘K</kbd></div>
       <div class="right">
         <span class="envpill"><i></i>All agents healthy</span>
-        <span class="clock" id="clock">16 Nov 2026 · 10:00 IST</span>
+        <span class="clock" id="clock">16 Nov 2026 · 10:05 IST</span>
         <div class="iconbtn"><svg width="16" height="16"><use href="#i-bell"/></svg><span class="dot"></span></div>
         <div class="av" style="background:linear-gradient(135deg,#a9cbff,#6aa7ff)">AN</div>
       </div>
@@ -453,10 +496,10 @@ tr:last-child td { border-bottom: 0; }
           <div class="device" aria-label="Telegram conversation">
             <div class="screen">
               <div class="island"></div>
-              <div class="status"><span>10:00</span><span class="sig"><svg width="17" height="11" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1" fill="#fff"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="#fff"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="#fff"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#fff"/></svg><svg width="24" height="12" viewBox="0 0 24 12"><rect x=".5" y=".5" width="20" height="11" rx="3" fill="none" stroke="#fff" opacity=".5"/><rect x="2" y="2" width="14" height="8" rx="1.6" fill="#fff"/><rect x="21.5" y="4" width="2" height="4" rx="1" fill="#fff" opacity=".5"/></svg></span></div>
+              <div class="status"><span>10:05</span><span class="sig"><svg width="17" height="11" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1" fill="#fff"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="#fff"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="#fff"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#fff"/></svg><svg width="24" height="12" viewBox="0 0 24 12"><rect x=".5" y=".5" width="20" height="11" rx="3" fill="none" stroke="#fff" opacity=".5"/><rect x="2" y="2" width="14" height="8" rx="1.6" fill="#fff"/><rect x="21.5" y="4" width="2" height="4" rx="1" fill="#fff" opacity=".5"/></svg></span></div>
               <div class="tghead">
                 <span class="back">‹ Chats</span>
-                <div class="who"><b>Golden Hour <svg width="14" height="14" style="color:var(--gold)"><use href="#i-badge"/></svg></b><small id="tgstatus">bot · தமிழ் · Tanglish · English</small></div>
+                <div class="who"><b>Golden Hour <svg width="14" height="14" style="color:var(--gold)"><use href="#i-badge"/></svg></b><small id="tgstatus">bot · தமிழ் / English</small></div>
                 <div class="botav"><svg width="18" height="18" style="color:#1a1305"><use href="#i-sun"/></svg></div>
               </div>
               <div class="chat" id="chat"></div>
@@ -494,7 +537,7 @@ tr:last-child td { border-bottom: 0; }
           <div class="kpis" id="kpis"></div>
           <div class="cgrid">
             <div class="panel queue">
-              <div class="ph"><h3><svg width="16" height="16" style="color:var(--gold)"><use href="#i-file"/></svg>Incoming case packets</h3><span class="sub">consented · redacted</span><div class="end"><span class="pill neutral">This week</span></div></div>
+              <div class="ph"><h3><svg width="16" height="16" style="color:var(--gold)"><use href="#i-file"/></svg>Incoming case packets</h3><span class="sub">consented · redacted</span><div class="end"><span class="pill neutral">Last 30 days</span></div></div>
               <div class="tbl"><table id="queue"></table></div>
             </div>
             <div class="right">
@@ -561,6 +604,13 @@ tr:last-child td { border-bottom: 0; }
     </div>
   </div>
 </div>
+<nav class="mnav" aria-label="Views (mobile)">
+  <button data-view="victim" class="active"><svg width="18" height="18"><use href="#i-phone"/></svg>Victim</button>
+  <button data-view="console"><svg width="18" height="18"><use href="#i-bank"/></svg>Bank</button>
+  <button class="try" id="tryNavM"><svg width="18" height="18"><use href="#i-scan"/></svg>Try it</button>
+  <button data-view="impact"><svg width="18" height="18"><use href="#i-chart"/></svg>Impact</button>
+  <button data-view="rules"><svg width="18" height="18"><use href="#i-book"/></svg>Rules</button>
+</nav>
 <div class="toasts" id="toasts"></div>
 <svg id="cursor" width="26" height="30" viewBox="0 0 26 30"><path d="M3 2.5 3 24l5.6-5.2 3.7 8.4 4-1.8-3.7-8.2 7.8-.4z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>
 <div id="caption"></div>
@@ -569,7 +619,7 @@ tr:last-child td { border-bottom: 0; }
 <script>
 "use strict";
 /* ================= Synthetic data ================= */
-const TODAY = new Date("2026-11-16T10:00:00+05:30");
+const TODAY = new Date("2026-11-16T10:05:00+05:30");
 const CASES = [
   { id: "C-1041", victim: "Selvi K.", city: "Coimbatore", amount: 48000, vpa: "fastgains.demo@upi", acct: "XXXX4471", type: "Investment scam", fraudAt: "2026-11-12T14:05:00+05:30", reportedAt: "2026-11-12T14:52:00+05:30", ack: "31211260045871", status: "Packet received", av: ["#ffd98a", "#e8892f"] },
   { id: "C-1037", victim: "Arun P.", city: "Chennai", amount: 35000, vpa: "quickreturn.demo@upi", acct: "XXXX4471", type: "Investment scam", fraudAt: "2026-11-09T11:20:00+05:30", reportedAt: "2026-11-09T12:10:00+05:30", ack: "31211260041102", status: "Bank verified", av: ["#a9cbff", "#6aa7ff"] },
@@ -652,12 +702,12 @@ function toast(title, sub) { const t = document.createElement("div"); t.classNam
 /* ================= Navigation ================= */
 const CRUMBS = { victim: `Cases <span>›</span> <b>C-1041 · Selvi K.</b> <span class="pill gold" style="margin-left:6px">Live</span>`, console: `Bank <span>›</span> <b>Fraud-ops console</b> <span class="pill neutral" style="margin-left:6px">Demo Bank · Coimbatore region</span>`, impact: `Evidence <span>›</span> <b>Impact (real data)</b>`, rules: `Evidence <span>›</span> <b>Rules &amp; sources</b>` };
 function show(v) {
-  document.querySelectorAll(".nav button[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  document.querySelectorAll(".nav button[data-view], .mnav button[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === v));
   document.querySelectorAll(".view").forEach(x => x.classList.toggle("active", x.id === "v-" + v));
   $("#crumb").innerHTML = CRUMBS[v];
   if (v === "console") renderConsole();
 }
-document.querySelectorAll(".nav button[data-view]").forEach(b => b.addEventListener("click", () => show(b.dataset.view)));
+document.querySelectorAll(".nav button[data-view], .mnav button[data-view]").forEach(b => b.addEventListener("click", () => { show(b.dataset.view); if (innerWidth <= 1180) scrollTo({ top: 0 }); }));
 
 /* ================= Victim journey ================= */
 const C0 = CASES[0], P0 = plan(C0);
@@ -691,9 +741,9 @@ async function runAgent(i, ms, label) {
 
 const chat = () => $("#chat");
 let clockMin = 0;
-function stamp() { clockMin++; const m = 58 + clockMin; return `${14 + Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`; }
+function stamp() { clockMin++; const m = 9 * 60 + 58 + Math.floor(clockMin / 2); return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`; }
 function bubble(dir, html, opts = {}) { const b = document.createElement("div"); b.className = "bub " + dir; b.innerHTML = html + `<div class="meta">${opts.time || stamp()}${dir === "out" ? icon("dchk", 14) : ""}</div>`; chat().appendChild(b); chat().scrollTop = chat().scrollHeight; return b; }
-async function botTyping(ms) { $("#tgstatus").textContent = "typing…"; const t = document.createElement("div"); t.className = "typing"; t.innerHTML = "<i></i><i></i><i></i>"; chat().appendChild(t); chat().scrollTop = chat().scrollHeight; await sleep(ms); t.remove(); $("#tgstatus").textContent = "bot · தமிழ் · Tanglish · English"; }
+async function botTyping(ms) { $("#tgstatus").textContent = "typing…"; const t = document.createElement("div"); t.className = "typing"; t.innerHTML = "<i></i><i></i><i></i>"; chat().appendChild(t); chat().scrollTop = chat().scrollHeight; await sleep(ms); t.remove(); $("#tgstatus").textContent = "bot · தமிழ் / English"; }
 const receiptHTML = (cls = "") => `<div class="rcpt ${cls}"><div class="wm">SYNTHETIC</div><div class="hd">${icon("check", 14)}Payment successful</div><div class="amt" data-f="amt">₹48,000</div><div class="row" data-f="vpa"><span>To</span><span>fastgains.demo@upi</span></div><div class="row" data-f="utr"><span>UPI Ref No.</span><span>436512907781</span></div><div class="row" data-f="time"><span>Date</span><span>12 Nov 2026, 2:05 pm</span></div><div class="row"><span>From</span><span>XXXX 2210 · demo bank</span></div></div>`;
 
 function paneEvidence() {
@@ -767,7 +817,7 @@ function renderAudit() {
 function paneSafety() {
   $("#p-safety").innerHTML = `<div class="safety">
     <div class="panel" style="padding:14px 16px;box-shadow:none"><div class="ph" style="padding:0 0 10px"><h3>${icon("shield", 15, 'style="color:var(--gold)"')}Consent &amp; data</h3></div>
-      <dl class="kv"><dt>DPDP notice</dt><dd>Shown in Tamil + English · accepted ${fmtT(new Date(P0.rep.getTime() + 7 * 6e4))}</dd><dt>Purpose</dt><dd>Prepare and track this victim's own recovery filings</dd><dt>Redaction</dt><dd>Aadhaar ×1 · PAN ×0 · phone ×1 before model calls</dd><dt>Retention</dt><dd>${R.PII_RETENTION} days after packet filed, then deleted</dd><dt>Advice boundary</dt><dd>Information, not legal advice · legal-aid referral offered</dd><dt>Money</dt><dd><b style="color:#8eeac0">Zero fees · zero custody</b> · never asks for OTP or PIN</dd></dl></div>
+      <dl class="kv"><dt>DPDP notice</dt><dd>Shown in Tamil + English · accepted 09:59 today</dd><dt>Purpose</dt><dd>Prepare and track this victim's own recovery filings</dd><dt>Redaction</dt><dd>Aadhaar ×1 · PAN ×0 · phone ×1 before model calls</dd><dt>Retention</dt><dd>${R.PII_RETENTION} days after packet filed, then deleted</dd><dt>Advice boundary</dt><dd>Information, not legal advice · legal-aid referral offered</dd><dt>Money</dt><dd><b style="color:#8eeac0">Zero fees · zero custody</b> · never asks for OTP or PIN</dd></dl></div>
     <div class="panel" style="padding:14px 16px;box-shadow:none"><div class="ph" style="padding:0 0 10px"><h3>${icon("lock", 15, 'style="color:var(--gold)"')}Audit chain</h3><span class="sub">SHA-256, each block hashes the previous</span></div><div class="chain" id="chainlist"></div></div></div>`;
   renderAudit();
 }
@@ -782,7 +832,7 @@ async function runVictim(auto) {
   $("#st-steps").textContent = "0 / 6"; $("#st-state").textContent = "REPORTED"; t0 = performance.now(); clearInterval(timer); timer = setInterval(tick, 100);
   caption("A scam victim in Coimbatore sends a <b>Tanglish voice note</b> to the Golden Hour Telegram bot.");
   await sleep(600);
-  const v = bubble("out", `<div class="voice"><div class="play">${icon("play", 14)}</div><div class="wv">${Array.from({ length: 30 }, (_, i) => `<i style="height:${5 + Math.round(Math.abs(Math.sin(i * 1.3) * Math.cos(i * .4)) * 19)}px"></i>`).join("")}</div><span class="dur">0:19</span></div><span class="tr"><b>Transcript · Tanglish</b><br>"Sir, oru trading app la ₹48,000 pottuten. Withdraw panna mudiyala. 1930 ku call panninen, ack number vandhuchu. Panam thirumba kidaikuma?"</span>`, { time: "14:58" });
+  const v = bubble("out", `<div class="voice"><div class="play">${icon("play", 14)}</div><div class="wv">${Array.from({ length: 30 }, (_, i) => `<i style="height:${5 + Math.round(Math.abs(Math.sin(i * 1.3) * Math.cos(i * .4)) * 19)}px"></i>`).join("")}</div><span class="dur">0:19</span></div><span class="tr"><b>Transcript · Tanglish</b><br>"Sir, oru trading app la ₹48,000 pottuten. Withdraw panna mudiyala. 1930 ku call panninen, ack number vandhuchu. Panam thirumba kidaikuma?"</span>`, { time: "09:58" });
   setNode(0, "run", "transcribing…");
   const bars = v.querySelectorAll(".wv i"); for (let i = 0; i < bars.length; i++) { bars[i].classList.add("on"); await sleep(38); }
   await botTyping(900);
@@ -833,7 +883,7 @@ function countUp(el, to, fmt) { const st = performance.now(), d = 900; const f =
 function renderConsole() {
   const held = Object.values(LIENS).reduce((a, b) => a + b, 0), claimed = CASES.reduce((a, c) => a + c.amount, 0), cl = clusters();
   if (!consoleBuilt) {
-    const k = [["Case packets this week", CASES.length, x => Math.round(x), "<b>+3</b> vs last week", [2, 3, 3, 4, 3, 5, 7], "#6aa7ff", "file"], ["Held under lien", held, inr, "across <b>4</b> payee accounts", [90, 110, 120, 150, 160, 180, 197], "#f2b84b", "lock"], ["Claimed by victims", claimed, inr, "<b>" + Math.round(100 * held / claimed) + "%</b> covered by liens", [120, 150, 160, 190, 200, 220, 232], "#a78bfa", "bank"], ["Mule clusters", cl.groups.length, x => Math.round(x), "<b>1</b> spans two accounts", [1, 1, 2, 2, 2, 3, 3], "#f2555a", "graph"]];
+    const k = [["Open case packets", CASES.length, x => Math.round(x), "<b>2</b> new in the last 7 days", [2, 3, 3, 4, 3, 5, 7], "#6aa7ff", "file"], ["Held under lien", held, inr, "across <b>4</b> payee accounts", [90, 110, 120, 150, 160, 180, 197], "#f2b84b", "lock"], ["Claimed by victims", claimed, inr, "<b>" + Math.round(100 * held / claimed) + "%</b> covered by liens", [120, 150, 160, 190, 200, 220, 232], "#a78bfa", "bank"], ["Mule clusters", cl.groups.length, x => Math.round(x), "<b>1</b> spans two accounts", [1, 1, 2, 2, 2, 3, 3], "#f2555a", "graph"]];
     $("#kpis").innerHTML = k.map(([l, v, f, d, s, c, ic], i) => `<div class="panel kpi"><div class="l">${icon(ic, 14, `style="color:${c}"`)}${l}</div><div class="v" id="kv${i}">0</div><div class="d">${d}</div>${spark(s, c)}</div>`).join("");
     k.forEach(([, v, f], i) => countUp($("#kv" + i), v, f));
     consoleBuilt = true;
@@ -848,7 +898,7 @@ function renderRecon() {
   const pr = proRata(selAcct), over = pr.ratio < 1;
   $("#recon").innerHTML = `<div class="ph"><h3>${icon("lock", 15, 'style="color:var(--gold)"')}Lien reconciliation · <span class="mono" style="font-size:13px">${selAcct}</span></h3><span class="sub">${pr.claims.length} claimant${pr.claims.length > 1 ? "s" : ""}</span><div class="end">${over ? `<span class="pill warn">${icon("alert", 11)} over-claimed</span>` : `<span class="pill good">${icon("check", 11)} fully covered</span>`}</div></div>
     <div class="bar">${pr.claims.map((c, i) => `<div style="flex:${c.share} 1 0;background:${SHARE_COL[i]}">${Math.round(100 * c.share / Math.min(pr.lien, pr.total))}%</div>`).join("")}</div>
-    <div class="scale"><span>₹0</span><span>Lien held ${inr(pr.lien)} · claims ${inr(pr.total)}${over ? ` · each victim gets ${(pr.ratio * 100).toFixed(1)}%` : ""}</span><span>${inr(Math.min(pr.lien, pr.total))}</span></div>
+    <div class="scale"><span>Lien held ${inr(pr.lien)} · claims ${inr(pr.total)}${over ? ` · each victim gets ${(pr.ratio * 100).toFixed(1)}%` : ""}</span></div>
     <table><tr><th>Victim</th><th>Claimed</th><th>Pro-rata release</th></tr>${pr.claims.map((c, i) => `<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${SHARE_COL[i]};margin-right:8px"></span>${c.victim} <span class="muted">${c.id}</span></td><td class="mono num">${inr(c.amount)}</td><td class="mono num"><b>${inr(c.share)}</b></td></tr>`).join("")}</table>
     <div class="foot"><button class="btn primary sm" id="approveSplit">${icon("check", 13)}Approve split draft</button><button class="btn ghost sm">Query victim</button><span class="muted" style="font-size:11.5px;margin-left:auto">draft for BNSS s.503 / SOP order</span></div>`;
   $("#approveSplit").addEventListener("click", async () => { const h = await sha("approve" + selAcct + Date.now()); toast(`Split draft approved for ${selAcct}`, `audit ${h.slice(0, 12)}… · status sent to ${proRata(selAcct).claims.length} victims`); });
@@ -941,6 +991,7 @@ function openTry() { $("#tryModal").classList.add("open"); }
 function closeTry() { $("#tryModal").classList.remove("open"); }
 $("#tryBtn").addEventListener("click", openTry);
 $("#tryNav").addEventListener("click", openTry);
+$("#tryNavM").addEventListener("click", openTry);
 $("#tryClose").addEventListener("click", closeTry);
 $("#tryModal").addEventListener("click", e => { if (e.target.id === "tryModal") closeTry(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeTry(); });
@@ -983,42 +1034,50 @@ async function runOCR(file) {
 }
 
 function parseReceipt(t) {
-  const txt = t.replace(/[|]/g, " ");
+  const txt = (t || "").replace(/[|]/g, " ");
   const out = { amount: null, utr: null, vpa: null, when: null, ack: null, aadhaar: false };
-  const amt = [...txt.matchAll(/(?:₹|Rs\.?|INR|%|\?)\s?([0-9]{1,3}(?:,[0-9]{2,3})*(?:\.[0-9]{1,2})?|[0-9]+(?:\.[0-9]{1,2})?)/gi)].map(m => Number(m[1].replace(/,/g, ""))).filter(n => n >= 1 && n < 1e8);
+  const amt = [...txt.matchAll(/(?:₹|Rs\.?|INR|%|\?)\s?([0-9]{1,3}(?:,[0-9]{2,3})+(?:\.[0-9]{1,2})?|[0-9]+(?:\.[0-9]{1,2})?)(?![0-9])/gi)].map(m => Number(m[1].replace(/,/g, ""))).filter(n => n >= 1 && n < 1e8);
   if (amt.length) out.amount = Math.max(...amt);
   if (!out.amount) {
     const lines = txt.split(/\n/).map(l => l.trim());
     const hit = lines.map(l => l.match(/^[^0-9A-Za-z]{0,3}([0-9]{1,2}(?:,[0-9]{2})*,[0-9]{3}(?:\.[0-9]{1,2})?|[0-9]{3,6}\.[0-9]{2})[^0-9A-Za-z]{0,3}$/)).find(Boolean);
     if (hit) out.amount = Number(hit[1].replace(/,/g, ""));
   }
-  const ref = txt.match(/(?:UTR|UPI\s*Ref(?:erence)?\.?\s*(?:No\.?|ID)?|UPI\s*transaction\s*ID|Ref(?:erence)?\s*No\.?|RRN)[^0-9]{0,12}([0-9]{12})/i);
+  const ref = txt.match(/(?:UTR|UPI\s*Ref(?:erence)?\.?\s*(?:No\.?|ID)?|UPI\s*transaction\s*ID|Ref(?:erence)?\s*No\.?|RRN)[^0-9]{0,12}([0-9]{12})(?![0-9])/i);
   out.utr = ref ? ref[1] : ((txt.match(/(?<![0-9])([0-9]{12})(?![0-9])/) || [])[1] || null);
-  const v = txt.match(/([a-zA-Z0-9.\-_]{2,})\s?@\s?([a-zA-Z]{2,})/); if (v) out.vpa = (v[1] + "@" + v[2]).toLowerCase();
-  const d = txt.match(/([0-3]?[0-9])\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*,?\s+(20[0-9]{2})(?:,?\s+([0-1]?[0-9]):([0-5][0-9])\s*(am|pm)?)?/i)
-    || txt.match(/([0-3]?[0-9])[\/\-.]([0-1]?[0-9])[\/\-.](20[0-9]{2})/);
-  if (d) {
-    const M = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
-    let mo = isNaN(d[2]) ? M[d[2].slice(0, 3).toLowerCase()] : Number(d[2]) - 1, hh = Number(d[4] || 12), mm = Number(d[5] || 0);
-    if (d[6] && /pm/i.test(d[6]) && hh < 12) hh += 12; if (d[6] && /am/i.test(d[6]) && hh === 12) hh = 0;
-    out.when = new Date(Number(d[3]), mo, Number(d[1]), hh, mm);
+  // UPI IDs end in a handle with no dot-domain after it (excludes emails such as support@bank.com)
+  const vpas = [...txt.matchAll(/([a-zA-Z0-9.\-_]{2,})\s?@\s?([a-zA-Z][a-zA-Z0-9]{1,})(?![.a-zA-Z0-9])/g)].map(m => (m[1] + "@" + m[2]).toLowerCase());
+  if (vpas.length) out.vpa = vpas[0];
+  const MON = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+  let Y, Mo, D;
+  let m = txt.match(/([0-3]?[0-9])(?:st|nd|rd|th)?\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?,?\s+(20[0-9]{2})/i);
+  if (m) { D = +m[1]; Mo = MON[m[2].slice(0, 3).toLowerCase()]; Y = +m[3]; }
+  else if ((m = txt.match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+([0-3]?[0-9]),?\s+(20[0-9]{2})/i))) { D = +m[2]; Mo = MON[m[1].slice(0, 3).toLowerCase()]; Y = +m[3]; }
+  else if ((m = txt.match(/([0-3]?[0-9])[\/\-.]([0-1]?[0-9])[\/\-.](20[0-9]{2})/))) { D = +m[1]; Mo = +m[2] - 1; Y = +m[3]; }
+  if (Y && Mo >= 0 && Mo < 12 && D >= 1 && D <= 31) {
+    const TIME = /\b([0-2]?[0-9]):([0-5][0-9])(?::[0-5][0-9])?\s*(am|pm|AM|PM)?/;
+    const near = txt.slice(Math.max(0, m.index - 30), m.index + m[0].length + 30);
+    let hh = 0, mm = 0; const tm = near.match(TIME) || txt.match(TIME);
+    if (tm) { hh = +tm[1]; mm = +tm[2]; if (tm[3] && /pm/i.test(tm[3]) && hh < 12) hh += 12; if (tm[3] && /am/i.test(tm[3]) && hh === 12) hh = 0; if (hh > 23) hh = 0; }
+    out.when = new Date(Y, Mo, D, hh, mm); out.timeFound = !!tm;
   }
   const a = txt.match(/(?<![0-9])([0-9]{14})(?![0-9])/); if (a) out.ack = a[1];
   out.aadhaar = /\b[2-9][0-9]{3}\s[0-9]{4}\s[0-9]{4}\b/.test(txt);
   return out;
 }
+const escAttr = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const toLocalInput = d => d ? new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16) : "";
 
 function renderTry(f) {
   const found = k => f[k] ? `<span class="pill good">${icon("check", 11)} found</span>` : `<span class="pill warn">${icon("alert", 11)} add</span>`;
   $("#tryRes").innerHTML = `<h4>${icon("scan", 15, 'style="color:var(--gold)"')}Fields read from your screenshot <span class="muted" style="font-weight:400;font-size:12px">edit anything the OCR got wrong</span></h4>
   <table class="tbl2">
-    <tr><td>Amount paid (₹)</td><td><input id="f-amt" value="${f.amount ?? ""}" inputmode="decimal"></td><td>${found("amount")}</td></tr>
-    <tr><td>UTR / UPI Ref</td><td><input id="f-utr" value="${f.utr ?? ""}" maxlength="12"></td><td>${found("utr")}</td></tr>
-    <tr><td>Paid to (VPA)</td><td><input id="f-vpa" value="${f.vpa ?? ""}"></td><td>${found("vpa")}</td></tr>
-    <tr><td>Paid at</td><td><input id="f-when" type="datetime-local" value="${toLocalInput(f.when)}"></td><td>${found("when")}</td></tr>
+    <tr><td>Amount paid (₹)</td><td><input id="f-amt" value="${escAttr(f.amount)}" inputmode="decimal"></td><td>${found("amount")}</td></tr>
+    <tr><td>UTR / UPI Ref</td><td><input id="f-utr" value="${escAttr(f.utr)}" maxlength="12" inputmode="numeric"></td><td>${found("utr")}</td></tr>
+    <tr><td>Paid to (VPA)</td><td><input id="f-vpa" value="${escAttr(f.vpa)}"></td><td>${found("vpa")}</td></tr>
+    <tr><td>Paid at</td><td><input id="f-when" type="datetime-local" value="${toLocalInput(f.when)}"></td><td>${f.when && !f.timeFound ? `<span class="pill warn">${icon("alert", 11)} check time</span>` : found("when")}</td></tr>
     <tr><td>Reported to 1930 at</td><td><input id="f-rep" type="datetime-local" value="${f.when ? toLocalInput(new Date(f.when.getTime() + 40 * 6e4)) : ""}"></td><td><span class="pill neutral">you add</span></td></tr>
-    <tr><td>Held in scammer a/c (₹)</td><td><input id="f-held" value="${f.amount ?? ""}" inputmode="decimal"></td><td><span class="pill neutral">from police SMS</span></td></tr>
+    <tr><td>Held in scammer a/c (₹)</td><td><input id="f-held" value="${escAttr(f.amount)}" inputmode="decimal"></td><td><span class="pill neutral">from police SMS</span></td></tr>
   </table>
   ${f.aadhaar ? `<div class="callout" style="margin-top:8px">${icon("lock", 15)}<div>An Aadhaar-like number was detected. It is never shown or stored.</div></div>` : ""}
   <div style="display:flex;gap:8px;margin-top:10px;align-items:center"><button class="btn primary sm" id="buildPlan">${icon("route", 13)}Build my recovery plan</button><button class="btn ghost sm" id="showRaw">Show raw OCR text</button></div>
@@ -1028,10 +1087,12 @@ function renderTry(f) {
 }
 
 function buildTryPlan() {
-  const amt = Number(($("#f-amt").value || "0").replace(/,/g, "")), held = Number(($("#f-held").value || "0").replace(/,/g, ""));
+  const num = v => { const n = Number(String(v || "").replace(/[₹,\s]/g, "")); return isFinite(n) && n > 0 ? n : 0; };
+  const amt = num($("#f-amt").value), held = num($("#f-held").value);
   const when = $("#f-when").value ? new Date($("#f-when").value) : null, rep = $("#f-rep").value ? new Date($("#f-rep").value) : null;
-  const utr = $("#f-utr").value.trim(), vpa = $("#f-vpa").value.trim();
+  const utr = $("#f-utr").value.replace(/\s/g, ""), vpa = $("#f-vpa").value.trim();
   const errs = []; if (!amt) errs.push("amount"); if (!/^[0-9]{12}$/.test(utr)) errs.push("12-digit UTR"); if (!when) errs.push("payment time"); if (!rep) errs.push("report time");
+  if (when && rep && rep < when) errs.push("a report time after the payment time");
   if (errs.length) { $("#outcome").innerHTML = `<div class="callout">${icon("alert", 15)}<div>Please add: ${errs.join(", ")}.</div></div>`; return; }
   const mins = Math.round((rep - when) / 6e4), fir = held > R.SOP_SMALL_HOLD, bankDue = addWD(when, R.BANK_REPORT_WD), holdLift = addD(rep, R.HOLD_LIFT_DAYS), now = new Date();
   const golden = mins >= 0 && mins <= 60;
@@ -1066,7 +1127,7 @@ function buildTryPlan() {
 })();
 
 /* ================= Boot ================= */
-charts(); rulesTable(); buildPipeline(); show(params.get("view") || "victim");
+charts(); rulesTable(); buildPipeline(); const VIEWS = ["victim", "console", "impact", "rules"]; if (!VIEWS.includes(params.get("view"))) params.delete("view"); show(params.get("view") || "victim");
 if (params.has("autoplay")) autoplay();
 else if (params.get("view") === "console") { /* console shown */ }
 else { SPEED = Number(params.get("speed") || 0.45); runVictim(false); }
