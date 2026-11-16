@@ -3,7 +3,7 @@
 **A multi-agent copilot that turns frozen scam money into filed refund claims.**
 FinTech track · K! Hacks 4.0 (CEG Tech Forum, Anna University) · Team Golden Hour, Chennai Institute of Technology
 
-![Golden Hour demo: bank console](screenshots/bank-console.png)
+![Golden Hour: victim journey and agent orchestration](screenshots/victim-evidence.png)
 
 > **Concept prototype for the Round 1 idea submission.** It runs entirely on synthetic data. It does not connect to any real bank, police or government portal. The finals build will be developed during the 24-hour hackathon, as the rules require.
 
@@ -48,15 +48,24 @@ Two crews of agents share one case packet.
 
 ## Demo
 
-- **Video (85 s):** [`video/golden-hour-demo.mp4`](video/golden-hour-demo.mp4)
+- **Video (99 s):** [`video/golden-hour-demo.mp4`](video/golden-hour-demo.mp4)
 - **Run it locally:** open `index.html` in a browser. It is one self-contained file with no build step.
   - `index.html?autoplay=1&captions=1` plays the scripted walkthrough with captions.
   - `index.html?view=bank` opens the bank console. Click any case to reconcile its account.
 - **Host it:** enable GitHub Pages for this repo (Settings → Pages → Deploy from branch → `main` / root). The demo is then served at `https://mahak867.github.io/Golden-Hour/`.
 
-| Victim crew | Bank crew |
+The prototype has four views:
+
+- **Victim journey:** a Telegram conversation in Tamil and Tanglish, plus a live agent pipeline. Its inspector has tabs for Evidence, Routes, Drafts, Deadlines, Safety & audit, and the case packet JSON.
+- **Fraud-ops console:** KPIs, the case queue, lien reconciliation and the mule-graph explainer with hover evidence.
+- **Impact:** real public data on where Tamil Nadu's scam money went.
+- **Rules & sources:** every rule value used by the planners, with its source and whether it still needs checking.
+
+| Victim journey · evidence | Victim journey · deadlines |
 |---|---|
-| ![Victim flow](screenshots/victim-flow.png) | ![Bank console](screenshots/bank-console.png) |
+| ![Evidence](screenshots/victim-evidence.png) | ![Deadlines](screenshots/victim-deadlines.png) |
+| **Fraud-ops console** | **Impact (real data)** |
+| ![Bank console](screenshots/bank-console.png) | ![Impact](screenshots/impact.png) |
 
 ### What is real in the prototype
 
@@ -66,6 +75,7 @@ These parts are working code:
 - **Deadline calculations:** working-day arithmetic.
 - **Pro-rata lien reconciliation:** rounding is exact to the rupee.
 - **Mule clustering:** union-find over graph edges.
+- **Audit chain:** each state change is SHA-256 hashed onto the previous block (Web Crypto).
 
 These parts are scripted for the demo:
 
@@ -85,7 +95,7 @@ Golden Hour is free for victims. It is a B2B2C product: banks pay per case or pe
 | Path | What it is |
 |---|---|
 | `index.html` | Clickable prototype (victim crew + bank crew) |
-| `fonts/` | Noto Sans Tamil (SIL Open Font License) |
+| `fonts/` | Inter, JetBrains Mono, Noto Sans Tamil (SIL Open Font License) |
 | `video/` | Demo walkthrough (MP4) |
 | `screenshots/` | Prototype screenshots |
 | `charts/` | Charts built from cited public figures, plus the architecture diagram (`charts.html` is the source) |

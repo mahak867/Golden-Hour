@@ -4,416 +4,888 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Golden Hour Prototype</title>
+<meta name="description" content="Golden Hour: a multi-agent copilot that turns frozen scam money into filed refund claims. Concept prototype on synthetic data.">
 <style>
-@font-face { font-family: "Noto Sans Tamil"; src: url("fonts/NotoSansTamil.ttf") format("truetype"); font-weight: 100 900; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter.ttf") format("truetype"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono.ttf") format("truetype"); font-weight: 100 800; font-display: swap; }
+@font-face { font-family: "Noto Sans Tamil"; src: url("fonts/NotoSansTamil.ttf") format("truetype"); font-weight: 100 900; font-display: swap; }
+
 :root {
-  --bg: #0b1020; --panel: #121a30; --panel-2: #18223d; --line: #26324f;
-  --text: #eef2fb; --text-2: #b4bdd3; --muted: #7d88a3;
-  --accent: #d9ff43; --blue: #3987e5; --blue-soft: #1c2c4f;
-  --good: #0ca30c; --warn: #fab219; --serious: #ec835a; --critical: #d03b3b;
-  --tg-bg: #0e1621; --tg-in: #182533; --tg-out: #2b5278;
-  font-family: "Inter", "Segoe UI", system-ui, -apple-system, "Noto Sans Tamil", sans-serif;
+  --ink-0: #06080d; --ink-1: #0a0d15; --ink-2: #0f131e; --ink-3: #151a28; --ink-4: #1c2233;
+  --line: rgba(255,255,255,.07); --line-2: rgba(255,255,255,.12); --line-3: rgba(255,255,255,.18);
+  --text: #f3f1ec; --text-2: #aeb2bf; --muted: #717789; --faint: #4b5163;
+  --gold: #f2b84b; --gold-2: #ffd98a; --amber: #e8892f; --gold-ink: #1a1305;
+  --good: #3ccf8e; --warn: #f5a524; --crit: #f2555a; --info: #6aa7ff; --violet: #a78bfa;
+  --c-blue: #3987e5; --c-orange: #d95926;
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --shadow-1: 0 1px 0 rgba(255,255,255,.04) inset, 0 1px 2px rgba(0,0,0,.4);
+  --shadow-2: 0 1px 0 rgba(255,255,255,.05) inset, 0 12px 32px -12px rgba(0,0,0,.7), 0 2px 6px rgba(0,0,0,.35);
+  --font: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans Tamil", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; background: var(--bg); color: var(--text); }
-body { min-height: 100vh; font-size: 14px; line-height: 1.45; }
-.ta { font-family: "Noto Sans Tamil", system-ui, sans-serif; }
-header { display: flex; align-items: center; gap: 16px; padding: 12px 20px; border-bottom: 1px solid var(--line); background: #0d1428; }
-.brand { display: flex; align-items: baseline; gap: 10px; }
-.brand b { font-size: 20px; letter-spacing: .5px; color: var(--accent); }
-.brand span { color: var(--text-2); font-size: 13px; }
-.tabs { display: flex; gap: 6px; margin-left: 12px; }
-.tab { background: transparent; border: 1px solid var(--line); color: var(--text-2); padding: 7px 14px; border-radius: 8px; cursor: pointer; font: inherit; }
-.tab.active { background: var(--blue-soft); color: var(--text); border-color: var(--blue); }
-.badge-syn { margin-left: auto; font-size: 12px; color: var(--warn); border: 1px solid #5a4a1a; background: #2a2210; padding: 4px 10px; border-radius: 999px; }
-main { padding: 18px 20px 90px; }
-.view { display: none; } .view.active { display: block; }
+html, body { margin: 0; height: 100%; background: var(--ink-0); color: var(--text); font-family: var(--font); font-size: 13.5px; line-height: 1.45; -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss01", "tnum"; }
+body { overflow: hidden; }
+button { font: inherit; color: inherit; }
+.ta { font-family: "Noto Sans Tamil", var(--font); }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: -.01em; }
+.muted { color: var(--muted); } .t2 { color: var(--text-2); }
+svg { display: block; }
 
-/* Victim view */
-.victim { display: grid; grid-template-columns: 400px 1fr; gap: 20px; align-items: start; }
-.phone { background: var(--tg-bg); border: 1px solid var(--line); border-radius: 28px; height: 760px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 40px #0008; }
-.tg-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #17212b; border-bottom: 1px solid #0b1118; }
-.avatar { width: 36px; height: 36px; font-size: 13px; border-radius: 50%; background: linear-gradient(135deg, #d9ff43, #3987e5); display: grid; place-items: center; color: #0b1020; font-weight: 800; }
-.tg-head small { color: #6c7f94; display: block; font-size: 12px; }
-.chat { flex: 1; overflow-y: auto; padding: 12px 10px; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth; }
-.msg { max-width: 86%; padding: 8px 10px; border-radius: 12px; font-size: 13.5px; animation: pop .25s ease-out; }
-.msg.in { background: var(--tg-in); align-self: flex-start; border-bottom-left-radius: 4px; }
-.msg.out { background: var(--tg-out); align-self: flex-end; border-bottom-right-radius: 4px; }
-.msg .meta { display: block; font-size: 11px; color: #8da2b8; margin-top: 4px; text-align: right; }
-.msg .tr { display: block; color: #9fb4c9; font-size: 12px; margin-top: 4px; border-top: 1px dashed #36506b; padding-top: 4px; }
-.voice { display: flex; align-items: center; gap: 8px; }
-.voice .play { width: 30px; height: 30px; border-radius: 50%; background: #5288c1; display: grid; place-items: center; font-size: 12px; }
-.wave { display: flex; gap: 2px; align-items: center; height: 24px; }
-.wave i { width: 3px; background: #9cc3ec; border-radius: 2px; display: block; }
-.receipt { background: #fff; color: #111; border-radius: 10px; padding: 12px; width: 230px; position: relative; overflow: hidden; font-size: 12px; }
-.receipt .ok { color: #188038; font-weight: 700; font-size: 13px; }
-.receipt .amt { font-size: 24px; font-weight: 800; margin: 4px 0; }
-.receipt .row { display: flex; justify-content: space-between; gap: 8px; margin-top: 3px; }
-.receipt .row span:first-child { color: #666; }
-.receipt .wm { position: absolute; inset: 0; display: grid; place-items: center; transform: rotate(-24deg); font-weight: 900; font-size: 30px; color: #d03b3b33; letter-spacing: 3px; pointer-events: none; }
-.btnrow { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-.chip { background: #24384f; border: 1px solid #3a5878; color: #d4e5f7; border-radius: 8px; padding: 5px 9px; font-size: 12px; }
-.typing { color: #8da2b8; font-size: 12px; padding: 0 12px 8px; height: 22px; }
-.compose { display: flex; gap: 8px; padding: 10px; background: #17212b; }
-.compose input { flex: 1; background: #0e1621; border: 1px solid #22303d; color: var(--text); border-radius: 18px; padding: 8px 12px; font: inherit; }
-.compose button { background: #5288c1; border: 0; color: white; border-radius: 18px; padding: 0 14px; font: inherit; cursor: pointer; }
+/* ---------- App shell ---------- */
+.app { display: grid; grid-template-columns: 236px 1fr; height: 100vh; }
+.side { background: linear-gradient(180deg, #0b0f19, #080a11); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 18px 14px; gap: 18px; }
+.logo { display: flex; align-items: center; gap: 11px; padding: 4px 6px 10px; }
+.logo .mark { width: 34px; height: 34px; border-radius: 10px; background: radial-gradient(circle at 30% 25%, #ffe6a8, #f2b84b 45%, #b8661c); box-shadow: 0 0 0 1px rgba(255,217,138,.35) inset, 0 6px 18px -6px rgba(242,184,75,.6); display: grid; place-items: center; }
+.logo b { display: block; font-size: 15px; letter-spacing: -.01em; }
+.logo small { color: var(--muted); font-size: 11.5px; }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav .grp { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); padding: 10px 10px 6px; font-weight: 600; }
+.nav button { white-space: nowrap; display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 0; background: transparent; border-radius: 9px; color: var(--text-2); cursor: pointer; text-align: left; transition: background-color .16s ease, color .16s ease, transform .16s var(--ease-out); position: relative; }
+.nav button svg { opacity: .8; }
+.nav button .count { margin-left: auto; font-size: 11px; color: var(--muted); background: var(--ink-3); border: 1px solid var(--line); padding: 0 7px; border-radius: 999px; }
+.nav button.active { background: linear-gradient(90deg, rgba(242,184,75,.14), rgba(242,184,75,.03)); color: var(--text); }
+.nav button.active::before { content: ""; position: absolute; left: -14px; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: var(--gold); }
+.nav button.active svg { color: var(--gold); opacity: 1; }
+.nav button:active { transform: scale(0.98); }
+@media (hover: hover) and (pointer: fine) { .nav button:hover:not(.active) { background: rgba(255,255,255,.04); color: var(--text); } }
+.side .sandbox { margin-top: auto; border: 1px solid rgba(245,165,36,.25); background: linear-gradient(180deg, rgba(245,165,36,.08), rgba(245,165,36,.02)); border-radius: 12px; padding: 12px; font-size: 12px; color: #f3d9a4; }
+.side .sandbox b { display: flex; align-items: center; gap: 6px; color: var(--warn); font-size: 12px; margin-bottom: 4px; }
+.side .team { display: flex; align-items: center; gap: 10px; padding: 10px 6px 2px; border-top: 1px solid var(--line); }
+.av { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #0b0e16; flex: none; }
 
-.trace h2, .bank h2 { margin: 0 0 10px; font-size: 15px; color: var(--text-2); font-weight: 600; letter-spacing: .3px; text-transform: uppercase; }
-.agents { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 14px; }
-.agent { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; transition: all .3s; min-height: 64px; }
-.agent .n { font-size: 11px; color: var(--muted); }
-.agent .t { font-size: 13px; font-weight: 600; }
-.agent.run { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
-.agent.done { border-color: #2d5a2d; }
-.agent.done .n::after { content: " ✓ done"; color: var(--good); }
-.agent.run .n::after { content: " ● running"; color: var(--accent); }
-.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; animation: pop .3s ease-out; }
-.card h3 { margin: 0 0 8px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
-.card h3 .tag { font-size: 11px; font-weight: 500; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
-.card.wide { grid-column: span 2; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-td.mono:first-child { white-space: nowrap; }
-td, th { text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
-th { color: var(--muted); font-weight: 500; font-size: 12px; }
-.conf { display: inline-block; height: 6px; border-radius: 3px; background: var(--good); vertical-align: middle; margin-right: 6px; }
-.mono { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 12.5px; }
-.redact { background: #2a3350; color: var(--text-2); border-radius: 4px; padding: 0 5px; }
-.route { border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; margin-bottom: 8px; background: var(--panel-2); }
-.route .why { color: var(--text-2); font-size: 12.5px; margin-top: 3px; }
-.route .src { font-size: 11px; color: var(--muted); margin-top: 3px; }
-.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; border-radius: 999px; padding: 2px 9px; border: 1px solid; white-space: nowrap; }
-.pill.good { color: #7ee07e; border-color: #2d5a2d; background: #0f2a10; }
-.pill.warn { color: #ffd166; border-color: #6b5214; background: #2b220b; }
-.pill.crit { color: #ff8a8a; border-color: #6b2222; background: #2b0f0f; }
-.pill.info { color: #9cc3ec; border-color: #2b4a73; background: #10203a; }
-.timeline { position: relative; margin: 6px 4px 4px; height: 92px; }
-.timeline .bar { position: absolute; left: 0; right: 0; top: 40px; height: 4px; background: var(--line); border-radius: 2px; }
-.timeline .prog { position: absolute; left: 0; top: 40px; height: 4px; background: var(--accent); border-radius: 2px; }
-.tick { position: absolute; top: 0; transform: translateX(-50%); text-align: center; font-size: 11.5px; width: 130px; }
-.tick .dot { width: 12px; height: 12px; border-radius: 50%; margin: 34px auto 6px; border: 2px solid var(--bg); }
-.tick .lbl { color: var(--text-2); }
-.tick .d { color: var(--text); font-weight: 600; position: absolute; top: 4px; left: 0; right: 0; }
-.doc { background: #f7f7f2; color: #1a1a1a; border-radius: 8px; padding: 12px 14px; font-size: 12px; line-height: 1.5; max-height: 210px; overflow: hidden; position: relative; font-family: Georgia, serif; }
-.doc::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 40px; background: linear-gradient(transparent, #f7f7f2); }
-.doc b { font-family: system-ui, sans-serif; }
-.approve { display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap; }
-.btn { background: var(--accent); color: #0b1020; border: 0; border-radius: 8px; padding: 7px 12px; font-weight: 700; cursor: pointer; font: inherit; font-weight: 700; }
-.btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); font-weight: 500; }
-.note { font-size: 12px; color: var(--muted); }
+.main { display: grid; grid-template-rows: 60px 1fr; min-width: 0; background: radial-gradient(1200px 500px at 70% -10%, rgba(242,184,75,.06), transparent 60%), var(--ink-0); }
+.top { display: flex; align-items: center; gap: 14px; padding: 0 24px; border-bottom: 1px solid var(--line); background: rgba(8,10,16,.6); backdrop-filter: blur(12px); }
+.crumb { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; white-space: nowrap; }
+.crumb b { color: var(--text); font-weight: 600; }
+.search { margin-left: 18px; flex: 1; max-width: 380px; display: flex; align-items: center; gap: 8px; background: var(--ink-2); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; color: var(--muted); }
+.search kbd { margin-left: auto; font-family: var(--mono); font-size: 10.5px; border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 5px; color: var(--text-2); }
+.top .right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.envpill { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; padding: 5px 10px; border-radius: 999px; border: 1px solid rgba(60,207,142,.25); background: rgba(60,207,142,.07); color: #9be8c4; }
+.envpill i { width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 3px rgba(60,207,142,.18); }
+.clock { font-family: var(--mono); font-size: 12px; color: var(--text-2); }
+.iconbtn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line); background: var(--ink-2); display: grid; place-items: center; color: var(--text-2); position: relative; }
+.iconbtn .dot { position: absolute; top: 7px; right: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 2px var(--ink-2); }
 
-/* Bank view */
-.bank { display: grid; grid-template-columns: 1.05fr 1fr; gap: 16px; }
-.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; grid-column: span 2; }
-.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
-.kpi .v { font-size: 24px; font-weight: 800; }
-.kpi .l { color: var(--text-2); font-size: 12.5px; }
-tr.sel td { background: #1a2a4a; }
-tr.click { cursor: pointer; }
-.split { display: flex; height: 26px; border-radius: 6px; overflow: hidden; gap: 2px; margin: 8px 0 4px; }
-.split div { display: grid; place-items: center; font-size: 11.5px; color: #0b1020; font-weight: 700; }
-#graph { width: 100%; height: 290px; background: var(--panel-2); border-radius: 10px; border: 1px solid var(--line); }
-#graph text { fill: var(--text-2); font-size: 10.5px; }
-.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--text-2); margin-top: 6px; }
-.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
-.explain { background: var(--panel-2); border-left: 3px solid var(--accent); padding: 8px 10px; border-radius: 6px; font-size: 13px; margin-top: 8px; }
+.content { position: relative; overflow: hidden; padding: 22px 24px; min-height: 0; }
+.view { position: absolute; inset: 22px 24px; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .32s var(--ease-out), transform .32s var(--ease-out); }
+.view.active { opacity: 1; transform: none; pointer-events: auto; }
 
-#card { position: fixed; inset: 0; background: radial-gradient(circle at 30% 30%, #1c2c4f, #0b1020 70%); display: none; place-items: center; z-index: 20; text-align: center; padding: 40px; }
-#card.show { display: grid; animation: pop .4s ease-out; }
-#card h1 { font-size: 64px; margin: 0; color: var(--accent); letter-spacing: 1px; }
-#card p { font-size: 22px; color: var(--text-2); margin: 10px auto 0; max-width: 1000px; }
-#card .big { font-size: 30px; color: var(--text); margin-top: 26px; }
-#card .big b { color: var(--accent); }
-/* captions for recorded walkthrough */
-#caption { position: fixed; left: 50%; bottom: 34px; transform: translateX(-50%); max-width: 1100px; width: calc(100% - 40px); background: #000c; border: 1px solid #ffffff22; color: #fff; padding: 12px 18px; border-radius: 12px; font-size: 18px; text-align: center; display: none; z-index: 10; backdrop-filter: blur(6px); }
-#caption b { color: var(--accent); }
-#caption.show { display: block; animation: pop .3s ease-out; }
-@keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-#caption.show { transform: translateX(-50%); }
-.disclaimer { position: fixed; left: 0; right: 0; bottom: 0; text-align: center; padding: 5px; font-size: 11px; color: var(--muted); background: #0b1020e6; border-top: 1px solid var(--line); }
-@media (max-width: 1100px) { .victim, .bank { grid-template-columns: 1fr; } .kpis { grid-column: auto; grid-template-columns: repeat(2, 1fr); } .agents { grid-template-columns: repeat(3, 1fr); } .cards { grid-template-columns: 1fr; } .card.wide { grid-column: auto; } }
+/* ---------- Generic surfaces ---------- */
+.panel { background: linear-gradient(180deg, var(--ink-2), #0c1019); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-2); }
+.ph { display: flex; align-items: center; gap: 10px; padding: 14px 16px 10px; }
+.ph h3 { margin: 0; font-size: 13.5px; font-weight: 600; letter-spacing: -.005em; display: flex; align-items: center; gap: 8px; }
+.ph .sub { color: var(--muted); font-size: 12px; }
+.ph .end { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.eyebrow { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 500; border-radius: 999px; padding: 2px 9px; border: 1px solid; white-space: nowrap; line-height: 1.5; }
+.pill.good { color: #8eeac0; border-color: rgba(60,207,142,.3); background: rgba(60,207,142,.08); }
+.pill.warn { color: #ffd38a; border-color: rgba(245,165,36,.32); background: rgba(245,165,36,.08); }
+.pill.crit { color: #ff9ea1; border-color: rgba(242,85,90,.35); background: rgba(242,85,90,.08); }
+.pill.info { color: #a9cbff; border-color: rgba(106,167,255,.3); background: rgba(106,167,255,.08); }
+.pill.gold { color: var(--gold-2); border-color: rgba(242,184,75,.35); background: rgba(242,184,75,.1); }
+.pill.neutral { color: var(--text-2); border-color: var(--line-2); background: rgba(255,255,255,.03); }
+.btn { display: inline-flex; align-items: center; gap: 7px; border: 0; border-radius: 10px; padding: 8px 13px; font-weight: 600; cursor: pointer; transition: transform .16s var(--ease-out), box-shadow .2s ease, background-color .2s ease; white-space: nowrap; }
+.btn:active { transform: scale(0.97); }
+.btn.primary { color: var(--gold-ink); background: linear-gradient(180deg, #ffd98a, #f2b84b 55%, #e09a35); box-shadow: 0 0 0 1px rgba(255,217,138,.5) inset, 0 8px 20px -8px rgba(242,184,75,.65); }
+.btn.ghost { background: rgba(255,255,255,.04); border: 1px solid var(--line-2); color: var(--text); font-weight: 500; }
+.btn.sm { padding: 6px 10px; font-size: 12.5px; border-radius: 9px; }
+@media (hover: hover) and (pointer: fine) { .btn.primary:hover { box-shadow: 0 0 0 1px rgba(255,217,138,.7) inset, 0 10px 26px -8px rgba(242,184,75,.8); } .btn.ghost:hover { background: rgba(255,255,255,.07); } }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--line); }
+td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---------- Victim journey ---------- */
+.journey { display: grid; grid-template-columns: 368px 1fr; gap: 24px; height: 100%; }
+.device { position: relative; width: 368px; height: 100%; max-height: 796px; border-radius: 54px; padding: 11px; background: linear-gradient(145deg, #2a2d36, #121318 40%, #22252d); box-shadow: 0 0 0 1px rgba(255,255,255,.08) inset, 0 30px 60px -20px rgba(0,0,0,.9), 0 0 0 1px #000; }
+.device::before { content: ""; position: absolute; right: -3px; top: 150px; width: 3px; height: 72px; border-radius: 0 3px 3px 0; background: #2a2d36; }
+.screen { position: relative; height: 100%; border-radius: 44px; overflow: hidden; background: #0e1117; display: flex; flex-direction: column; }
+.island { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 104px; height: 30px; border-radius: 20px; background: #000; z-index: 3; }
+.status { height: 46px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 26px 6px 32px; font-size: 13px; font-weight: 600; flex: none; }
+.status .sig { display: flex; gap: 5px; align-items: center; }
+.tghead { display: flex; align-items: center; gap: 10px; padding: 8px 14px 10px; background: rgba(20,24,33,.92); border-bottom: 1px solid rgba(255,255,255,.05); flex: none; }
+.tghead .back { color: #6aa7ff; display: flex; align-items: center; gap: 2px; font-size: 13px; }
+.tghead .who { flex: 1; min-width: 0; text-align: center; }
+.tghead .who small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tghead .who b { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; white-space: nowrap; }
+.tghead .who small { display: block; color: #7d8597; font-size: 11.5px; }
+.botav { width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #ffe6a8, #f2b84b 45%, #b8661c); display: grid; place-items: center; }
+.chat { flex: 1; overflow-y: auto; padding: 12px 10px 6px; display: flex; flex-direction: column; gap: 6px; scroll-behavior: smooth; scrollbar-width: none;
+  background-color: #0e1117;
+  background-image: radial-gradient(rgba(242,184,75,.06) 1px, transparent 1.2px), radial-gradient(rgba(106,167,255,.05) 1px, transparent 1.2px);
+  background-size: 22px 22px, 22px 22px; background-position: 0 0, 11px 11px; }
+.chat::-webkit-scrollbar { display: none; }
+.daysep { align-self: center; font-size: 11px; color: #c8cdd8; background: rgba(0,0,0,.35); padding: 2px 10px; border-radius: 999px; margin: 4px 0; }
+.bub { max-width: 84%; padding: 7px 10px 6px; border-radius: 16px; font-size: 13px; line-height: 1.42; position: relative; transform-origin: bottom left; animation: bubIn .32s var(--ease-out) both; }
+.bub.in { background: #1d2330; align-self: flex-start; border-bottom-left-radius: 5px; }
+.bub.out { background: linear-gradient(180deg, #2f5d93, #2a5486); align-self: flex-end; border-bottom-right-radius: 5px; transform-origin: bottom right; }
+@keyframes bubIn { from { opacity: 0; transform: translateY(8px) scale(0.96); } to { opacity: 1; transform: none; } }
+.bub .meta { display: flex; justify-content: flex-end; align-items: center; gap: 3px; font-size: 10.5px; color: rgba(214,224,240,.6); margin-top: 3px; }
+.bub .meta svg { color: #8fc1ff; }
+.bub .tr { display: block; color: #a8b6c9; font-size: 11.5px; margin-top: 5px; padding-top: 5px; border-top: 1px dashed rgba(255,255,255,.12); }
+.bub.out .tr { color: #cfe0f5; border-top-color: rgba(255,255,255,.2); }
+.bub .kb { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 7px; }
+.bub .kb span { font-size: 11.5px; text-align: center; padding: 6px 4px; border-radius: 9px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); color: #d7e4f5; }
+.bub .kb span.full { grid-column: span 2; }
+.bub .kb span.chosen { background: rgba(242,184,75,.16); border-color: rgba(242,184,75,.4); color: var(--gold-2); }
+.voice { display: flex; align-items: center; gap: 9px; min-width: 230px; }
+.voice .play { width: 34px; height: 34px; border-radius: 50%; background: #fff; color: #2a5486; display: grid; place-items: center; flex: none; }
+.voice .wv { display: flex; gap: 2px; align-items: center; height: 26px; flex: 1; }
+.voice .wv i { flex: 1; border-radius: 2px; background: rgba(255,255,255,.4); transition: background-color .2s linear; }
+.voice .wv i.on { background: #fff; }
+.voice .dur { font-size: 11px; color: #d7e4f5; }
+.rcpt { width: 232px; background: #fff; color: #15171c; border-radius: 12px; padding: 12px 12px 10px; position: relative; overflow: hidden; font-size: 11.5px; }
+.rcpt .hd { display: flex; align-items: center; gap: 6px; color: #188038; font-weight: 700; font-size: 12px; }
+.rcpt .amt { font-size: 26px; font-weight: 800; letter-spacing: -.02em; margin: 2px 0 6px; }
+.rcpt .row { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; border-top: 1px solid #eee; }
+.rcpt .row span:first-child { color: #6b6f78; }
+.rcpt .wm { position: absolute; inset: 0; display: grid; place-items: center; transform: rotate(-22deg); font-weight: 900; font-size: 28px; color: rgba(242,85,90,.18); letter-spacing: 4px; pointer-events: none; }
+.typing { display: inline-flex; gap: 4px; align-self: flex-start; background: #1d2330; padding: 10px 12px; border-radius: 16px; border-bottom-left-radius: 5px; animation: bubIn .25s var(--ease-out) both; }
+.typing i { width: 6px; height: 6px; border-radius: 50%; background: #8a93a6; animation: blink 1.1s infinite ease-in-out; }
+.typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes blink { 0%, 60%, 100% { opacity: .3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-2px); } }
+.composer { display: flex; align-items: center; gap: 8px; padding: 8px 10px 22px; background: rgba(20,24,33,.95); border-top: 1px solid rgba(255,255,255,.05); flex: none; }
+.composer .field { flex: 1; background: #0e1117; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 8px 12px; color: #6f7789; font-size: 12.5px; }
+.composer .mic { width: 34px; height: 34px; border-radius: 50%; background: #2f5d93; display: grid; place-items: center; color: white; }
+.homebar { position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%); width: 120px; height: 4px; border-radius: 4px; background: rgba(255,255,255,.55); }
+
+.orch { display: grid; grid-template-rows: auto auto 1fr; gap: 14px; min-width: 0; height: 100%; max-height: 796px; }
+.orch-head { display: flex; align-items: center; gap: 14px; }
+.orch-head h2 { margin: 0; font-size: 20px; letter-spacing: -.02em; font-weight: 650; }
+.orch-head .sub { color: var(--muted); font-size: 12.5px; }
+.orch-head .stats { margin-left: auto; display: flex; gap: 18px; align-items: center; }
+.stat { text-align: right; } .stat b { display: block; font-size: 15px; font-family: var(--mono); font-weight: 600; } .stat span { font-size: 11px; color: var(--muted); }
+.pipeline { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; padding: 16px; }
+.pipeline .rail { position: absolute; left: 60px; right: 60px; top: 37px; height: 2px; background: var(--line-2); border-radius: 2px; }
+.pipeline .rail i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, var(--gold), var(--gold-2)); border-radius: 2px; box-shadow: 0 0 12px rgba(242,184,75,.6); transition: width .6s var(--ease-in-out); }
+.node { position: relative; text-align: center; z-index: 1; }
+.node .ring { width: 42px; height: 42px; margin: 0 auto 8px; border-radius: 50%; display: grid; place-items: center; background: var(--ink-3); border: 1px solid var(--line-2); color: var(--muted); transition: background-color .3s ease, border-color .3s ease, color .3s ease, box-shadow .3s ease; position: relative; }
+.node .ring::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 1px solid var(--gold); opacity: 0; }
+.node.run .ring { border-color: var(--gold); color: var(--gold-2); background: rgba(242,184,75,.1); box-shadow: 0 0 24px -4px rgba(242,184,75,.6); }
+.node.run .ring::after { animation: pulse 1.4s var(--ease-out) infinite; }
+@keyframes pulse { from { opacity: .8; transform: scale(.92); } to { opacity: 0; transform: scale(1.25); } }
+.node.done .ring { background: linear-gradient(180deg, #ffd98a, #f2b84b); color: var(--gold-ink); border-color: transparent; }
+.node b { display: block; font-size: 12.5px; font-weight: 600; }
+.node small { display: block; font-size: 11px; color: var(--muted); margin-top: 1px; font-family: var(--mono); }
+.node.run small { color: var(--gold-2); }
+.node.done small { color: #8eeac0; }
+
+.inspector { display: grid; grid-template-rows: auto 1fr; min-height: 0; overflow: hidden; }
+.itabs { display: flex; gap: 2px; padding: 8px 10px 0; border-bottom: 1px solid var(--line); }
+.itab { border: 0; background: transparent; color: var(--muted); padding: 9px 12px 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; font-weight: 500; position: relative; transition: color .16s ease; }
+.itab .st { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); }
+.itab.ready .st { background: var(--good); }
+.itab.active { color: var(--text); }
+.itab.active::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 2px; border-radius: 2px; background: var(--gold); }
+.itab:disabled { cursor: default; opacity: .55; }
+.ibody { position: relative; overflow: hidden; }
+.pane { position: absolute; inset: 0; padding: 16px 18px; overflow: auto; opacity: 0; transform: translateY(4px); filter: blur(2px); pointer-events: none; transition: opacity .28s var(--ease-out), transform .28s var(--ease-out), filter .28s var(--ease-out); scrollbar-width: thin; }
+.pane.active { opacity: 1; transform: none; filter: none; pointer-events: auto; }
+.empty { height: 100%; display: grid; place-items: center; text-align: center; color: var(--muted); }
+.empty .glyph { width: 56px; height: 56px; border-radius: 16px; margin: 0 auto 12px; display: grid; place-items: center; background: var(--ink-3); border: 1px solid var(--line); color: var(--gold); }
+
+/* evidence */
+.ev { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 16px; }
+.scan { position: relative; border-radius: 14px; padding: 12px; background: var(--ink-3); border: 1px solid var(--line); }
+.scan .rcpt { width: 100%; }
+.bbox { position: absolute; border: 1.5px solid var(--gold); border-radius: 5px; background: rgba(242,184,75,.08); opacity: 0; transform: scale(1.04); transition: opacity .3s var(--ease-out), transform .3s var(--ease-out); }
+.bbox.on { opacity: 1; transform: none; }
+.bbox b { position: absolute; left: -9px; top: -9px; width: 17px; height: 17px; border-radius: 50%; background: var(--gold); color: var(--gold-ink); font-size: 10px; display: grid; place-items: center; }
+.scanline { position: absolute; left: 12px; right: 12px; height: 2px; top: 12px; background: linear-gradient(90deg, transparent, var(--gold-2), transparent); box-shadow: 0 0 14px var(--gold); opacity: 0; }
+.scanline.go { animation: scan 1.2s var(--ease-in-out) 1; }
+@keyframes scan { 0% { opacity: 0; transform: translateY(0); } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; transform: translateY(200px); } }
+.fields td:first-child { color: var(--text-2); white-space: nowrap; }
+.fields td, .fields th { padding: 8px 8px; }
+.fields .k { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: rgba(242,184,75,.15); color: var(--gold-2); font-size: 10px; margin-right: 7px; font-weight: 700; }
+.meter { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11.5px; color: var(--text-2); }
+.meter i { width: 44px; height: 5px; border-radius: 5px; background: var(--ink-4); overflow: hidden; position: relative; }
+.meter i::after { content: ""; position: absolute; inset: 0; width: var(--v); background: linear-gradient(90deg, #2fae77, var(--good)); border-radius: 5px; }
+.redact { font-family: var(--mono); font-size: 11.5px; background: repeating-linear-gradient(135deg, #222838 0 6px, #1a1f2d 6px 12px); border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 6px; color: var(--text-2); }
+.callout { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,.02); font-size: 12.5px; color: var(--text-2); margin-top: 12px; }
+.callout svg { color: var(--gold); flex: none; margin-top: 1px; }
+
+/* routes */
+.routes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.route { border: 1px solid var(--line); border-radius: 14px; padding: 12px 13px; background: linear-gradient(180deg, rgba(255,255,255,.025), transparent); }
+.route.rec { border-color: rgba(242,184,75,.35); background: linear-gradient(180deg, rgba(242,184,75,.07), rgba(242,184,75,.01)); }
+.route h4 { margin: 0 0 6px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.route p { margin: 0 0 8px; font-size: 12.5px; color: var(--text-2); }
+.checks { display: grid; gap: 4px; margin-bottom: 8px; }
+.checks div { display: flex; gap: 7px; align-items: center; font-size: 12px; color: var(--text-2); }
+.checks svg.y { color: var(--good); } .checks svg.n { color: var(--crit); }
+.src { font-size: 11px; color: var(--muted); display: flex; gap: 5px; align-items: center; }
+.trace { margin-top: 12px; border-radius: 12px; background: #080b12; border: 1px solid var(--line); padding: 10px 12px; font-family: var(--mono); font-size: 11.5px; color: #c7cbd6; line-height: 1.7; }
+.trace .c { color: #6f7789; } .trace .k { color: #ffd98a; } .trace .v { color: #8eeac0; } .trace .o { color: #a9cbff; }
+
+/* deadlines */
+.dl { display: grid; grid-template-columns: 220px 1fr; gap: 18px; align-items: start; }
+.ringwrap { position: relative; width: 190px; height: 190px; margin: 6px auto 0; }
+.ringwrap .lbl { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+.ringwrap .lbl b { display: block; font-size: 30px; font-weight: 700; letter-spacing: -.02em; font-family: var(--mono); }
+.ringwrap .lbl span { font-size: 11.5px; color: var(--muted); }
+.tl { position: relative; padding: 4px 0 0 4px; }
+.tl .item { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; padding: 8px 0; position: relative; }
+.tl .item::before { content: ""; position: absolute; left: 10px; top: 28px; bottom: -8px; width: 2px; background: var(--line-2); }
+.tl .item:last-child::before { display: none; }
+.tl .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--line-2); background: var(--ink-3); z-index: 1; }
+.tl .item.past .dot { background: rgba(60,207,142,.15); border-color: rgba(60,207,142,.4); color: var(--good); }
+.tl .item.now .dot { background: rgba(242,184,75,.18); border-color: var(--gold); color: var(--gold); box-shadow: 0 0 0 4px rgba(242,184,75,.12); }
+.tl .item.risk .dot { background: rgba(242,85,90,.12); border-color: rgba(242,85,90,.45); color: var(--crit); }
+.tl b { font-size: 13px; } .tl p { margin: 2px 0 0; color: var(--text-2); font-size: 12px; }
+.tl .when { font-family: var(--mono); font-size: 11.5px; color: var(--text-2); text-align: right; }
+.reminders { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* drafts */
+.drafts { display: grid; grid-template-columns: 1fr 230px; gap: 16px; }
+.paper { background: #f7f5ef; color: #1c1d21; border-radius: 10px; padding: 18px 20px; font-family: Georgia, "Times New Roman", serif; font-size: 12.5px; line-height: 1.6; box-shadow: 0 18px 40px -18px rgba(0,0,0,.8), 0 0 0 1px rgba(0,0,0,.2); position: relative; }
+.paper h5 { margin: 0 0 2px; font-family: var(--font); font-size: 13px; letter-spacing: .02em; }
+.paper .meta { font-family: var(--font); font-size: 11px; color: #6b6d73; margin-bottom: 10px; }
+.paper .fld { background: rgba(242,184,75,.28); border-bottom: 1px solid #c88a1f; padding: 0 3px; border-radius: 2px; font-family: var(--mono); font-size: 11.5px; }
+.paper .stamp { position: absolute; right: 16px; top: 14px; font-family: var(--font); font-size: 10.5px; font-weight: 700; color: #b8661c; border: 1.5px solid #b8661c; border-radius: 6px; padding: 2px 7px; transform: rotate(4deg); letter-spacing: .06em; }
+.doclist { display: grid; gap: 8px; }
+.docitem { display: flex; gap: 10px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,.02); }
+.docitem.sel { border-color: rgba(242,184,75,.4); background: rgba(242,184,75,.06); }
+.docitem .ic { width: 30px; height: 36px; border-radius: 6px; background: #f7f5ef; display: grid; place-items: center; color: #b8661c; flex: none; }
+.docitem b { display: block; font-size: 12.5px; } .docitem small { color: var(--muted); font-size: 11px; }
+.seg { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--ink-3); border: 1px solid var(--line); }
+.seg span { padding: 4px 10px; border-radius: 7px; font-size: 12px; color: var(--muted); }
+.seg span.on { background: var(--ink-4); color: var(--text); box-shadow: var(--shadow-1); }
+
+/* safety */
+.safety { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; font-size: 12.5px; }
+.kv dt { color: var(--muted); } .kv dd { margin: 0; }
+.chain { display: grid; gap: 6px; }
+.chain .blk { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; align-items: center; padding: 7px 9px; border-radius: 9px; background: #080b12; border: 1px solid var(--line); font-size: 12px; animation: bubIn .3s var(--ease-out) both; }
+.chain .blk .n { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+.chain .blk code { font-family: var(--mono); font-size: 11px; color: var(--gold-2); }
+.json { font-family: var(--mono); font-size: 11.5px; line-height: 1.65; background: #080b12; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; color: #c7cbd6; white-space: pre; overflow: auto; max-height: 100%; }
+.json .k { color: #a9cbff; } .json .s { color: #8eeac0; } .json .n { color: #ffd98a; } .json .b { color: #ff9ea1; }
+
+/* ---------- Console ---------- */
+.console { display: grid; grid-template-rows: auto 1fr; gap: 16px; height: 100%; }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.kpi { padding: 12px 16px 10px; position: relative; overflow: hidden; }
+.kpi .l { font-size: 12px; color: var(--text-2); display: flex; align-items: center; gap: 7px; }
+.kpi .v { font-size: 24px; font-weight: 700; letter-spacing: -.02em; margin: 6px 0 2px; font-variant-numeric: tabular-nums; }
+.kpi .d { font-size: 11.5px; color: var(--muted); }
+.kpi .d b { color: #8eeac0; font-weight: 600; }
+.kpi svg.spark { position: absolute; right: 12px; bottom: 12px; }
+.cgrid { display: grid; grid-template-columns: 1.08fr 1fr; gap: 16px; min-height: 0; }
+.queue { display: grid; grid-template-rows: auto 1fr; min-height: 0; overflow: hidden; }
+.queue .tbl { overflow: auto; }
+.queue td, .queue th { padding-left: 8px; padding-right: 8px; }
+.queue td:first-child, .queue th:first-child { padding-left: 12px; }
+.queue tr.row { cursor: pointer; transition: background-color .16s ease; }
+.queue tr.row td:first-child { box-shadow: inset 2px 0 0 transparent; transition: box-shadow .16s ease; }
+.queue tr.row.sel td { background: rgba(242,184,75,.06); }
+.queue tr.row.sel td:first-child { box-shadow: inset 2px 0 0 var(--gold); }
+@media (hover: hover) and (pointer: fine) { .queue tr.row:hover td { background: rgba(255,255,255,.025); } }
+.who { display: flex; align-items: center; gap: 9px; }
+.who b { display: block; font-weight: 600; font-size: 13px; } .who small { color: var(--muted); font-size: 11.5px; }
+.flow { font-family: var(--mono); font-size: 11.5px; color: var(--text-2); line-height: 1.55; white-space: nowrap; }
+.who { white-space: nowrap; }
+.flow .acc { color: var(--text); }
+.sla { font-family: var(--mono); font-size: 11.5px; }
+.right { display: grid; grid-template-rows: auto 1fr; gap: 16px; min-height: 0; }
+.recon .bar { position: relative; height: 34px; display: flex; gap: 2px; border-radius: 9px; overflow: hidden; margin: 6px 16px 4px; }
+.recon .bar div { display: grid; place-items: center; font-size: 11.5px; font-weight: 700; color: #0b0e16; transition: flex-grow .6s var(--ease-in-out); }
+.recon .scale { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin: 0 16px; }
+.recon table td, .recon table th { padding: 6px 16px; }
+.recon .foot { display: flex; align-items: center; gap: 10px; padding: 8px 16px 10px; border-top: 1px solid var(--line); margin-top: 4px; }
+.graphcard { display: grid; grid-template-rows: auto 1fr auto; min-height: 0; overflow: hidden; }
+.graphwrap { position: relative; margin: 0 14px; min-height: 180px; border-radius: 12px; background: radial-gradient(600px 240px at 30% 30%, rgba(242,184,75,.05), transparent 70%), #090c14; border: 1px solid var(--line); min-height: 0; }
+.graphwrap svg { width: 100%; height: 100%; }
+.gnode { cursor: pointer; }
+.gnode circle { transition: transform .2s var(--ease-out); transform-box: fill-box; transform-origin: center; }
+@media (hover: hover) and (pointer: fine) { .gnode:hover circle.core { transform: scale(1.2); } }
+.gtip { position: absolute; pointer-events: none; background: rgba(14,17,26,.96); border: 1px solid var(--line-2); border-radius: 10px; padding: 8px 10px; font-size: 12px; box-shadow: var(--shadow-2); opacity: 0; transform: translateY(4px); transition: opacity .14s ease, transform .14s var(--ease-out); min-width: 160px; z-index: 5; }
+.gtip.on { opacity: 1; transform: none; }
+.gtip b { display: block; } .gtip span { color: var(--muted); font-size: 11.5px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--text-2); padding: 8px 16px 0; }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 0; }
+.why { margin: 8px 14px 12px; padding: 8px 12px; font-size: 12px !important; border-radius: 12px; border: 1px solid rgba(242,184,75,.25); background: linear-gradient(180deg, rgba(242,184,75,.07), rgba(242,184,75,.02)); font-size: 12.5px; color: var(--text-2); }
+.why b { color: var(--text); }
+
+/* ---------- Impact & Rules ---------- */
+.impact { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr 1fr; gap: 14px; height: 100%; }
+.hero { grid-column: span 2; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.hero .panel { padding: 13px 16px; }
+.hero .big { font-size: 26px; font-weight: 750; letter-spacing: -.03em; margin: 4px 0; font-variant-numeric: tabular-nums; }
+.hero .big.gold { background: linear-gradient(180deg, #ffe3a3, #f2b84b); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.chartp { padding-bottom: 12px; display: flex; flex-direction: column; min-height: 0; }
+.chartp svg { width: 100%; flex: 1; min-height: 0; padding: 0 8px; }
+.change { padding: 16px 18px; display: grid; gap: 10px; align-content: start; }
+.change .it { display: grid; grid-template-columns: 26px 1fr; gap: 10px; font-size: 13px; color: var(--text-2); }
+.change .it b { color: var(--text); display: block; }
+.change .it .n { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: rgba(242,184,75,.12); color: var(--gold-2); font-weight: 700; font-size: 12px; }
+.chartp .srcs { font-size: 11px; color: var(--muted); padding: 0 16px; }
+.rules table td { font-size: 12.5px; }
+
+/* ---------- Toasts, cursor, captions, title cards ---------- */
+.toasts { position: fixed; right: 22px; bottom: 22px; display: grid; gap: 8px; z-index: 30; }
+.toast { display: flex; gap: 10px; align-items: center; min-width: 300px; padding: 11px 13px; border-radius: 12px; background: rgba(21,26,40,.96); border: 1px solid var(--line-2); box-shadow: var(--shadow-2); font-size: 12.5px; transition: opacity .25s var(--ease-out), transform .25s var(--ease-out); }
+@starting-style { .toast { opacity: 0; transform: translateY(10px) scale(.97); } }
+.toast .ic { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: rgba(60,207,142,.15); color: var(--good); flex: none; }
+.toast small { display: block; color: var(--muted); font-family: var(--mono); font-size: 11px; }
+#cursor { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; transform: translate(-100px, -100px); transition: transform .7s var(--ease-in-out); display: none; filter: drop-shadow(0 4px 8px rgba(0,0,0,.6)); }
+#cursor.on { display: block; }
+.ripple { position: fixed; z-index: 59; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; border: 2px solid var(--gold); pointer-events: none; animation: rip .5s var(--ease-out) forwards; }
+@keyframes rip { from { opacity: .9; transform: scale(.4); } to { opacity: 0; transform: scale(1.4); } }
+#caption { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 50; max-width: 980px; width: max-content; padding: 11px 18px; border-radius: 14px; background: rgba(8,10,16,.82); border: 1px solid var(--line-2); backdrop-filter: blur(14px); box-shadow: var(--shadow-2); font-size: 16px; color: var(--text); text-align: center; opacity: 0; transition: opacity .3s var(--ease-out), transform .3s var(--ease-out); }
+#caption.show { opacity: 1; }
+#caption b { color: var(--gold-2); font-weight: 650; }
+#card { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; text-align: center; background: radial-gradient(800px 420px at 50% 40%, rgba(242,184,75,.14), transparent 70%), #05070b; opacity: 0; pointer-events: none; transition: opacity .5s var(--ease-out); }
+#card.show { opacity: 1; }
+#card .inner { transform: translateY(6px); transition: transform .6s var(--ease-out); }
+#card.show .inner { transform: none; }
+#card h1 { margin: 18px 0 6px; font-size: 64px; letter-spacing: -.035em; font-weight: 750; background: linear-gradient(180deg, #fff1cf, #f2b84b 70%, #c8761f); -webkit-background-clip: text; background-clip: text; color: transparent; }
+#card p { margin: 6px auto 0; color: var(--text-2); font-size: 19px; max-width: 900px; }
+#card .stat { text-align: center; margin-top: 26px; font-size: 26px; color: var(--text); }
+#card .stat b { display: inline; font-family: var(--font); font-size: 26px; color: var(--gold-2); }
+#card small { display: block; margin-top: 24px; color: var(--muted); font-size: 13px; }
+#card .chips { display: flex; gap: 10px; justify-content: center; margin-top: 22px; }
+#card .chips span { padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(242,184,75,.35); background: rgba(242,184,75,.08); color: var(--gold-2); font-size: 15px; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-property: opacity, color, background-color, border-color !important; } }
+@media (max-width: 1180px) { body { overflow: auto; } .app { grid-template-columns: 1fr; height: auto; } .side { display: none; } .view { position: static; display: none; opacity: 1; transform: none; } .view.active { display: block; } .content { overflow: visible; } .journey, .cgrid, .impact, .ev, .routes, .dl, .drafts, .safety { grid-template-columns: 1fr; } .device { margin: 0 auto; height: 760px; } .orch { max-height: none; } .kpis, .hero { grid-template-columns: repeat(2, 1fr); } .hero { grid-column: auto; } .ibody { min-height: 560px; } }
 </style>
 </head>
 <body>
-<header>
-  <div class="brand"><b>Golden Hour</b> <span>· post-scam money restoration copilot</span></div>
-  <div class="tabs">
-    <button class="tab active" data-view="victim">Victim crew (Telegram)</button>
-    <button class="tab" data-view="bank">Bank crew (fraud-ops console)</button>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="13" r="4.2" fill="currentColor"/><path d="M3 18h18M12 3.5v2.2M5.3 6.3l1.6 1.6M18.7 6.3l-1.6 1.6M2.8 13h2.2M19 13h2.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10.5 18.5h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 9.5 12 4l9 5.5M5 10v8M9.7 10v8M14.3 10v8M19 10v8M3.5 20.5h17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20.5H3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z M5 16a3.5 3.5 0 0 1 3.5-3.5H19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15zM10 20.5a2.2 2.2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16M4 12h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="6" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M7 3.5h7l4.5 4.5v12.5h-11.5zM14 3.5V8h4.5M9.5 12.5h5M9.5 16h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 19 6v5.5c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2.2 2.2L15.5 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-graph" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="18" cy="8" r="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="10" cy="18" r="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.2 7 15.7 7.8M7 8.2l2.2 7.5M16.3 9.8 11.8 16.3" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.7"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m9 7-5 5 5 5M15 7l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z" fill="currentColor"/></symbol>
+    <symbol id="i-dchk" viewBox="0 0 24 24"><path d="m2.5 12.5 4 4 8-9M10.5 15.5l1 1 8-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 21 19.5H3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4.5M12 17v.3" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-badge" viewBox="0 0 24 24"><path d="m12 2.5 2.4 1.8 3-.2.9 2.8 2.5 1.7-.9 2.9.9 2.9-2.5 1.7-.9 2.8-3-.2L12 21.5l-2.4-1.8-3 .2-.9-2.8-2.5-1.7.9-2.9-.9-2.9 2.5-1.7.9-2.8 3 .2z" fill="currentColor"/><path d="m8.8 12 2.2 2.2 4.2-4.4" fill="none" stroke="#1a1305" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside class="side">
+    <div class="logo">
+      <div class="mark"><svg width="20" height="20" style="color:#1a1305"><use href="#i-sun"/></svg></div>
+      <div><b>Golden Hour</b><small>Scam-money restoration</small></div>
+    </div>
+    <nav class="nav" aria-label="Views">
+      <div class="grp">Workspace</div>
+      <button data-view="victim" class="active"><svg width="18" height="18"><use href="#i-phone"/></svg>Victim journey<span class="count" style="color:var(--gold-2);border-color:rgba(242,184,75,.3)">live</span></button>
+      <button data-view="console"><svg width="18" height="18"><use href="#i-bank"/></svg>Fraud-ops console<span class="count">7</span></button>
+      <div class="grp">Evidence</div>
+      <button data-view="impact"><svg width="18" height="18"><use href="#i-chart"/></svg>Impact (real data)</button>
+      <button data-view="rules"><svg width="18" height="18"><use href="#i-book"/></svg>Rules &amp; sources</button>
+    </nav>
+    <div class="sandbox"><b><svg width="14" height="14"><use href="#i-alert"/></svg>Synthetic sandbox</b>Concept prototype. All people, accounts, UPI IDs and phone numbers are fictional. No real portal is contacted.</div>
+    <div class="team">
+      <div class="av" style="background:linear-gradient(135deg,#ffd98a,#e8892f)">GH</div>
+      <div><b style="font-size:12.5px">Team Golden Hour</b><div class="muted" style="font-size:11px">K! Hacks 4.0 · FinTech</div></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <div class="crumb" id="crumb"></div>
+      <div class="search"><svg width="15" height="15"><use href="#i-search"/></svg>Search cases, UTR, VPA…<kbd>⌘K</kbd></div>
+      <div class="right">
+        <span class="envpill"><i></i>All agents healthy</span>
+        <span class="clock" id="clock">16 Nov 2026 · 10:00 IST</span>
+        <div class="iconbtn"><svg width="16" height="16"><use href="#i-bell"/></svg><span class="dot"></span></div>
+        <div class="av" style="background:linear-gradient(135deg,#a9cbff,#6aa7ff)">AN</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Victim journey -->
+      <section class="view active" id="v-victim" aria-label="Victim journey">
+        <div class="journey">
+          <div class="device" aria-label="Telegram conversation">
+            <div class="screen">
+              <div class="island"></div>
+              <div class="status"><span>10:00</span><span class="sig"><svg width="17" height="11" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1" fill="#fff"/><rect x="4.5" y="5" width="3" height="6" rx="1" fill="#fff"/><rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="#fff"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#fff"/></svg><svg width="24" height="12" viewBox="0 0 24 12"><rect x=".5" y=".5" width="20" height="11" rx="3" fill="none" stroke="#fff" opacity=".5"/><rect x="2" y="2" width="14" height="8" rx="1.6" fill="#fff"/><rect x="21.5" y="4" width="2" height="4" rx="1" fill="#fff" opacity=".5"/></svg></span></div>
+              <div class="tghead">
+                <span class="back">‹ Chats</span>
+                <div class="who"><b>Golden Hour <svg width="14" height="14" style="color:var(--gold)"><use href="#i-badge"/></svg></b><small id="tgstatus">bot · தமிழ் · Tanglish · English</small></div>
+                <div class="botav"><svg width="18" height="18" style="color:#1a1305"><use href="#i-sun"/></svg></div>
+              </div>
+              <div class="chat" id="chat"></div>
+              <div class="composer"><div class="field">Message in Tamil, Tanglish or English</div><div class="mic"><svg width="16" height="16"><use href="#i-mic"/></svg></div></div>
+              <div class="homebar"></div>
+            </div>
+          </div>
+
+          <div class="orch">
+            <div class="orch-head">
+              <div>
+                <div class="eyebrow">Agent orchestration · LangGraph state machine</div>
+                <h2>Case C-1041 · Selvi K., Coimbatore</h2>
+                <div class="sub">UPI investment scam · ₹48,000 · reported to 1930 in 47 min</div>
+              </div>
+              <div class="stats">
+                <div class="stat"><b id="st-state">REPORTED</b><span>case state</span></div>
+                <div class="stat"><b id="st-time">00:00.0</b><span>elapsed</span></div>
+                <div class="stat"><b id="st-steps">0 / 6</b><span>agents done</span></div>
+              </div>
+            </div>
+            <div class="panel pipeline" id="pipeline"><div class="rail"><i id="railfill"></i></div></div>
+            <div class="panel inspector">
+              <div class="itabs" id="itabs"></div>
+              <div class="ibody" id="ibody"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Console -->
+      <section class="view" id="v-console" aria-label="Fraud-ops console">
+        <div class="console">
+          <div class="kpis" id="kpis"></div>
+          <div class="cgrid">
+            <div class="panel queue">
+              <div class="ph"><h3><svg width="16" height="16" style="color:var(--gold)"><use href="#i-file"/></svg>Incoming case packets</h3><span class="sub">consented · redacted</span><div class="end"><span class="pill neutral">This week</span></div></div>
+              <div class="tbl"><table id="queue"></table></div>
+            </div>
+            <div class="right">
+              <div class="panel recon" id="recon"></div>
+              <div class="panel graphcard">
+                <div class="ph"><h3><svg width="16" height="16" style="color:var(--gold)"><use href="#i-graph"/></svg>Mule-graph explainer</h3><div class="end"><span class="pill gold" id="clcount"></span></div></div>
+                <div class="graphwrap" id="graphwrap"><svg id="graph" viewBox="0 0 600 250" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Network graph of victims, payee UPI IDs, mule accounts and linked phone numbers"></svg><div class="gtip" id="gtip"></div></div>
+                <div>
+                  <div class="legend"><span><i style="background:#6aa7ff"></i>Victim case</span><span><i style="background:#f2b84b"></i>Payee VPA</span><span><i style="background:#f2555a"></i>Mule account</span><span><i style="background:#a78bfa"></i>Linked phone</span></div>
+                  <div class="why" id="why"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Impact -->
+      <section class="view" id="v-impact" aria-label="Impact">
+        <div class="impact">
+          <div class="hero">
+            <div class="panel"><div class="eyebrow">TN 2024 · lost to cyber fraud</div><div class="big">₹1,673.85 cr</div><div class="muted">TN Cyber Crime Wing</div></div>
+            <div class="panel"><div class="eyebrow">TN 2024 · frozen</div><div class="big">₹771.98 cr</div><div class="muted">46% of reported losses</div></div>
+            <div class="panel"><div class="eyebrow">TN 2024 · returned to victims</div><div class="big gold">≈ ₹84 cr</div><div class="muted">≈ 11% of frozen money</div></div>
+            <div class="panel"><div class="eyebrow">India 2024 · lost to cyber fraud</div><div class="big">₹22,845.73 cr</div><div class="muted">+206% vs 2023 · MHA/I4C</div></div>
+          </div>
+          <div class="panel chartp"><div class="ph"><h3>Tamil Nadu 2024: where scam money went</h3><span class="sub">₹ crore</span></div><svg id="ch1" viewBox="0 0 560 250" role="img" aria-label="Bar chart: lost 1,673.85, frozen 771.98, returned about 84 crore"></svg><div class="srcs">Source: TN Cyber Crime Wing via The News Minute and DT Next. Returned reported as ₹83.3–83.8 cr.</div></div>
+          <div class="panel chartp"><div class="ph"><h3>Frozen money that reached victims</h3><span class="sub">returned ÷ frozen</span></div><svg id="ch2" viewBox="0 0 560 250" role="img" aria-label="Bar chart: TN 2024 10.9%, TN Jan–Jul 2025 19.9%, Chennai Jan–May 2025 21.8%"></svg><div class="srcs">Sources: The News Minute (TN 2024); DT Next (TN Jan–Jul 2025: ₹62.4 cr of ₹314 cr; Chennai Jan–May 2025: ₹10.45 cr of ₹48 cr).</div></div>
+          <div class="panel chartp"><div class="ph"><h3>Cyber-fraud losses reported in India</h3><span class="sub">₹ crore per year</span></div><svg id="ch3" viewBox="0 0 560 230" role="img" aria-label="Column chart: 2023 7,465; 2024 22,846; 2025 19,813 crore"></svg><div class="srcs">Sources: MHA/I4C in Lok Sabha via Scroll (2023, 2024); I4C/NCRP 2025 figure as reported in the press.</div></div>
+          <div class="panel change"><div class="eyebrow">Where Golden Hour acts</div>
+            <div class="it"><span class="n">1</span><div><b>After the freeze, not before the scam</b>Detection tools stop at the alert. The money is stuck between "frozen" and "returned".</div></div>
+            <div class="it"><span class="n">2</span><div><b>One packet for every official route</b>MRM restoration, BNSS s.503, bank dispute and RB-IOS, pre-filled in the victim's language.</div></div>
+            <div class="it"><span class="n">3</span><div><b>Clocks that decide the outcome</b>Bank-report window and the hold-lift date are tracked with reminders.</div></div>
+            <div class="it"><span class="n">4</span><div><b>Banks close cases faster</b>Structured packets, exact pro-rata splits and explainable mule clusters, with a human approving.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rules -->
+      <section class="view" id="v-rules" aria-label="Rules and sources">
+        <div class="panel rules" style="height:100%;overflow:auto">
+          <div class="ph"><h3><svg width="16" height="16" style="color:var(--gold)"><use href="#i-book"/></svg>Rule configuration used by the Route Planner and Deadline Guardian</h3><span class="sub">deterministic, versioned, every value cites a source</span><div class="end"><span class="pill warn"><svg width="12" height="12"><use href="#i-alert"/></svg>verify against official text before production</span></div></div>
+          <table id="rulestbl"></table>
+          <div class="callout" style="margin:14px 16px"><svg width="16" height="16"><use href="#i-shield"/></svg><div><b style="color:var(--text)">Operating principles.</b> Information, not legal advice · victims review and file every document personally · no fees · never holds money · never asks for OTP or PIN · a human analyst approves every bank-side action · personal data used only with DPDP consent and deleted after 30 days.</div></div>
+        </div>
+      </section>
+    </div>
   </div>
-  <div class="badge-syn">Concept prototype · synthetic data only · no real portals</div>
-</header>
+</div>
 
-<main>
-  <section class="view active" id="v-victim">
-    <div class="victim">
-      <div class="phone">
-        <div class="tg-head"><div class="avatar">GH</div><div><b>Golden Hour Bot</b><small>bot · Tamil / Tanglish / English</small></div></div>
-        <div class="chat" id="chat"></div>
-        <div class="typing" id="typing"></div>
-        <div class="compose"><input id="inp" placeholder="Type in Tamil, Tanglish or English…"><button id="send">Send</button></div>
-      </div>
-      <div class="trace">
-        <h2>Agent trace · case C-1041</h2>
-        <div class="agents" id="agents"></div>
-        <div class="cards" id="cards"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="view" id="v-bank">
-    <div class="bank">
-      <div class="kpis" id="kpis"></div>
-      <div>
-        <h2>Incoming case packets</h2>
-        <div class="card" style="padding:8px 10px"><table id="queue"></table></div>
-      </div>
-      <div>
-        <h2>Lien reconciliation · <span id="recon-acc"></span></h2>
-        <div class="card" id="recon" style="margin-bottom:14px"></div>
-        <h2>Mule-graph explainer</h2>
-        <svg id="graph" viewBox="0 0 640 300" role="img" aria-label="Graph of victims, payee VPAs, mule accounts and linked phone numbers"></svg>
-        <div class="legend"><span><i style="background:#3987e5"></i>Victim case</span><span><i style="background:#eda100"></i>Payee VPA</span><span><i style="background:#e66767"></i>Mule account</span><span><i style="background:#9085e9"></i>Linked phone</span></div>
-        <div id="clusters"></div>
-      </div>
-    </div>
-  </section>
-</main>
+<div class="toasts" id="toasts"></div>
+<svg id="cursor" width="26" height="30" viewBox="0 0 26 30"><path d="M3 2.5 3 24l5.6-5.2 3.7 8.4 4-1.8-3.7-8.2 7.8-.4z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>
 <div id="caption"></div>
-<div id="card"></div>
-<div class="disclaimer">Information, not legal advice · Victim reviews and files every document personally · No fees, never holds money, never asks for OTP/PIN</div>
+<div id="card"><div class="inner" id="cardinner"></div></div>
 
 <script>
-/* ---------------- Synthetic data ---------------- */
+"use strict";
+/* ================= Synthetic data ================= */
 const TODAY = new Date("2026-11-16T10:00:00+05:30");
 const CASES = [
-  { id: "C-1041", victim: "Selvi K.", city: "Coimbatore", amount: 48000, vpa: "fastgains.demo@upi", acct: "XXXX4471", type: "Investment scam (authorised UPI)", fraudAt: "2026-11-12T14:05:00+05:30", reportedAt: "2026-11-12T14:52:00+05:30", ack: "31211260045871", status: "Packet received" },
-  { id: "C-1037", victim: "Arun P.", city: "Chennai", amount: 35000, vpa: "quickreturn.demo@upi", acct: "XXXX4471", type: "Investment scam (authorised UPI)", fraudAt: "2026-11-09T11:20:00+05:30", reportedAt: "2026-11-09T12:10:00+05:30", ack: "31211260041102", status: "Bank verified" },
-  { id: "C-1029", victim: "Fathima S.", city: "Madurai", amount: 22000, vpa: "fastgains.demo@upi", acct: "XXXX4471", type: "Task / part-time job scam", fraudAt: "2026-11-05T19:40:00+05:30", reportedAt: "2026-11-05T21:02:00+05:30", ack: "31211260037219", status: "Bank verified" },
-  { id: "C-1022", victim: "Ravi M.", city: "Trichy", amount: 40000, vpa: "stockguru.demo@upi", acct: "XXXX8820", type: "Investment scam (authorised UPI)", fraudAt: "2026-11-02T10:15:00+05:30", reportedAt: "2026-11-02T13:30:00+05:30", ack: "31211260031544", status: "Query sent" },
-  { id: "C-1018", victim: "Meena R.", city: "Salem", amount: 15500, vpa: "parcelhelp.demo@upi", acct: "XXXX1190", type: "Courier / customs scam", fraudAt: "2026-10-29T16:00:00+05:30", reportedAt: "2026-10-29T16:35:00+05:30", ack: "31210260027810", status: "Bank verified" },
-  { id: "C-1015", victim: "Karthik V.", city: "Chennai", amount: 62000, vpa: "parcelhelp.demo@upi", acct: "XXXX1190", type: "Digital-arrest scam", fraudAt: "2026-10-27T09:30:00+05:30", reportedAt: "2026-10-27T15:45:00+05:30", ack: "31210260025003", status: "Restoration filed" },
-  { id: "C-1009", victim: "Priya N.", city: "Vellore", amount: 9800, vpa: "kycupdate.demo@upi", acct: "XXXX7302", type: "KYC-update phishing", fraudAt: "2026-10-20T12:10:00+05:30", reportedAt: "2026-10-20T12:40:00+05:30", ack: "31210260019876", status: "Restoration filed" },
+  { id: "C-1041", victim: "Selvi K.", city: "Coimbatore", amount: 48000, vpa: "fastgains.demo@upi", acct: "XXXX4471", type: "Investment scam", fraudAt: "2026-11-12T14:05:00+05:30", reportedAt: "2026-11-12T14:52:00+05:30", ack: "31211260045871", status: "Packet received", av: ["#ffd98a", "#e8892f"] },
+  { id: "C-1037", victim: "Arun P.", city: "Chennai", amount: 35000, vpa: "quickreturn.demo@upi", acct: "XXXX4471", type: "Investment scam", fraudAt: "2026-11-09T11:20:00+05:30", reportedAt: "2026-11-09T12:10:00+05:30", ack: "31211260041102", status: "Bank verified", av: ["#a9cbff", "#6aa7ff"] },
+  { id: "C-1029", victim: "Fathima S.", city: "Madurai", amount: 22000, vpa: "fastgains.demo@upi", acct: "XXXX4471", type: "Part-time job scam", fraudAt: "2026-11-05T19:40:00+05:30", reportedAt: "2026-11-05T21:02:00+05:30", ack: "31211260037219", status: "Bank verified", av: ["#c4b5fd", "#a78bfa"] },
+  { id: "C-1022", victim: "Ravi M.", city: "Trichy", amount: 40000, vpa: "stockguru.demo@upi", acct: "XXXX8820", type: "Investment scam", fraudAt: "2026-11-02T10:15:00+05:30", reportedAt: "2026-11-02T13:30:00+05:30", ack: "31211260031544", status: "Query sent", av: ["#8eeac0", "#3ccf8e"] },
+  { id: "C-1018", victim: "Meena R.", city: "Salem", amount: 15500, vpa: "parcelhelp.demo@upi", acct: "XXXX1190", type: "Courier / customs scam", fraudAt: "2026-10-29T16:00:00+05:30", reportedAt: "2026-10-29T16:35:00+05:30", ack: "31210260027810", status: "Bank verified", av: ["#ffb3b5", "#f2555a"] },
+  { id: "C-1015", victim: "Karthik V.", city: "Chennai", amount: 62000, vpa: "parcelhelp.demo@upi", acct: "XXXX1190", type: "Digital-arrest scam", fraudAt: "2026-10-27T09:30:00+05:30", reportedAt: "2026-10-27T15:45:00+05:30", ack: "31210260025003", status: "Restoration filed", av: ["#ffe3a3", "#f5a524"] },
+  { id: "C-1009", victim: "Priya N.", city: "Vellore", amount: 9800, vpa: "kycupdate.demo@upi", acct: "XXXX7302", type: "KYC-update phishing", fraudAt: "2026-10-20T12:10:00+05:30", reportedAt: "2026-10-20T12:40:00+05:30", ack: "31210260019876", status: "Restoration filed", av: ["#b9f3ff", "#38bdf8"] },
 ];
-const LIENS = { "XXXX4471": 80000, "XXXX8820": 30000, "XXXX1190": 77500, "XXXX7302": 9800 };
-const ACCT_PHONE = { "XXXX4471": "+91 9XXXX 21407", "XXXX8820": "+91 9XXXX 21407", "XXXX1190": "+91 8XXXX 66310", "XXXX7302": "+91 7XXXX 90452" };
+const LIENS = { XXXX4471: 80000, XXXX8820: 30000, XXXX1190: 77500, XXXX7302: 9800 };
+const ACCT_PHONE = { XXXX4471: "+91 9XXXX 21407", XXXX8820: "+91 9XXXX 21407", XXXX1190: "+91 8XXXX 66310", XXXX7302: "+91 7XXXX 90452" };
 
-/* ---------------- Rules engine (deterministic; rules as configured, verify before production) ---------------- */
-const RULES = {
-  smallHoldNoCourt: 50000,   // MHA SOP (Jan 2026), as reported: holds up to this per account restorable without court order
-  holdLiftDays: 90,          // banks lift hold if no restoration/court order (as reported)
-  bankReportWorkingDays: 3,  // RBI customer-liability framework (2017)
-  ombudsmanDays: 90,         // RB-IOS 2026 escalation window (as reported)
-};
-function addWorkingDays(d, n) { const x = new Date(d); let c = 0; while (c < n) { x.setDate(x.getDate() + 1); const w = x.getDay(); if (w !== 0 && w !== 6) c++; } return x; }
-function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
-const fmt = d => d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+/* ================= Rules engine (deterministic) ================= */
+const RULES = [
+  { key: "SOP_SMALL_HOLD", value: 50000, unit: "₹ per held account", use: "Restoration without court order at or below this held amount; FIR required above it", src: "MHA SOP for NCRP-CFCFRMS, 02.01.2026 (as reported by Business Standard, Jan 2026)", status: "verify" },
+  { key: "HOLD_LIFT_DAYS", value: 90, unit: "days", use: "Hold may be lifted if no restoration request or court order arrives", src: "MHA SOP for NCRP-CFCFRMS (as reported)", status: "verify" },
+  { key: "BANK_REPORT_WD", value: 3, unit: "working days", use: "Report to remitting bank for zero-liability window", src: "RBI circular on limiting customer liability, 6 Jul 2017", status: "official" },
+  { key: "AUTH_FRAUD_COVER", value: "Section DA", unit: "", use: "Deceived-but-authorised digital payments covered", src: "RBI Amendment Directions, Jun 2026 (final numbers to verify)", status: "verify" },
+  { key: "OMBUDSMAN_DAYS", value: 90, unit: "days", use: "Escalation window to RBI Ombudsman", src: "RB-IOS 2026 (from 1 Jul 2026, as reported)", status: "verify" },
+  { key: "MAGISTRATE_ROUTE", value: "BNSS s.503", unit: "", use: "Court-ordered release; Madras HC: no separate FIR where NCRP ack exists", src: "BNSS 2023; DT Next report on Madras HC circular", status: "official" },
+  { key: "PII_RETENTION", value: 30, unit: "days", use: "Delete screenshots and SMS after case packet is filed", src: "Golden Hour policy under DPDP Act 2023 / Rules 2025", status: "policy" },
+];
+const R = Object.fromEntries(RULES.map(r => [r.key, r.value]));
+const addWD = (d, n) => { const x = new Date(d); let c = 0; while (c < n) { x.setDate(x.getDate() + 1); const w = x.getDay(); if (w && w !== 6) c++; } return x; };
+const addD = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const fmtD = d => d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" });
+const fmtT = d => d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Kolkata" });
 const inr = n => "₹" + Math.round(n).toLocaleString("en-IN");
 
-function planRoutes(c) {
-  const held = LIENS[c.acct];
-  const fraud = new Date(c.fraudAt), rep = new Date(c.reportedAt);
+function plan(c) {
+  const held = LIENS[c.acct], fraud = new Date(c.fraudAt), rep = new Date(c.reportedAt);
   const mins = Math.round((rep - fraud) / 60000);
-  const routes = [];
-  if (held <= RULES.smallHoldNoCourt) {
-    routes.push({ name: "NCRP Money Restoration Module (MRM) request", pill: ["good", "Primary"], why: `Held in payee account ${inr(held)} ≤ ${inr(RULES.smallHoldNoCourt)} → restoration request without a court order.`, src: "MHA SOP for CFCFRMS, 02.01.2026 (threshold as reported)" });
-  } else {
-    routes.push({ name: "NCRP Money Restoration Module (MRM) request + FIR", pill: ["good", "Primary"], why: `Held in payee account ${inr(held)} > ${inr(RULES.smallHoldNoCourt)} → FIR needed with the restoration request. Golden Hour pre-fills both.`, src: "MHA SOP for CFCFRMS, 02.01.2026 (threshold as reported)" });
-    routes.push({ name: "Magistrate release petition (BNSS s.503)", pill: ["info", "Parallel"], why: "Multiple victims claim against one held account → court-ordered pro-rata release is the fallback route.", src: "BNSS s.503 · Madras HC: no separate FIR where NCRP ack exists" });
-  }
-  routes.push({ name: "Bank dispute (remitting bank)", pill: ["warn", "Time-bound"], why: `Report to your bank within ${RULES.bankReportWorkingDays} working days; deceived-but-authorised UPI covered by RBI 2026 amendment (verify final text).`, src: "RBI customer-liability framework 2017 + 2026 Amendment Directions" });
-  routes.push({ name: "RBI Ombudsman (RB-IOS 2026)", pill: ["info", "If bank rejects"], why: `Escalate if the bank rejects or does not resolve; window ${RULES.ombudsmanDays} days.`, src: "RB-IOS 2026" });
-  const deadlines = [
-    { d: fraud, lbl: "Fraud", c: "#7d88a3" },
-    { d: rep, lbl: `1930 report (${mins} min)`, c: "#0ca30c" },
-    { d: addWorkingDays(fraud, RULES.bankReportWorkingDays), lbl: "Bank report due", c: "#fab219" },
-    { d: addDays(rep, RULES.holdLiftDays), lbl: "Hold may lift", c: "#d03b3b" },
+  const fir = held > R.SOP_SMALL_HOLD;
+  const multi = CASES.filter(x => x.acct === c.acct).length > 1;
+  const bankDue = addWD(fraud, R.BANK_REPORT_WD), holdLift = addD(rep, R.HOLD_LIFT_DAYS);
+  const routes = [
+    { name: "NCRP Money Restoration request" + (fir ? " + FIR" : ""), rec: true, tag: ["gold", "Recommended"], desc: fir ? "Held amount is above the SOP small-hold limit, so the restoration request needs an FIR. Both are pre-filled." : "Held amount within SOP small-hold limit: restoration without a court order.",
+      checks: [[true, "NCRP acknowledgement present (14 digits)"], [true, `Reported within golden hour (${mins} min)`], [fir, `Held ${inr(held)} > ${inr(R.SOP_SMALL_HOLD)} → FIR required`]], src: "MHA SOP for NCRP-CFCFRMS, 02.01.2026" },
+    { name: "Magistrate release petition · BNSS s.503", tag: ["info", "Parallel"], desc: "Several victims claim one held account; a court-ordered pro-rata release is the fallback.",
+      checks: [[multi, `${CASES.filter(x => x.acct === c.acct).length} victims claim against ${c.acct}`], [true, "Madras HC: no separate FIR where NCRP ack exists"]], src: "BNSS s.503 · Madras HC circular" },
+    { name: "Bank dispute · remitting bank", tag: ["warn", "Due " + fmtD(bankDue)], desc: `Report within ${R.BANK_REPORT_WD} working days; deceived-but-authorised UPI now covered (Section DA).`,
+      checks: [[true, "Payment type: authorised UPI (deceived)"], [TODAY <= bankDue, "Still inside reporting window"]], src: "RBI liability circular 2017 + 2026 Amendment Directions" },
+    { name: "RBI Ombudsman · RB-IOS 2026", tag: ["neutral", "If bank rejects"], desc: `Escalate on rejection or no resolution; ${R.OMBUDSMAN_DAYS}-day window.`,
+      checks: [[false, "Bank response received"], [true, "Complaint eligible for CMS portal"]], src: "RB-IOS 2026" },
   ];
-  return { routes, deadlines, mins, held };
+  return { held, mins, fir, multi, bankDue, holdLift, fraud, rep, routes };
 }
-
 function proRata(acct) {
-  const claims = CASES.filter(c => c.acct === acct);
-  const total = claims.reduce((s, c) => s + c.amount, 0);
-  const lien = LIENS[acct];
-  const ratio = Math.min(1, lien / total);
-  let shares = claims.map(c => ({ ...c, share: Math.floor(c.amount * ratio) }));
-  let rem = Math.min(lien, total) - shares.reduce((s, x) => s + x.share, 0);
-  shares.sort((a, b) => b.amount - a.amount); for (let i = 0; rem > 0; i = (i + 1) % shares.length, rem--) shares[i].share++;
-  return { claims: shares, total, lien, ratio };
+  const claims = CASES.filter(c => c.acct === acct), total = claims.reduce((s, c) => s + c.amount, 0), lien = LIENS[acct], ratio = Math.min(1, lien / total);
+  const sh = claims.map(c => ({ ...c, share: Math.floor(c.amount * ratio) }));
+  let rem = Math.min(lien, total) - sh.reduce((s, x) => s + x.share, 0);
+  const order = [...sh].sort((a, b) => b.amount - a.amount);
+  for (let i = 0; rem > 0; i = (i + 1) % order.length, rem--) order[i].share++;
+  return { claims: sh, total, lien, ratio };
 }
-
-/* union-find over victim–VPA–account–phone edges */
 function clusters() {
   const parent = {}; const f = x => (parent[x] ??= x, parent[x] === x ? x : (parent[x] = f(parent[x])));
-  const u = (a, b) => { parent[f(a)] = f(b); };
   const edges = [];
-  CASES.forEach(c => { edges.push(["case:" + c.id, "vpa:" + c.vpa], ["vpa:" + c.vpa, "acct:" + c.acct]); });
+  CASES.forEach(c => edges.push(["case:" + c.id, "vpa:" + c.vpa], ["vpa:" + c.vpa, "acct:" + c.acct]));
   Object.entries(ACCT_PHONE).forEach(([a, p]) => edges.push(["acct:" + a, "phone:" + p]));
-  edges.forEach(([a, b]) => u(a, b));
-  const groups = {}; Object.keys(parent).forEach(n => (groups[f(n)] ??= []).push(n));
-  return { edges, groups: Object.values(groups).sort((a, b) => b.length - a.length) };
+  edges.forEach(([a, b]) => { parent[f(a)] = f(b); });
+  const g = {}; Object.keys(parent).forEach(n => (g[f(n)] ??= []).push(n));
+  return { edges, groups: Object.values(g).sort((a, b) => b.length - a.length) };
+}
+async function sha(s) {
+  try { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
+  catch { let h = 2166136261; for (const ch of s) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16).padStart(8, "0").repeat(8); }
 }
 
-/* ---------------- Victim view ---------------- */
-const AGENTS = ["Intake & Triage", "Evidence", "Route Planner", "Drafter", "Deadline Guardian", "Safety & Consent"];
-const agentsEl = document.getElementById("agents");
-AGENTS.forEach((a, i) => { const d = document.createElement("div"); d.className = "agent"; d.id = "ag" + i; d.innerHTML = `<div class="n">${"①②③④⑤⑥"[i]}</div><div class="t">${a}</div>`; agentsEl.appendChild(d); });
-const setAgent = (i, s) => { const el = document.getElementById("ag" + i); el.classList.remove("run", "done"); if (s) el.classList.add(s); };
-const chat = document.getElementById("chat"), cards = document.getElementById("cards"), typing = document.getElementById("typing");
-const sleep = ms => new Promise(r => setTimeout(r, ms * (window.SPEED || 1)));
-function addMsg(dir, html) { const m = document.createElement("div"); m.className = "msg " + dir; m.innerHTML = html; chat.appendChild(m); chat.scrollTop = chat.scrollHeight; return m; }
-function addCard(html, wide) { const c = document.createElement("div"); c.className = "card" + (wide ? " wide" : ""); c.innerHTML = html; cards.appendChild(c); return c; }
-async function botSay(html, ms = 900) { typing.textContent = "Golden Hour is typing…"; await sleep(ms); typing.textContent = ""; botMin++; const m = 58 + botMin; return addMsg("in", html + `<span class="meta">${14 + Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}</span>`); }
-let botMin = 0;
-const wave = () => `<div class="wave">${Array.from({ length: 34 }, (_, i) => `<i style="height:${6 + Math.abs(Math.sin(i * 1.7)) * 16}px"></i>`).join("")}</div>`;
-const C = CASES[0];
+/* ================= Helpers ================= */
+const $ = s => document.querySelector(s);
+const icon = (id, s = 16, extra = "") => `<svg width="${s}" height="${s}" ${extra}><use href="#i-${id}"/></svg>`;
+const params = new URLSearchParams(location.search);
+let SPEED = Number(params.get("speed") || 1);
+const sleep = ms => new Promise(r => setTimeout(r, ms * SPEED));
+function initials(n) { return n.split(" ").map(x => x[0]).join("").slice(0, 2); }
+function avatar(c, s = 30) { return `<div class="av" style="width:${s}px;height:${s}px;background:linear-gradient(135deg,${c.av[0]},${c.av[1]})">${initials(c.victim)}</div>`; }
+function toast(title, sub) { const t = document.createElement("div"); t.className = "toast"; t.innerHTML = `<div class="ic">${icon("check", 15)}</div><div><b>${title}</b><small>${sub}</small></div>`; $("#toasts").appendChild(t); setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateY(6px)"; setTimeout(() => t.remove(), 260); }, 3600 * SPEED); }
 
-async function runVictim() {
-  cards.innerHTML = ""; chat.innerHTML = ""; botMin = 0; AGENTS.forEach((_, i) => setAgent(i, null));
+/* ================= Navigation ================= */
+const CRUMBS = { victim: `Cases <span>›</span> <b>C-1041 · Selvi K.</b> <span class="pill gold" style="margin-left:6px">Live</span>`, console: `Bank <span>›</span> <b>Fraud-ops console</b> <span class="pill neutral" style="margin-left:6px">Demo Bank · Coimbatore region</span>`, impact: `Evidence <span>›</span> <b>Impact (real data)</b>`, rules: `Evidence <span>›</span> <b>Rules &amp; sources</b>` };
+function show(v) {
+  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  document.querySelectorAll(".view").forEach(x => x.classList.toggle("active", x.id === "v-" + v));
+  $("#crumb").innerHTML = CRUMBS[v];
+  if (v === "console") renderConsole();
+}
+document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => show(b.dataset.view)));
+
+/* ================= Victim journey ================= */
+const C0 = CASES[0], P0 = plan(C0);
+const AG = [["Intake & Triage", "mic"], ["Evidence", "scan"], ["Route Planner", "route"], ["Drafter", "file"], ["Deadline Guardian", "clock"], ["Safety & Consent", "shield"]];
+const TABS = [["evidence", "Evidence", 1], ["routes", "Routes", 2], ["drafts", "Drafts", 3], ["deadlines", "Deadlines", 4], ["safety", "Safety & audit", 5], ["packet", "Case packet", 5]];
+const STATES = ["REPORTED", "EVIDENCE_READY", "ROUTED", "DRAFTED", "TRACKING", "PACKET_SENT"];
+let doneCount = 0, t0 = 0, timer = null;
+const audit = [];
+
+function buildPipeline() {
+  const p = $("#pipeline"); p.querySelectorAll(".node").forEach(n => n.remove());
+  AG.forEach(([n, ic], i) => { const d = document.createElement("div"); d.className = "node"; d.id = "n" + i; d.innerHTML = `<div class="ring">${icon(ic, 18)}</div><b>${n}</b><small>queued</small>`; p.appendChild(d); });
+  $("#railfill").style.width = "0";
+  const tabs = $("#itabs"); tabs.innerHTML = "";
+  TABS.forEach(([k, l]) => { const b = document.createElement("button"); b.className = "itab"; b.dataset.k = k; b.disabled = true; b.innerHTML = `<span class="st"></span>${l}`; b.onclick = () => openTab(k); tabs.appendChild(b); });
+  $("#ibody").innerHTML = TABS.map(([k]) => `<div class="pane" id="p-${k}"></div>`).join("") + `<div class="pane active" id="p-empty"><div class="empty"><div><div class="glyph">${icon("sun", 26)}</div><b>Waiting for the victim's first message</b><div class="muted" style="margin-top:4px">Agent outputs appear here as each step completes.</div></div></div></div>`;
+}
+function setNode(i, s, label) { const n = $("#n" + i); n.classList.remove("run", "done"); if (s) n.classList.add(s); n.querySelector("small").textContent = label; }
+function openTab(k) { document.querySelectorAll(".itab").forEach(t => t.classList.toggle("active", t.dataset.k === k)); document.querySelectorAll(".pane").forEach(p => p.classList.toggle("active", p.id === "p-" + k)); }
+function readyTab(k) { const t = document.querySelector(`.itab[data-k="${k}"]`); t.disabled = false; t.classList.add("ready"); }
+async function logEvent(ev) { const prev = audit.length ? audit[audit.length - 1].h : "0".repeat(64); const h = await sha(prev + JSON.stringify(ev)); audit.push({ ...ev, h }); renderAudit(); }
+function tick() { const s = (performance.now() - t0) / 1000; $("#st-time").textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${(s % 60).toFixed(1).padStart(4, "0")}`; }
+async function runAgent(i, ms, label) {
+  setNode(i, "run", "running…"); const st = performance.now(); await sleep(ms);
+  const dt = ((performance.now() - st) / 1000).toFixed(1);
+  setNode(i, "done", label || dt + "s"); doneCount++; $("#st-steps").textContent = `${doneCount} / 6`;
+  $("#railfill").style.width = Math.min(100, (doneCount / 5) * 100) + "%";
+  $("#st-state").textContent = STATES[Math.min(doneCount, 5)];
+  await logEvent({ agent: AG[i][0], state: STATES[Math.min(doneCount, 5)], at: new Date(TODAY.getTime() + doneCount * 7000).toISOString() });
+}
+
+const chat = () => $("#chat");
+let clockMin = 0;
+function stamp() { clockMin++; const m = 58 + clockMin; return `${14 + Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`; }
+function bubble(dir, html, opts = {}) { const b = document.createElement("div"); b.className = "bub " + dir; b.innerHTML = html + `<div class="meta">${opts.time || stamp()}${dir === "out" ? icon("dchk", 14) : ""}</div>`; chat().appendChild(b); chat().scrollTop = chat().scrollHeight; return b; }
+async function botTyping(ms) { $("#tgstatus").textContent = "typing…"; const t = document.createElement("div"); t.className = "typing"; t.innerHTML = "<i></i><i></i><i></i>"; chat().appendChild(t); chat().scrollTop = chat().scrollHeight; await sleep(ms); t.remove(); $("#tgstatus").textContent = "bot · தமிழ் · Tanglish · English"; }
+const receiptHTML = (cls = "") => `<div class="rcpt ${cls}"><div class="wm">SYNTHETIC</div><div class="hd">${icon("check", 14)}Payment successful</div><div class="amt" data-f="amt">₹48,000</div><div class="row" data-f="vpa"><span>To</span><span>fastgains.demo@upi</span></div><div class="row" data-f="utr"><span>UPI Ref No.</span><span>436512907781</span></div><div class="row" data-f="time"><span>Date</span><span>12 Nov 2026, 2:05 pm</span></div><div class="row"><span>From</span><span>XXXX 2210 · demo bank</span></div></div>`;
+
+function paneEvidence() {
+  $("#p-evidence").innerHTML = `<div class="ev">
+    <div class="scan" id="scan">${receiptHTML()}<div class="scanline" id="scanline"></div></div>
+    <div>
+      <div class="ph" style="padding:0 0 8px"><h3>${icon("scan", 15, 'style="color:var(--gold)"')}Extracted fields</h3><span class="sub">vision model → strict JSON schema → regex validators</span></div>
+      <table class="fields"><tr><th>Field</th><th>Value</th><th>Conf.</th><th>Check</th></tr>
+        <tr><td><span class="k">1</span>Amount</td><td class="mono">${inr(C0.amount)}</td><td><span class="meter"><i style="--v:99%"></i>0.99</span></td><td><span class="pill good">${icon("check", 11)} format</span></td></tr>
+        <tr><td><span class="k">2</span>Payee VPA</td><td class="mono">${C0.vpa}</td><td><span class="meter"><i style="--v:97%"></i>0.97</span></td><td><span class="pill good">${icon("check", 11)} syntax</span></td></tr>
+        <tr><td><span class="k">3</span>UTR</td><td class="mono">436512907781</td><td><span class="meter"><i style="--v:98%"></i>0.98</span></td><td><span class="pill good">${icon("check", 11)} 12 digits</span></td></tr>
+        <tr><td><span class="k">4</span>Paid at</td><td class="mono">12-11-2026 14:05</td><td><span class="meter"><i style="--v:95%"></i>0.95</span></td><td><span class="pill good">${icon("check", 11)} ordered</span></td></tr>
+        <tr><td><span class="k">5</span>NCRP ack</td><td class="mono">${C0.ack}</td><td><span class="meter"><i style="--v:99%"></i>0.99</span></td><td><span class="pill good">${icon("check", 11)} 14 digits</span></td></tr>
+        <tr><td><span class="k">6</span>Aadhaar</td><td><span class="redact">XXXX XXXX 4417</span></td><td><span class="muted mono">—</span></td><td><span class="pill info">${icon("lock", 11)} masked</span></td></tr>
+      </table>
+      <div class="callout">${icon("shield", 16)}<div><b style="color:var(--text)">Redacted before any model call.</b> Aadhaar told apart from the 12-digit UTR by its label and Verhoeff checksum. The UTR is kept; the Aadhaar is masked.</div></div>
+    </div></div>`;
+}
+async function animateScan() {
+  const scan = $("#scan"); if (!scan) return; const sl = $("#scanline"); sl.classList.remove("go"); void sl.offsetWidth; sl.classList.add("go");
+  const base = scan.getBoundingClientRect(); const keys = [["amt", 1], ["vpa", 2], ["utr", 3], ["time", 4]];
+  for (const [f, n] of keys) { const el = scan.querySelector(`[data-f="${f}"]`); const r = el.getBoundingClientRect(); const b = document.createElement("div"); b.className = "bbox"; Object.assign(b.style, { left: (r.left - base.left - 3) + "px", top: (r.top - base.top - 2) + "px", width: (r.width + 6) + "px", height: (r.height + 4) + "px" }); b.innerHTML = `<b>${n}</b>`; scan.appendChild(b); await sleep(260); b.classList.add("on"); }
+}
+function paneRoutes() {
+  $("#p-routes").innerHTML = `<div class="routes">${P0.routes.map(r => `<div class="route ${r.rec ? "rec" : ""}"><h4>${r.name}<span class="pill ${r.tag[0]}" style="margin-left:auto">${r.tag[1]}</span></h4><p>${r.desc}</p><div class="checks">${r.checks.map(([ok, t]) => `<div>${ok ? icon("check", 14, 'class="y"') : icon("x", 14, 'class="n"')}${t}</div>`).join("")}</div><div class="src">${icon("book", 12)}${r.src}</div></div>`).join("")}</div>
+  <div class="trace"><span class="c"># rule trace · deterministic, no LLM in the decision path</span><br>
+  <span class="k">held_amount</span>(<span class="v">${P0.held}</span>) <span class="o">&gt;</span> <span class="k">SOP_SMALL_HOLD</span>(<span class="v">${R.SOP_SMALL_HOLD}</span>) <span class="o">→</span> FIR_REQUIRED = <span class="v">${P0.fir}</span><br>
+  <span class="k">claimants</span>(${C0.acct}) = <span class="v">${CASES.filter(x => x.acct === C0.acct).length}</span> <span class="o">→</span> PARALLEL_ROUTE = <span class="v">"BNSS_503"</span><br>
+  <span class="k">bank_due</span> = fraud_at + <span class="v">${R.BANK_REPORT_WD}</span> working days <span class="o">=</span> <span class="v">"${fmtD(P0.bankDue)}"</span> · <span class="k">hold_lift</span> = reported_at + <span class="v">${R.HOLD_LIFT_DAYS}</span>d <span class="o">=</span> <span class="v">"${fmtD(P0.holdLift)}"</span></div>`;
+}
+function paneDrafts() {
+  $("#p-drafts").innerHTML = `<div class="drafts">
+    <div class="paper"><span class="stamp">DRAFT · NOT FILED</span><h5>NCRP · Money Restoration Request</h5><div class="meta">Prepared by Golden Hour for the victim's own review and filing · ${fmtD(TODAY)}</div>
+      Acknowledgement No. <span class="fld">${C0.ack}</span><br>
+      Transaction: UPI Ref <span class="fld">436512907781</span> for <span class="fld">${inr(C0.amount)}</span> on <span class="fld">12-11-2026 14:05</span><br>
+      Beneficiary: <span class="fld">${C0.vpa}</span> → A/c <span class="fld">${C0.acct}</span> (amount held)<br>
+      Victim bank account: <span class="fld">XXXX2210</span> · PAN: <span class="redact">masked until you fill it</span><br>
+      Attachments: payment screenshot · NCRP SMS · FIR copy <span style="font-family:var(--font);font-size:11px;color:#b8661c">(required: held amount above SOP limit)</span><br><br>
+      I request restoration of the amount held in the above account, which was obtained from me by deception…</div>
+    <div class="doclist">
+      <div class="seg" style="justify-self:start"><span class="on">English</span><span class="ta">தமிழ்</span></div>
+      <div class="docitem sel"><div class="ic">${icon("file", 16)}</div><div><b>Restoration request</b><small>NCRP MRM · 1 page</small></div></div>
+      <div class="docitem"><div class="ic">${icon("file", 16)}</div><div><b>FIR request letter</b><small>Cyber Crime PS · 1 page</small></div></div>
+      <div class="docitem"><div class="ic">${icon("file", 16)}</div><div><b>Bank dispute letter</b><small>Remitting bank · due ${fmtD(P0.bankDue)}</small></div></div>
+      <div class="docitem"><div class="ic">${icon("file", 16)}</div><div><b>BNSS s.503 petition</b><small>Magistrate · parallel route</small></div></div>
+      <button class="btn primary" id="approveDocs">${icon("check", 14)}Approve &amp; download</button>
+      <div class="muted" style="font-size:11.5px">Nothing is filed for you. No fees. We never ask for OTP or PIN.</div>
+    </div></div>`;
+}
+function paneDeadlines() {
+  const totalH = (P0.bankDue - P0.fraud) / 3.6e6, leftH = Math.max(0, (P0.bankDue - TODAY) / 3.6e6), frac = leftH / totalH;
+  const r = 78, c = 2 * Math.PI * r;
+  const items = [
+    ["past", "check", "Fraud payment", "₹48,000 to fastgains.demo@upi", fmtD(P0.fraud) + " · " + fmtT(P0.fraud)],
+    ["past", "check", "Reported to 1930 / NCRP", `${P0.mins} min after payment · inside the golden hour`, fmtD(P0.rep) + " · " + fmtT(P0.rep)],
+    ["now", "clock", "Bank dispute deadline", `${R.BANK_REPORT_WD} working days · RBI liability framework`, fmtD(P0.bankDue)],
+    ["", "file", "Restoration request + FIR", "Drafted · awaiting victim approval", "Today"],
+    ["risk", "alert", "Hold may lift", `If no restoration request or court order within ${R.HOLD_LIFT_DAYS} days`, fmtD(P0.holdLift)],
+  ];
+  $("#p-deadlines").innerHTML = `<div class="dl">
+    <div><div class="ringwrap"><svg width="190" height="190" viewBox="0 0 190 190"><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd98a"/><stop offset="1" stop-color="#e8892f"/></linearGradient></defs><circle cx="95" cy="95" r="${r}" fill="none" stroke="#1c2233" stroke-width="12"/><circle id="ringarc" cx="95" cy="95" r="${r}" fill="none" stroke="url(#gg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c}" transform="rotate(-90 95 95)" style="transition:stroke-dashoffset 1.2s var(--ease-in-out)" data-target="${c * (1 - frac)}"/></svg>
+      <div class="lbl"><div><b>${Math.floor(leftH / 24)}d ${Math.round(leftH % 24)}h</b><span>until bank deadline</span></div></div></div>
+      <div style="text-align:center;margin-top:8px"><span class="pill warn">${icon("clock", 11)} Due ${fmtD(P0.bankDue)}</span></div></div>
+    <div><div class="tl">${items.map(([cls, ic, t, p, w]) => `<div class="item ${cls}"><div class="dot">${icon(ic, 12)}</div><div><b>${t}</b><p>${p}</p></div><div class="when">${w}</div></div>`).join("")}</div>
+      <div class="reminders"><span class="pill gold">${icon("bell", 11)} Telegram reminder · 16 Nov 18:00</span><span class="pill gold">${icon("bell", 11)} 17 Nov 09:00</span><span class="pill neutral">Weekly status until money returned</span></div></div></div>`;
+}
+function renderAudit() {
+  const el = $("#chainlist"); if (!el) return;
+  el.innerHTML = audit.slice(-6).map((a, i) => `<div class="blk"><span class="n">#${audit.length - Math.min(6, audit.length) + i + 1}</span><span>${a.agent} <span class="muted">→ ${a.state}</span></span><code>${a.h.slice(0, 10)}…</code></div>`).join("");
+}
+function paneSafety() {
+  $("#p-safety").innerHTML = `<div class="safety">
+    <div class="panel" style="padding:14px 16px;box-shadow:none"><div class="ph" style="padding:0 0 10px"><h3>${icon("shield", 15, 'style="color:var(--gold)"')}Consent &amp; data</h3></div>
+      <dl class="kv"><dt>DPDP notice</dt><dd>Shown in Tamil + English · accepted ${fmtT(new Date(P0.rep.getTime() + 7 * 6e4))}</dd><dt>Purpose</dt><dd>Prepare and track this victim's own recovery filings</dd><dt>Redaction</dt><dd>Aadhaar ×1 · PAN ×0 · phone ×1 before model calls</dd><dt>Retention</dt><dd>${R.PII_RETENTION} days after packet filed, then deleted</dd><dt>Advice boundary</dt><dd>Information, not legal advice · legal-aid referral offered</dd><dt>Money</dt><dd><b style="color:#8eeac0">Zero fees · zero custody</b> · never asks for OTP or PIN</dd></dl></div>
+    <div class="panel" style="padding:14px 16px;box-shadow:none"><div class="ph" style="padding:0 0 10px"><h3>${icon("lock", 15, 'style="color:var(--gold)"')}Audit chain</h3><span class="sub">SHA-256, each block hashes the previous</span></div><div class="chain" id="chainlist"></div></div></div>`;
+  renderAudit();
+}
+function panePacket() {
+  const pk = { case_id: C0.id, state: "PACKET_SENT", consent: { dpdp: true, lang: ["ta", "en"] }, victim: { name: "Selvi K.", district: "Coimbatore", pan: "[redacted]" }, txn: { utr: "436512907781", amount_inr: C0.amount, paid_at: "2026-11-12T14:05:00+05:30", payee_vpa: C0.vpa, payee_account: C0.acct }, ncrp_ack: C0.ack, reported_after_min: P0.mins, routes: ["MRM_RESTORATION+FIR", "BNSS_503", "BANK_DISPUTE", "RB_IOS_2026"], deadlines: { bank_report: P0.bankDue.toISOString().slice(0, 10), hold_lift: P0.holdLift.toISOString().slice(0, 10) }, audit_head: audit.length ? audit[audit.length - 1].h.slice(0, 16) : null };
+  const j = JSON.stringify(pk, null, 2).replace(/("[^"]+")(?=:)/g, '<span class="k">$1</span>').replace(/: ("[^"]*")/g, ': <span class="s">$1</span>').replace(/: (\d+)/g, ': <span class="n">$1</span>').replace(/: (true|false|null)/g, ': <span class="b">$1</span>').replace(/(\[|, )("[A-Z_+0-9]+")/g, '$1<span class="s">$2</span>').replace(/("ta"|"en")/g, '<span class="s">$1</span>');
+  $("#p-packet").innerHTML = `<div class="ph" style="padding:0 0 10px"><h3>${icon("code", 15, 'style="color:var(--gold)"')}Case packet sent to bank crew</h3><span class="sub">consented, redacted, schema-validated</span><div class="end"><span class="pill good">${icon("check", 11)} schema v1 valid</span></div></div><div class="json">${j}</div>`;
+}
+
+async function runVictim(auto) {
+  buildPipeline(); chat().innerHTML = '<div class="daysep">Today</div>'; clockMin = 0; doneCount = 0; audit.length = 0;
+  $("#st-steps").textContent = "0 / 6"; $("#st-state").textContent = "REPORTED"; t0 = performance.now(); clearInterval(timer); timer = setInterval(tick, 100);
   caption("A scam victim in Coimbatore sends a <b>Tanglish voice note</b> to the Golden Hour Telegram bot.");
+  await sleep(600);
+  const v = bubble("out", `<div class="voice"><div class="play">${icon("play", 14)}</div><div class="wv">${Array.from({ length: 30 }, (_, i) => `<i style="height:${5 + Math.round(Math.abs(Math.sin(i * 1.3) * Math.cos(i * .4)) * 19)}px"></i>`).join("")}</div><span class="dur">0:19</span></div><span class="tr"><b>Transcript · Tanglish</b><br>"Sir, oru trading app la ₹48,000 pottuten. Withdraw panna mudiyala. 1930 ku call panninen, ack number vandhuchu. Panam thirumba kidaikuma?"</span>`, { time: "14:58" });
+  setNode(0, "run", "transcribing…");
+  const bars = v.querySelectorAll(".wv i"); for (let i = 0; i < bars.length; i++) { bars[i].classList.add("on"); await sleep(38); }
+  await botTyping(900);
+  bubble("in", `<span class="ta">கவலைப்படாதீர்கள். நீங்கள் 47 நிமிடத்தில் 1930-க்கு புகார் செய்தீர்கள் — பணம் முடக்கப்பட்டிருக்க வாய்ப்பு அதிகம். அதைத் திரும்பப் பெற நான் உதவுகிறேன்.</span><span class="tr">Don't worry. You reported within 47 minutes, so the money is likely frozen. I'll help you get it back.</span>`);
+  setNode(0, "done", "1.4s · ta-IN"); doneCount = 1; $("#st-steps").textContent = "1 / 6"; $("#railfill").style.width = "20%"; await logEvent({ agent: "Intake & Triage", state: "REPORTED", at: TODAY.toISOString() });
+  setNode(5, "run", "consent…");
+  await botTyping(600);
+  bubble("in", `<b>Before we start (DPDP consent)</b><br>I'll use your screenshot and SMS only to prepare your forms, mask Aadhaar/PAN, and delete them after 30 days. <span class="ta">இது தகவல் மட்டுமே, சட்ட ஆலோசனை அல்ல.</span><div class="kb"><span class="chosen">✓ I agree</span><span>Read policy</span></div>`);
   await sleep(700);
-  addMsg("out", `<div class="voice"><div class="play">▶</div>${wave()}<span>0:19</span></div><span class="tr"><b>Transcript (Tanglish):</b> "Sir, oru trading app la ₹48,000 pottuten. Withdraw panna mudiyala. 1930 ku call panninen, ack number vandhuchu. Panam thirumba kidaikuma?"</span><span class="meta">14:58 ✓✓</span>`);
-  setAgent(0, "run"); await sleep(1300);
-  await botSay(`<span class="ta">கவலைப்படாதீர்கள். நீங்கள் 47 நிமிடத்தில் 1930-க்கு புகார் செய்தீர்கள் — பணம் முடக்கப்பட்டிருக்க வாய்ப்பு அதிகம். அதைத் திரும்பப் பெற நான் உதவுகிறேன்.</span><span class="tr">Don't worry. You reported to 1930 within 47 minutes, so the money is likely frozen. I'll help you get it back.</span><div class="btnrow"><span class="chip">Send payment screenshot</span><span class="chip">Send NCRP ack SMS</span></div>`);
-  setAgent(5, "run");
-  await botSay(`<b>Consent (DPDP):</b> I will use your screenshot and SMS only to prepare your forms, mask Aadhaar/PAN, and delete them after 30 days. <span class="ta">இது தகவல் மட்டுமே, சட்ட ஆலோசனை அல்ல.</span><div class="btnrow"><span class="chip">✅ I agree</span></div>`, 700);
-  setAgent(0, "done");
-  addMsg("out", "✅ I agree<span class='meta'>14:59 ✓✓</span>");
-  caption("<b>Intake agent</b> replies in Tamil, takes DPDP consent, then asks for evidence.");
-  await sleep(1200);
-  addMsg("out", `<div class="receipt"><div class="wm">SYNTHETIC</div><div class="ok">✔ Payment successful</div><div class="amt">₹48,000</div><div class="row"><span>To</span><span>fastgains.demo@upi</span></div><div class="row"><span>UPI Ref No.</span><span>436512907781</span></div><div class="row"><span>Date</span><span>12 Nov 2026, 2:05 pm</span></div><div class="row"><span>From</span><span>XXXX 2210 · demo bank</span></div></div><span class="meta">15:00 ✓✓</span>`);
-  addMsg("out", `SMS: Your complaint is registered on NCRP. Ack No. 31211260045871<span class="meta">15:00 ✓✓</span>`);
-  caption("The victim sends a payment screenshot and the NCRP acknowledgement SMS.");
-  setAgent(1, "run"); await sleep(1600);
-  addCard(`<h3>② Evidence agent <span class="tag">vision LLM → strict JSON · regex-validated</span></h3>
-    <table><tr><th>Field</th><th>Value</th><th>Check</th></tr>
-    <tr><td>Amount</td><td class="mono">${inr(C.amount)}</td><td><span class="conf" style="width:46px"></span>0.99</td></tr>
-    <tr><td>UTR / UPI Ref</td><td class="mono">436512907781</td><td><span class="pill good">12 digits ✓</span></td></tr>
-    <tr><td>Payee VPA</td><td class="mono">${C.vpa}</td><td><span class="conf" style="width:44px"></span>0.97</td></tr>
-    <tr><td>Paid at</td><td class="mono">12 Nov 2026 14:05</td><td><span class="conf" style="width:42px"></span>0.95</td></tr>
-    <tr><td>NCRP ack</td><td class="mono">${C.ack}</td><td><span class="pill good">14 digits ✓</span></td></tr>
-    <tr><td>Aadhaar in SMS</td><td><span class="redact">XXXX XXXX 4417</span></td><td><span class="pill info">masked</span></td></tr></table>`);
-  setAgent(1, "done");
-  caption("<b>Evidence agent</b> extracts and validates every field, and masks Aadhaar before anything leaves the device.");
+  bubble("out", "✓ I agree", {}); caption("<b>Intake &amp; Triage</b> replies in Tamil. <b>Safety &amp; Consent</b> records DPDP consent before any data is used.");
+  await sleep(900);
+  bubble("out", receiptHTML(), {}); await sleep(350);
+  bubble("out", `<span class="mono" style="font-size:11.5px">VM-NCRPGV: Your complaint is registered on NCRP. Ack No. 31211260045871</span>`, {});
+  caption("She shares the payment screenshot and the NCRP acknowledgement SMS.");
+  paneEvidence(); readyTab("evidence"); openTab("evidence"); setTimeout(animateScan, 200);
+  await sleep(900); caption("<b>Evidence agent</b> extracts and validates every field, and masks Aadhaar before any model call.");
+  await runAgent(1, 2100, "2.1s · 6 fields");
   await sleep(2600);
-  setAgent(2, "run"); await sleep(1100);
-  const plan = planRoutes(C);
-  addCard(`<h3>③ Route planner <span class="tag">deterministic rules + cited sources</span></h3>` + plan.routes.map(r => `<div class="route"><b>${r.name}</b> <span class="pill ${r.pill[0]}">${r.pill[1]}</span><div class="why">${r.why}</div><div class="src">Source: ${r.src}</div></div>`).join(""));
-  setAgent(2, "done");
-  caption("<b>Route planner</b> picks the official recovery routes with deterministic rules, each with a cited source.");
-  await sleep(3200);
-  setAgent(4, "run"); await sleep(900);
-  const P = [8, 36, 64, 92];
-  const pos = d => { const ts = plan.deadlines.map(x => x.d.getTime()); const t = d.getTime(); for (let i = 0; i < 3; i++) if (t <= ts[i + 1]) return P[i] + (P[i + 1] - P[i]) * Math.max(0, (t - ts[i]) / (ts[i + 1] - ts[i])); return 92; };
-  const nowPos = pos(TODAY);
-  addCard(`<h3>⑤ Deadline guardian <span class="tag">reminders on Telegram</span></h3>
-    <div class="timeline"><div class="bar"></div><div class="prog" style="width:${nowPos}%"></div>
-    ${plan.deadlines.map((x, i) => `<div class="tick" style="left:${P[i]}%"><div class="d">${fmt(x.d)}</div><div class="dot" style="background:${x.c}"></div><div class="lbl">${x.lbl}</div></div>`).join("")}
-    <div class="tick" style="left:${nowPos}%;top:-2px;width:60px"><div class="dot" style="background:#d9ff43;width:8px;height:8px;margin-top:40px;border:0"></div></div>
-    </div>
-    <div class="note">Not to scale · lime marker = today (${fmt(TODAY)}) · bank report due <b>${fmt(plan.deadlines[2].d)}</b> · if no restoration request or court order, the hold may lift around <b>${fmt(plan.deadlines[3].d)}</b>.</div>`, true);
-  setAgent(4, "done");
-  caption("<b>Deadline guardian</b> tracks the clocks that decide whether frozen money is lost: the bank report and the hold-lift date.");
+  paneRoutes(); readyTab("routes"); caption("<b>Route Planner</b> picks official routes with deterministic rules. Each one shows its checks and source.");
+  if (auto) await clickEl(document.querySelector('.itab[data-k="routes"]')); else openTab("routes");
+  await runAgent(2, 1300, "0.04s · 4 routes");
+  await sleep(3400);
+  paneDrafts(); readyTab("drafts"); caption("<b>Drafter</b> pre-fills the restoration request, FIR letter, bank dispute and BNSS petition. The victim files them personally.");
+  if (auto) await clickEl(document.querySelector('.itab[data-k="drafts"]')); else openTab("drafts");
+  await runAgent(3, 1500, "3.2s · 4 docs");
   await sleep(3000);
-  setAgent(3, "run"); await sleep(1100);
-  addCard(`<h3>④ Drafter <span class="tag">victim reviews &amp; files personally</span></h3>
-    <div class="doc"><b>NCRP · Money Restoration request (pre-filled draft)</b><br>Acknowledgement No.: ${C.ack}<br>Transaction: UPI Ref 436512907781 · ${inr(C.amount)} · 12-11-2026 14:05<br>Beneficiary: ${C.vpa} → A/c ${C.acct} (held)<br>Victim bank: demo bank A/c XXXX2210 · PAN: <span class="redact">masked</span><br>Attachments: payment screenshot, NCRP SMS, FIR copy (required: held amount above SOP threshold)<br><br><b>Bank dispute letter</b><br>To the Branch Manager, I report a fraudulent UPI debit of ₹48,000 on 12-11-2026 induced by deception…</div>
-    <div class="approve"><button class="btn">Approve &amp; download</button><button class="btn ghost">Read back in Tamil 🔊</button><span class="note">Nothing is filed for you · no fees · we never ask for OTP/PIN</span></div>`);
-  setAgent(3, "done");
-  addCard(`<h3>⑥ Safety &amp; consent <span class="tag">wraps every step</span></h3>
-    <table><tr><td>DPDP notice + consent</td><td><span class="pill good">recorded 14:59</span></td></tr>
-    <tr><td>PII redaction before LLM calls</td><td><span class="pill good">Aadhaar, PAN masked</span></td></tr>
-    <tr><td>Advice boundary</td><td><span class="pill info">information + self-filing + legal-aid referral</span></td></tr>
-    <tr><td>Recovery-scam guard</td><td><span class="pill good">zero fees · zero custody</span></td></tr>
-    <tr><td>Audit log</td><td><span class="mono">7 transitions · hash-chained</span></td></tr></table>`);
-  setAgent(5, "done");
-  caption("<b>Drafter</b> pre-fills the restoration request and bank letter. The victim approves and files them personally.");
-  await sleep(1400);
-  await botSay(`<span class="ta">ஆவணங்கள் தயார். சரிபார்த்து நீங்களே சமர்ப்பிக்கவும். நினைவூட்டல்: வங்கி புகார் கடைசி நாள் 17 நவம்பர்.</span><span class="tr">Documents ready. Please check and submit them yourself. Reminder: bank report due 17 Nov.</span><div class="btnrow"><span class="chip">📄 Restoration request</span><span class="chip">📄 Bank letter</span><span class="chip">🔔 Remind me</span></div>`);
+  paneDeadlines(); readyTab("deadlines"); caption("<b>Deadline Guardian</b> tracks the clocks that decide whether frozen money is lost, and sends reminders."); if (auto) await clickEl(document.querySelector('.itab[data-k="deadlines"]')); else openTab("deadlines");
+  setTimeout(() => { const a = $("#ringarc"); if (a) a.style.strokeDashoffset = a.dataset.target; }, 80);
+  caption("<b>Deadline Guardian</b> tracks the clocks that decide whether frozen money is lost, and sends reminders.");
+  await runAgent(4, 1100, "3 clocks set");
+  await sleep(3200);
+  paneSafety(); readyTab("safety"); caption("<b>Safety &amp; Consent</b> keeps an audit chain: every state change is SHA-256 hashed onto the previous one."); if (auto) await clickEl(document.querySelector('.itab[data-k="safety"]')); else openTab("safety");
+  setNode(5, "done", "consent ✓ · 3 redactions"); doneCount = 6; $("#st-steps").textContent = "6 / 6"; $("#railfill").style.width = "100%"; $("#st-state").textContent = "PACKET_SENT";
+  await logEvent({ agent: "Safety & Consent", state: "PACKET_SENT", at: new Date(TODAY.getTime() + 60000).toISOString() });
+  caption("<b>Safety &amp; Consent</b> keeps an audit chain: every state change is SHA-256 hashed onto the previous one.");
+  await botTyping(700);
+  bubble("in", `<span class="ta">ஆவணங்கள் தயார். சரிபார்த்து நீங்களே சமர்ப்பிக்கவும். நினைவூட்டல்: வங்கி புகார் கடைசி நாள் 17 நவம்பர்.</span><span class="tr">Documents ready. Please check and submit them yourself. Reminder: bank report due 17 Nov.</span><div class="kb"><span>📄 Restoration request</span><span>📄 Bank letter</span><span class="full">🔔 Remind me</span></div>`);
   await sleep(2600);
+  panePacket(); readyTab("packet"); if (auto) await clickEl(document.querySelector('.itab[data-k="packet"]')); else openTab("packet");
+  caption("The consented, redacted <b>case packet</b> goes to the bank crew.");
+  await sleep(2600); clearInterval(timer);
 }
 
-/* ---------------- Bank view ---------------- */
-let selAcct = "XXXX4471";
-function renderBank() {
-  const totalHeld = Object.values(LIENS).reduce((a, b) => a + b, 0);
-  const totalClaimed = CASES.reduce((a, c) => a + c.amount, 0);
-  const cl = clusters();
-  document.getElementById("kpis").innerHTML = [
-    [CASES.length, "case packets this week"], [inr(totalHeld), "held under lien (4 accounts)"], [inr(totalClaimed), "claimed by victims"], [cl.groups.length, "mule clusters found"]
-  ].map(([v, l]) => `<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
-  const stPill = s => ({ "Packet received": "warn", "Bank verified": "good", "Query sent": "info", "Restoration filed": "good" }[s]);
-  document.getElementById("queue").innerHTML = `<tr><th>Case</th><th>Victim</th><th>Amount</th><th>Payee → account</th><th>Reported</th><th>Status</th></tr>` +
-    CASES.map(c => { const mins = Math.round((new Date(c.reportedAt) - new Date(c.fraudAt)) / 60000); return `<tr class="click ${c.acct === selAcct ? "sel" : ""}" data-acct="${c.acct}"><td class="mono">${c.id}</td><td>${c.victim}<br><span class="note">${c.city} · ${c.type}</span></td><td class="mono">${inr(c.amount)}</td><td class="mono">${c.vpa}<br>→ ${c.acct}</td><td>${mins < 60 ? `<span class="pill good">${mins} min</span>` : `<span class="pill warn">${(mins / 60).toFixed(1)} h</span>`}</td><td><span class="pill ${stPill(c.status)}">${c.status}</span></td></tr>`; }).join("");
-  document.querySelectorAll("#queue tr.click").forEach(tr => tr.onclick = () => { selAcct = tr.dataset.acct; renderBank(); });
-  const pr = proRata(selAcct);
-  document.getElementById("recon-acc").textContent = selAcct;
-  const cols = ["#3987e5", "#1baf7a", "#eda100", "#e87ba4"];
-  document.getElementById("recon").innerHTML = `
-    <table><tr><th>Victim</th><th>Claimed</th><th>Pro-rata release</th></tr>${pr.claims.map((c, i) => `<tr><td><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${cols[i]};margin-right:6px"></i>${c.victim} <span class="note">${c.id}</span></td><td class="mono">${inr(c.amount)}</td><td class="mono"><b>${inr(c.share)}</b></td></tr>`).join("")}
-    <tr><td><b>Total</b></td><td class="mono">${inr(pr.total)}</td><td class="mono"><b>${inr(Math.min(pr.lien, pr.total))}</b></td></tr></table>
-    <div class="split">${pr.claims.map((c, i) => `<div style="flex:${c.share};background:${cols[i]}">${Math.round(100 * c.share / pr.lien)}%</div>`).join("")}</div>
-    <div class="note">Lien held ${inr(pr.lien)} vs claims ${inr(pr.total)} → ${pr.ratio < 1 ? `over-claimed; each victim receives ${(pr.ratio * 100).toFixed(1)}% (draft for SOP multi-victim / BNSS s.503 order)` : "fully covered; release in full"}.</div>
-    <div class="approve"><button class="btn">Approve split draft</button><button class="btn ghost">Query victim</button><span class="note">Human analyst decides · every action audit-logged</span></div>`;
-  drawGraph(cl);
+/* ================= Console ================= */
+let selAcct = "XXXX4471", consoleBuilt = false;
+function spark(vals, color) { const w = 92, h = 30, mx = Math.max(...vals), mn = Math.min(...vals); const pts = vals.map((v, i) => [i * w / (vals.length - 1), h - 3 - (v - mn) / (mx - mn || 1) * (h - 6)]); const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" "); return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${d} L${w},${h} L0,${h} Z" fill="${color}" opacity=".12"/><path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${pts.at(-1)[0]}" cy="${pts.at(-1)[1]}" r="2.6" fill="${color}"/></svg>`; }
+function countUp(el, to, fmt) { const st = performance.now(), d = 900; const f = t => { const k = Math.min(1, (t - st) / d), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(to * e); if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); }
+function renderConsole() {
+  const held = Object.values(LIENS).reduce((a, b) => a + b, 0), claimed = CASES.reduce((a, c) => a + c.amount, 0), cl = clusters();
+  if (!consoleBuilt) {
+    const k = [["Case packets this week", CASES.length, x => Math.round(x), "<b>+3</b> vs last week", [2, 3, 3, 4, 3, 5, 7], "#6aa7ff", "file"], ["Held under lien", held, inr, "across <b>4</b> payee accounts", [90, 110, 120, 150, 160, 180, 197], "#f2b84b", "lock"], ["Claimed by victims", claimed, inr, "<b>" + Math.round(100 * held / claimed) + "%</b> covered by liens", [120, 150, 160, 190, 200, 220, 232], "#a78bfa", "bank"], ["Mule clusters", cl.groups.length, x => Math.round(x), "<b>1</b> spans two accounts", [1, 1, 2, 2, 2, 3, 3], "#f2555a", "graph"]];
+    $("#kpis").innerHTML = k.map(([l, v, f, d, s, c, ic], i) => `<div class="panel kpi"><div class="l">${icon(ic, 14, `style="color:${c}"`)}${l}</div><div class="v" id="kv${i}">0</div><div class="d">${d}</div>${spark(s, c)}</div>`).join("");
+    k.forEach(([, v, f], i) => countUp($("#kv" + i), v, f));
+    consoleBuilt = true;
+  }
+  const stc = { "Packet received": "gold", "Bank verified": "good", "Query sent": "info", "Restoration filed": "good" }, stl = { "Packet received": "New packet", "Bank verified": "Verified", "Query sent": "Query sent", "Restoration filed": "Filed" };
+  $("#queue").innerHTML = `<tr><th>Victim</th><th>Amount</th><th>Payee → account</th><th>Reported</th><th>Status</th></tr>` + CASES.map(c => { const m = Math.round((new Date(c.reportedAt) - new Date(c.fraudAt)) / 6e4); return `<tr class="row ${c.acct === selAcct ? "sel" : ""}" data-acct="${c.acct}" data-id="${c.id}"><td><div class="who">${avatar(c)}<div><b>${c.victim}</b><small>${c.id} · ${c.city}</small></div></div></td><td class="num mono" style="font-size:12.5px">${inr(c.amount)}</td><td class="flow">${c.vpa}<br>→ <span class="acc">${c.acct}</span></td><td>${m <= 60 ? `<span class="pill good">${m} min</span>` : `<span class="pill warn">${(m / 60).toFixed(1)} h</span>`}</td><td><span class="pill ${stc[c.status]}">${stl[c.status]}</span></td></tr>`; }).join("");
+  document.querySelectorAll("#queue tr.row").forEach(tr => tr.addEventListener("click", () => { selAcct = tr.dataset.acct; renderConsole(); }));
+  renderRecon(); drawGraph(cl);
+}
+const SHARE_COL = ["#6aa7ff", "#a78bfa", "#3ccf8e", "#f2b84b"];
+function renderRecon() {
+  const pr = proRata(selAcct), over = pr.ratio < 1;
+  $("#recon").innerHTML = `<div class="ph"><h3>${icon("lock", 15, 'style="color:var(--gold)"')}Lien reconciliation · <span class="mono" style="font-size:13px">${selAcct}</span></h3><span class="sub">${pr.claims.length} claimant${pr.claims.length > 1 ? "s" : ""}</span><div class="end">${over ? `<span class="pill warn">${icon("alert", 11)} over-claimed</span>` : `<span class="pill good">${icon("check", 11)} fully covered</span>`}</div></div>
+    <div class="bar">${pr.claims.map((c, i) => `<div style="flex:${c.share} 1 0;background:${SHARE_COL[i]}">${Math.round(100 * c.share / Math.min(pr.lien, pr.total))}%</div>`).join("")}</div>
+    <div class="scale"><span>₹0</span><span>Lien held ${inr(pr.lien)} · claims ${inr(pr.total)}${over ? ` · each victim gets ${(pr.ratio * 100).toFixed(1)}%` : ""}</span><span>${inr(Math.min(pr.lien, pr.total))}</span></div>
+    <table><tr><th>Victim</th><th>Claimed</th><th>Pro-rata release</th></tr>${pr.claims.map((c, i) => `<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${SHARE_COL[i]};margin-right:8px"></span>${c.victim} <span class="muted">${c.id}</span></td><td class="mono num">${inr(c.amount)}</td><td class="mono num"><b>${inr(c.share)}</b></td></tr>`).join("")}</table>
+    <div class="foot"><button class="btn primary sm" id="approveSplit">${icon("check", 13)}Approve split draft</button><button class="btn ghost sm">Query victim</button><span class="muted" style="font-size:11.5px;margin-left:auto">draft for BNSS s.503 / SOP order</span></div>`;
+  $("#approveSplit").addEventListener("click", async () => { const h = await sha("approve" + selAcct + Date.now()); toast(`Split draft approved for ${selAcct}`, `audit ${h.slice(0, 12)}… · status sent to ${proRata(selAcct).claims.length} victims`); });
 }
 function drawGraph(cl) {
-  const svg = document.getElementById("graph");
-  const nodes = {}; const colorOf = n => n.startsWith("case") ? "#3987e5" : n.startsWith("vpa") ? "#eda100" : n.startsWith("acct") ? "#e66767" : "#9085e9";
-  const label = n => { const v = n.split(":")[1]; if (n.startsWith("case")) { const c = CASES.find(x => x.id === v); return c.victim.split(" ")[0]; } if (n.startsWith("vpa")) return v.replace(".demo@upi", "@"); return v; };
-  // layout: each cluster in its own column band, layered by type
+  const svg = $("#graph"), W = 600, H = 250, nodes = {};
+  const col = n => n.startsWith("case") ? "#6aa7ff" : n.startsWith("vpa") ? "#f2b84b" : n.startsWith("acct") ? "#f2555a" : "#a78bfa";
   const layer = n => n.startsWith("case") ? 0 : n.startsWith("vpa") ? 1 : n.startsWith("acct") ? 2 : 3;
-  const W = 640, H = 300; const widths = cl.groups.map(g => Math.max(...[0, 1, 2, 3].map(l => g.filter(n => layer(n) === l).length)));
-  const totalW = widths.reduce((a, b) => a + b, 0); let x0 = 20;
-  cl.groups.forEach((g, gi) => {
-    const bw = (W - 40) * widths[gi] / totalW;
-    [0, 1, 2, 3].forEach(l => { const ns = g.filter(n => layer(n) === l); ns.forEach((n, i) => { nodes[n] = { x: x0 + bw * (i + 0.5) / ns.length, y: 46 + l * 72 }; }); });
-    g.x0 = x0; g.bw = bw; x0 += bw;
-  });
-  let s = "";
-  cl.groups.forEach((g, gi) => { s += `<rect x="${g.x0 + 4}" y="12" width="${g.bw - 8}" height="${H - 24}" rx="10" fill="none" stroke="${gi === 0 ? "#d9ff43" : "#26324f"}" stroke-dasharray="${gi === 0 ? "0" : "4 4"}"/>`; s += `<text x="${g.x0 + 12}" y="28" style="fill:${gi === 0 ? "#d9ff43" : "#7d88a3"};font-weight:600">Cluster ${String.fromCharCode(65 + gi)}</text>`; });
-  cl.edges.forEach(([a, b]) => { s += `<line x1="${nodes[a].x}" y1="${nodes[a].y}" x2="${nodes[b].x}" y2="${nodes[b].y}" stroke="#3a4766" stroke-width="2"/>`; });
-  Object.entries(nodes).forEach(([n, p]) => { s += `<circle cx="${p.x}" cy="${p.y}" r="9" fill="${colorOf(n)}" stroke="#18223d" stroke-width="2"><title>${n}</title></circle><text x="${p.x}" y="${p.y + 22}" text-anchor="middle">${label(n)}</text>`; });
+  const lbl = n => { const v = n.split(":")[1]; if (n.startsWith("case")) return CASES.find(x => x.id === v).victim.split(" ")[0]; if (n.startsWith("vpa")) return v.replace(".demo@upi", "@"); if (n.startsWith("phone")) return "…" + v.slice(-5); return v; };
+  const widths = cl.groups.map(g => Math.max(...[0, 1, 2, 3].map(l => g.filter(n => layer(n) === l).length))), tw = widths.reduce((a, b) => a + b, 0);
+  let x0 = 10; const boxes = [];
+  cl.groups.forEach((g, gi) => { const bw = (W - 20) * widths[gi] / tw; [0, 1, 2, 3].forEach(l => { const ns = g.filter(n => layer(n) === l); ns.forEach((n, i) => nodes[n] = { x: x0 + bw * (i + .5) / ns.length, y: 40 + l * 58 }); }); boxes.push([x0, bw, g]); x0 += bw; });
+  const selGroup = cl.groups.findIndex(g => g.includes("acct:" + selAcct));
+  let s = `<defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  boxes.forEach(([bx, bw, g], gi) => { const on = gi === selGroup; s += `<rect x="${bx + 4}" y="8" width="${bw - 8}" height="${H - 16}" rx="12" fill="${on ? "rgba(242,184,75,.05)" : "none"}" stroke="${on ? "rgba(242,184,75,.55)" : "rgba(255,255,255,.08)"}" ${on ? "" : 'stroke-dasharray="4 4"'}/><text x="${bx + 14}" y="24" fill="${on ? "#ffd98a" : "#717789"}" font-size="10.5" font-weight="600" letter-spacing=".08em">CLUSTER ${String.fromCharCode(65 + gi)}</text>`; });
+  cl.edges.forEach(([a, b]) => { const on = cl.groups[selGroup].includes(a); s += `<line x1="${nodes[a].x}" y1="${nodes[a].y}" x2="${nodes[b].x}" y2="${nodes[b].y}" stroke="${on ? "rgba(242,184,75,.45)" : "rgba(255,255,255,.12)"}" stroke-width="${on ? 1.6 : 1.2}"/>`; });
+  Object.entries(nodes).forEach(([n, p]) => { const on = cl.groups[selGroup].includes(n); s += `<g class="gnode" data-n="${n}"><circle cx="${p.x}" cy="${p.y}" r="13" fill="${col(n)}" opacity="${on ? .16 : .06}"/><circle class="core" cx="${p.x}" cy="${p.y}" r="6.5" fill="${col(n)}" stroke="#090c14" stroke-width="2" ${on ? 'filter="url(#glow)"' : ""}/><text x="${p.x}" y="${p.y + 22}" text-anchor="middle" font-size="10" fill="${on ? "#d6d9e2" : "#717789"}" font-family="Inter, system-ui">${lbl(n)}</text></g>`; });
   svg.innerHTML = s;
-  const big = cl.groups[0]; const vic = big.filter(n => n.startsWith("case")).length; const accts = big.filter(n => n.startsWith("acct")).map(n => n.split(":")[1]); const vpas = big.filter(n => n.startsWith("vpa")).length;
-  const amt = CASES.filter(c => accts.includes(c.acct)).reduce((a, c) => a + c.amount, 0);
-  document.getElementById("clusters").innerHTML = `<div class="explain"><b>Why Cluster A is flagged:</b> ${vic} victims paid ${vpas} different VPAs that settle into ${accts.length} accounts (${accts.join(", ")}). Both accounts list the same phone (${ACCT_PHONE[accts[0]]}). Combined claims ${inr(amt)}. <span class="note">Explanation generated from graph edges · analyst confirms before any report to MuleHunter.AI / Suspect Registry.</span></div>`;
+  const tip = $("#gtip"), wrap = $("#graphwrap");
+  svg.querySelectorAll(".gnode").forEach(g => { g.addEventListener("mouseenter", () => { const n = g.dataset.n, [t, v] = n.split(":"); let html = ""; if (t === "case") { const c = CASES.find(x => x.id === v); html = `<b>${c.victim} · ${c.id}</b><span>${inr(c.amount)} · ${c.type}</span>`; } else if (t === "vpa") { const cs = CASES.filter(x => x.vpa === v); html = `<b>${v}</b><span>${cs.length} victim payment${cs.length > 1 ? "s" : ""} · ${inr(cs.reduce((a, c) => a + c.amount, 0))}</span>`; } else if (t === "acct") { html = `<b>Account ${v}</b><span>Lien ${inr(LIENS[v])} · phone ${ACCT_PHONE[v]}</span>`; } else { const as = Object.entries(ACCT_PHONE).filter(([, p]) => p === v).map(([a]) => a); html = `<b>${v}</b><span>Linked to ${as.join(", ")}</span>`; } tip.innerHTML = html; const r = g.getBoundingClientRect(), wr = wrap.getBoundingClientRect(); tip.style.left = Math.min(wr.width - 190, Math.max(6, r.left - wr.left - 70)) + "px"; tip.style.top = (r.top - wr.top - 58) + "px"; tip.classList.add("on"); }); g.addEventListener("mouseleave", () => tip.classList.remove("on")); g.addEventListener("click", () => { const n = g.dataset.n; const c = n.startsWith("case") ? CASES.find(x => x.id === n.split(":")[1]) : null; if (c) { selAcct = c.acct; renderConsole(); } else if (n.startsWith("acct")) { selAcct = n.split(":")[1]; renderConsole(); } }); });
+  const big = cl.groups[selGroup], accts = big.filter(n => n.startsWith("acct")).map(n => n.split(":")[1]), vic = big.filter(n => n.startsWith("case")).length, vp = big.filter(n => n.startsWith("vpa")).length, amt = CASES.filter(c => accts.includes(c.acct)).reduce((a, c) => a + c.amount, 0);
+  $("#clcount").textContent = `${cl.groups.length} clusters`;
+  $("#why").innerHTML = accts.length > 1 ? `<b>Why Cluster ${String.fromCharCode(65 + selGroup)} is flagged:</b> ${vic} victims paid ${vp} different UPI IDs that settle into ${accts.length} accounts (${accts.join(", ")}), both registered to phone ${ACCT_PHONE[accts[0]]}. Combined claims ${inr(amt)}. <span class="muted">Analyst confirms before reporting.</span>` : `<b>Cluster ${String.fromCharCode(65 + selGroup)}:</b> ${vic} victim${vic > 1 ? "s" : ""} paid ${vp} UPI ID${vp > 1 ? "s" : ""} settling into ${accts[0]}. Combined claims ${inr(amt)}. <span class="muted">No cross-account link found.</span>`;
 }
 
-/* ---------------- Tabs, captions, autoplay ---------------- */
-function show(view) { document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === view)); document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === "v-" + view)); if (view === "bank") renderBank(); }
-document.querySelectorAll(".tab").forEach(t => t.onclick = () => show(t.dataset.view));
-const capEl = document.getElementById("caption"); const params = new URLSearchParams(location.search);
-function caption(html) { if (!params.has("captions")) return; capEl.innerHTML = html; capEl.classList.remove("show"); void capEl.offsetWidth; capEl.classList.add("show"); }
-document.getElementById("send").onclick = () => { const v = document.getElementById("inp").value.trim(); if (!v) return; addMsg("out", v + "<span class='meta'>✓✓</span>"); document.getElementById("inp").value = ""; botSay("Thanks. In this prototype, press <b>Replay demo</b> or watch the scripted case C-1041.", 600); };
+/* ================= Impact charts (validated palette on dark surface) ================= */
+function charts() {
+  const fm = n => n.toLocaleString("en-IN");
+  { const d = [["Lost", 1673.85, "#3987e5", ""], ["Frozen", 771.98, "#3987e5", "46% of lost"], ["Returned", 83.84, "#d95926", "≈5% of lost · ≈11% of frozen"]]; const x0 = 96, w = 340, mx = 1700; let s = "";
+    [0, 500, 1000, 1500].forEach(v => { const x = x0 + w * v / mx; s += `<line x1="${x}" x2="${x}" y1="12" y2="206" stroke="rgba(255,255,255,.07)"/><text x="${x}" y="226" text-anchor="middle" font-size="11" fill="#717789">${fm(v)}</text>`; });
+    d.forEach(([l, v, c, n], i) => { const y = 24 + i * 62, bw = Math.max(4, w * v / mx); s += `<text x="${x0 - 12}" y="${y + 22}" text-anchor="end" font-size="13" fill="#aeb2bf" font-weight="600">${l}</text><path d="M${x0},${y} h${bw - 4} a4,4 0 0 1 4,4 v28 a4,4 0 0 1 -4,4 h-${bw - 4} z" fill="${c}"/><text x="${x0 + bw + 8}" y="${y + 16}" font-size="14" fill="#f3f1ec" font-weight="700">₹${fm(Math.round(v))} cr</text>${n ? `<text x="${x0 + bw + 8}" y="${y + 32}" font-size="11.5" fill="#aeb2bf">${n}</text>` : ""}`; });
+    $("#ch1").innerHTML = s + `<line x1="${x0}" x2="${x0}" y1="12" y2="206" stroke="rgba(255,255,255,.25)"/>`; }
+  { const d = [["TN 2024", 83.84 / 771.98], ["TN Jan–Jul 2025", 62.4 / 314], ["Chennai Jan–May 2025", 10.45 / 48]]; const x0 = 170, w = 300; let s = "";
+    [0, 25, 50, 75, 100].forEach(v => { const x = x0 + w * v / 100; s += `<line x1="${x}" x2="${x}" y1="12" y2="206" stroke="rgba(255,255,255,.07)"/><text x="${x}" y="226" text-anchor="middle" font-size="11" fill="#717789">${v}%</text>`; });
+    d.forEach(([l, v], i) => { const y = 28 + i * 60, bw = w * v; s += `<text x="${x0 - 12}" y="${y + 20}" text-anchor="end" font-size="13" fill="#aeb2bf" font-weight="600">${l}</text><rect x="${x0}" y="${y}" width="${w}" height="32" rx="4" fill="rgba(255,255,255,.04)"/><path d="M${x0},${y} h${bw - 4} a4,4 0 0 1 4,4 v24 a4,4 0 0 1 -4,4 h-${bw - 4} z" fill="#d95926"/><text x="${x0 + bw + 8}" y="${y + 21}" font-size="14" fill="#f3f1ec" font-weight="700">${(v * 100).toFixed(1)}%</text>`; });
+    $("#ch2").innerHTML = s + `<line x1="${x0}" x2="${x0}" y1="12" y2="206" stroke="rgba(255,255,255,.25)"/>`; }
+  { const d = [["2023", 7465], ["2024", 22845.73], ["2025", 19813]]; const y0 = 200, h = 165, mx = 25000; let s = "";
+    [0, 10000, 20000].forEach(v => { const y = y0 - h * v / mx; s += `<line x1="70" x2="540" y1="${y}" y2="${y}" stroke="rgba(255,255,255,.07)"/><text x="62" y="${y + 4}" text-anchor="end" font-size="11" fill="#717789">${fm(v)}</text>`; });
+    d.forEach(([l, v], i) => { const x = 120 + i * 150, bh = h * v / mx, bw = 70; s += `<path d="M${x},${y0} v-${bh - 4} a4,4 0 0 1 4,-4 h${bw - 8} a4,4 0 0 1 4,4 v${bh - 4} z" fill="#3987e5"/><text x="${x + bw / 2}" y="${y0 - bh - 7}" text-anchor="middle" font-size="13" fill="#f3f1ec" font-weight="700">₹${fm(Math.round(v))} cr</text><text x="${x + bw / 2}" y="${y0 + 18}" text-anchor="middle" font-size="12.5" fill="#aeb2bf" font-weight="600">${l}</text>`; });
+    $("#ch3").innerHTML = s + `<line x1="70" x2="540" y1="${y0}" y2="${y0}" stroke="rgba(255,255,255,.25)"/>`; }
+}
+function rulesTable() {
+  $("#rulestbl").innerHTML = `<tr><th style="padding-left:16px">Rule key</th><th>Value</th><th>How it is used</th><th>Source</th><th>Status</th></tr>` + RULES.map(r => `<tr><td class="mono" style="padding-left:16px;color:var(--gold-2)">${r.key}</td><td class="mono">${typeof r.value === "number" ? r.value.toLocaleString("en-IN") : r.value} <span class="muted">${r.unit}</span></td><td class="t2">${r.use}</td><td class="t2" style="font-size:12px">${r.src}</td><td>${r.status === "official" ? '<span class="pill good">official text</span>' : r.status === "policy" ? '<span class="pill info">our policy</span>' : '<span class="pill warn">verify</span>'}</td></tr>`).join("");
+}
 
-function titleCard(html) { const c = document.getElementById("card"); c.innerHTML = `<div>${html}</div>`; c.classList.add("show"); }
-function hideCard() { document.getElementById("card").classList.remove("show"); }
+/* ================= Cursor, captions, cards ================= */
+const cur = $("#cursor"); let cx = 720, cy = 860;
+async function moveTo(el, dx = 0, dy = 0) { const r = el.getBoundingClientRect(); cx = r.left + r.width / 2 + dx; cy = r.top + r.height / 2 + dy; cur.style.transform = `translate(${cx - 3}px, ${cy - 2}px)`; await sleep(780); }
+async function clickEl(el, dx, dy) { if (!params.has("autoplay")) { el.click(); return; } await moveTo(el, dx, dy); const rp = document.createElement("div"); rp.className = "ripple"; rp.style.left = cx + "px"; rp.style.top = cy + "px"; document.body.appendChild(rp); setTimeout(() => rp.remove(), 600); el.click(); await sleep(250); }
+const capEl = $("#caption");
+function caption(h) { if (!params.has("captions")) return; capEl.classList.remove("show"); setTimeout(() => { capEl.innerHTML = h; capEl.classList.add("show"); }, 120); }
+function titleCard(html) { $("#cardinner").innerHTML = html; $("#card").classList.add("show"); }
+function hideCard() { $("#card").classList.remove("show"); }
+const markBig = `<div class="mark" style="width:72px;height:72px;border-radius:20px;margin:0 auto;display:grid;place-items:center;background:radial-gradient(circle at 30% 25%,#ffe6a8,#f2b84b 45%,#b8661c);box-shadow:0 0 60px -10px rgba(242,184,75,.7)"><svg width="40" height="40" style="color:#1a1305"><use href="#i-sun"/></svg></div>`;
+
 async function autoplay() {
-  titleCard(`<h1>Golden Hour</h1><p>Multi-agent post-scam money restoration · FinTech · K! Hacks 4.0</p><div class="big">Tamil Nadu 2024: <b>₹772 cr frozen</b>, only <b>~₹84 cr returned</b>.</div><p style="font-size:15px;margin-top:22px">Sources: TN Cyber Crime Wing via The News Minute / DT Next · Concept prototype on synthetic data</p>`);
-  await sleep(5200); hideCard();
-  caption("<b>Golden Hour</b>: scam money gets frozen but rarely comes back. Tamil Nadu 2024: ₹772 cr frozen, only ~₹84 cr returned.");
-  await sleep(4200);
-  await runVictim();
-  caption("The same <b>case packet</b> reaches the bank crew's fraud-ops console.");
-  await sleep(1200); show("bank"); await sleep(2600);
-  caption("<b>Reconciliation agent</b>: three victims claim ₹1,05,000 against a ₹80,000 lien, so it drafts a pro-rata split for the analyst.");
-  await sleep(5200);
-  caption("<b>Mule-graph explainer</b> links two accounts through one phone number and says why. A human analyst decides.");
-  await sleep(5200);
-  selAcct = "XXXX1190"; renderBank();
-  caption("Click any case to reconcile its account. Every action is audit-logged.");
-  await sleep(3800);
-  caption("<b>Golden Hour</b>: no fees · never holds money · victim files personally. Concept prototype on synthetic data.");
-  await sleep(4200);
-  titleCard(`<h1>Golden Hour</h1><p>Two agent crews, one case packet: the victim gets guided recovery in Tamil, the bank gets reconciled, explainable cases.</p><div class="big"><b>No fees</b> · <b>never holds money</b> · <b>human approves every decision</b></div><p style="font-size:15px;margin-top:22px">Team Golden Hour · Chennai Institute of Technology</p>`);
-  await sleep(5000);
-  document.title = "DONE";
+  cur.classList.add("on");
+  titleCard(`${markBig}<h1>Golden Hour</h1><p>A multi-agent copilot that turns frozen scam money into filed refund claims</p><div class="stat">Tamil Nadu 2024: <b>₹772 cr frozen</b> · only <b>≈ ₹84 cr returned</b></div><small>Source: TN Cyber Crime Wing via The News Minute / DT Next · FinTech · K! Hacks 4.0 · concept prototype on synthetic data</small>`);
+  await sleep(5200); hideCard(); await sleep(500);
+  await runVictim(true);
+  caption("The <b>bank crew</b> picks the packet up in the fraud-ops console.");
+  await clickEl(document.querySelector('.nav button[data-view="console"]')); await sleep(2200);
+  caption("<b>Reconciliation</b>: three victims claim ₹1,05,000 against an ₹80,000 lien, so it drafts an exact pro-rata split.");
+  await moveTo($("#recon .bar")); await sleep(3400);
+  caption("<b>Mule-graph explainer</b> links two accounts through one phone number and says why. Hover shows the evidence.");
+  const ph = document.querySelector('.gnode[data-n^="phone:+91 9"]'); await moveTo(ph); ph.dispatchEvent(new Event("mouseenter")); await sleep(3200); ph.dispatchEvent(new Event("mouseleave"));
+  caption("A human analyst approves every action. Each approval is <b>audit-logged</b>.");
+  await clickEl($("#approveSplit")); await sleep(2600);
+  await clickEl(document.querySelector('#queue tr.row[data-id="C-1015"]')); caption("Click any case to reconcile its account."); await sleep(2600);
+  caption("Built on <b>real public data</b>: where Tamil Nadu's scam money went in 2024.");
+  await clickEl(document.querySelector('.nav button[data-view="impact"]')); await sleep(4200);
+  caption("Every rule is <b>deterministic, versioned and sourced</b>, with unverified values flagged.");
+  await clickEl(document.querySelector('.nav button[data-view="rules"]')); await sleep(3800);
+  capEl.classList.remove("show"); cur.classList.remove("on");
+  titleCard(`${markBig}<h1>Golden Hour</h1><p>Two agent crews, one case packet: guided recovery in Tamil for the victim, reconciled and explainable cases for the bank.</p><div class="chips"><span>No fees</span><span>Never holds money</span><span>Human approves every decision</span></div><small>Team Golden Hour · Chennai Institute of Technology · github.com/mahak867/Golden-Hour</small>`);
+  await sleep(5200); document.title = "DONE";
 }
-if (params.has("autoplay")) { window.SPEED = Number(params.get("speed") || 1); autoplay(); }
-else if (params.get("view") === "bank") show("bank");
-else { window.SPEED = 0.35; runVictim(); }
+
+/* ================= Boot ================= */
+charts(); rulesTable(); buildPipeline(); show(params.get("view") || "victim");
+if (params.has("autoplay")) autoplay();
+else if (params.get("view") === "console") { /* console shown */ }
+else { SPEED = Number(params.get("speed") || 0.45); runVictim(false); }
 </script>
 </body>
 </html>
