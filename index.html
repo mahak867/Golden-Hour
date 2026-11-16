@@ -327,6 +327,34 @@ tr:last-child td { border-bottom: 0; }
 .chartp .srcs { font-size: 11px; color: var(--muted); padding: 0 16px; }
 .rules table td { font-size: 12.5px; }
 
+
+/* ---------- Try it yourself ---------- */
+.trybtn { margin-left: 18px; }
+.modal { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; background: rgba(4,6,10,.72); backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity .22s var(--ease-out); }
+.modal.open { opacity: 1; pointer-events: auto; }
+.mbox { width: min(1040px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; border-radius: 20px; transform: translateY(8px) scale(.98); transition: transform .28s var(--ease-out); }
+.modal.open .mbox { transform: none; }
+.mhead { display: flex; align-items: center; gap: 12px; padding: 18px 20px 6px; }
+.mhead h3 { margin: 0; font-size: 17px; letter-spacing: -.01em; }
+.mhead .x { margin-left: auto; width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--line); background: var(--ink-3); display: grid; place-items: center; cursor: pointer; color: var(--text-2); }
+.mgrid { display: grid; grid-template-columns: 340px 1fr; gap: 18px; padding: 12px 20px 20px; }
+.drop { border: 1.5px dashed rgba(242,184,75,.45); border-radius: 16px; background: linear-gradient(180deg, rgba(242,184,75,.06), rgba(242,184,75,.01)); min-height: 300px; display: grid; place-items: center; text-align: center; padding: 18px; cursor: pointer; position: relative; overflow: hidden; transition: border-color .2s ease, background-color .2s ease; }
+.drop.over { border-color: var(--gold); background: rgba(242,184,75,.1); }
+.drop img { max-width: 100%; max-height: 420px; border-radius: 10px; display: block; }
+.drop .hint b { display: block; font-size: 14px; margin: 10px 0 4px; }
+.privacy { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: #9be8c4; border: 1px solid rgba(60,207,142,.25); background: rgba(60,207,142,.06); border-radius: 10px; padding: 9px 11px; margin-top: 12px; }
+.prog { height: 6px; border-radius: 6px; background: var(--ink-4); overflow: hidden; margin: 10px 0 4px; }
+.prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--gold-2)); transition: width .2s linear; }
+.res h4 { margin: 0 0 8px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.res input { background: var(--ink-1); border: 1px solid var(--line-2); color: var(--text); border-radius: 8px; padding: 6px 9px; font: inherit; font-family: var(--mono); font-size: 12.5px; width: 100%; }
+.res input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(242,184,75,.15); }
+.res .tbl2 td { padding: 6px 6px; }
+.res .tbl2 td:first-child { color: var(--text-2); white-space: nowrap; width: 150px; }
+.raw { font-family: var(--mono); font-size: 11px; color: var(--muted); max-height: 90px; overflow: auto; background: #080b12; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; white-space: pre-wrap; margin-top: 8px; }
+.outcome { margin-top: 12px; display: grid; gap: 8px; }
+.outcome .route { padding: 9px 11px; }
+.micbtn.rec { background: rgba(242,85,90,.15); border-color: rgba(242,85,90,.5); color: #ff9ea1; }
+@media (max-width: 860px) { .mgrid { grid-template-columns: 1fr; } }
 /* ---------- Toasts, cursor, captions, title cards ---------- */
 .toasts { position: fixed; right: 22px; bottom: 22px; display: grid; gap: 8px; z-index: 30; }
 .toast { display: flex; gap: 10px; align-items: center; min-width: 300px; padding: 11px 13px; border-radius: 12px; background: rgba(21,26,40,.96); border: 1px solid var(--line-2); box-shadow: var(--shadow-2); font-size: 12.5px; transition: opacity .25s var(--ease-out), transform .25s var(--ease-out); }
@@ -394,6 +422,7 @@ tr:last-child td { border-bottom: 0; }
       <div class="grp">Workspace</div>
       <button data-view="victim" class="active"><svg width="18" height="18"><use href="#i-phone"/></svg>Victim journey<span class="count" style="color:var(--gold-2);border-color:rgba(242,184,75,.3)">live</span></button>
       <button data-view="console"><svg width="18" height="18"><use href="#i-bank"/></svg>Fraud-ops console<span class="count">7</span></button>
+      <button id="tryNav" class="trynav"><svg width="18" height="18"><use href="#i-scan"/></svg>Try your screenshot<span class="count" style="color:#8eeac0;border-color:rgba(60,207,142,.3)">real OCR</span></button>
       <div class="grp">Evidence</div>
       <button data-view="impact"><svg width="18" height="18"><use href="#i-chart"/></svg>Impact (real data)</button>
       <button data-view="rules"><svg width="18" height="18"><use href="#i-book"/></svg>Rules &amp; sources</button>
@@ -443,6 +472,7 @@ tr:last-child td { border-bottom: 0; }
                 <h2>Case C-1041 · Selvi K., Coimbatore</h2>
                 <div class="sub">UPI investment scam · ₹48,000 · reported to 1930 in 47 min</div>
               </div>
+              <button class="btn primary sm trybtn" id="tryBtn"><svg width="14" height="14"><use href="#i-scan"/></svg>Try with your own screenshot</button>
               <div class="stats">
                 <div class="stat"><b id="st-state">REPORTED</b><span>case state</span></div>
                 <div class="stat"><b id="st-time">00:00.0</b><span>elapsed</span></div>
@@ -515,6 +545,22 @@ tr:last-child td { border-bottom: 0; }
   </div>
 </div>
 
+
+<div class="modal" id="tryModal" role="dialog" aria-modal="true" aria-labelledby="tryTitle">
+  <div class="panel mbox">
+    <div class="mhead"><div class="logo" style="padding:0"><div class="mark" style="width:30px;height:30px"><svg width="17" height="17" style="color:#1a1305"><use href="#i-sun"/></svg></div></div><div><h3 id="tryTitle">Try Golden Hour on your own payment screenshot</h3><div class="muted" style="font-size:12.5px">Real text recognition (Tesseract OCR) and the same rules engine as the demo case.</div></div><button class="x" id="tryClose" aria-label="Close"><svg width="14" height="14"><use href="#i-x"/></svg></button></div>
+    <div class="mgrid">
+      <div>
+        <label class="drop" id="drop"><input type="file" id="tryFile" accept="image/*" hidden><div class="hint" id="dropHint"><div class="glyph" style="width:52px;height:52px;border-radius:14px;margin:0 auto;display:grid;place-items:center;background:var(--ink-3);border:1px solid var(--line);color:var(--gold)"><svg width="24" height="24"><use href="#i-scan"/></svg></div><b>Drop a UPI payment screenshot</b><span class="muted" style="font-size:12px">GPay, PhonePe, Paytm or a bank SMS · PNG or JPG · click to browse</span></div></label>
+        <div class="prog" id="prog" hidden><i></i></div><div class="muted mono" id="progTxt" style="font-size:11px"></div>
+        <div class="privacy"><svg width="15" height="15" style="flex:none"><use href="#i-lock"/></svg><div>Runs entirely in your browser. The image and text never leave this device. Don't use a real screenshot that shows full account or Aadhaar numbers.</div></div>
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn ghost sm" id="sampleBtn"><svg width="14" height="14"><use href="#i-file"/></svg>Use our synthetic sample</button><button class="btn ghost sm micbtn" id="micBtn"><svg width="14" height="14"><use href="#i-mic"/></svg>Describe it by voice (Tamil / English)</button></div>
+        <div class="muted" id="micOut" style="font-size:12px;margin-top:8px"></div>
+      </div>
+      <div class="res" id="tryRes"><div class="empty" style="min-height:300px"><div><div class="glyph"><svg width="26" height="26"><use href="#i-route"/></svg></div><b>Your recovery plan appears here</b><div class="muted" style="margin-top:4px">Fields found in the screenshot are editable before the plan is built.</div></div></div></div>
+    </div>
+  </div>
+</div>
 <div class="toasts" id="toasts"></div>
 <svg id="cursor" width="26" height="30" viewBox="0 0 26 30"><path d="M3 2.5 3 24l5.6-5.2 3.7 8.4 4-1.8-3.7-8.2 7.8-.4z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>
 <div id="caption"></div>
@@ -606,12 +652,12 @@ function toast(title, sub) { const t = document.createElement("div"); t.classNam
 /* ================= Navigation ================= */
 const CRUMBS = { victim: `Cases <span>›</span> <b>C-1041 · Selvi K.</b> <span class="pill gold" style="margin-left:6px">Live</span>`, console: `Bank <span>›</span> <b>Fraud-ops console</b> <span class="pill neutral" style="margin-left:6px">Demo Bank · Coimbatore region</span>`, impact: `Evidence <span>›</span> <b>Impact (real data)</b>`, rules: `Evidence <span>›</span> <b>Rules &amp; sources</b>` };
 function show(v) {
-  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  document.querySelectorAll(".nav button[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === v));
   document.querySelectorAll(".view").forEach(x => x.classList.toggle("active", x.id === "v-" + v));
   $("#crumb").innerHTML = CRUMBS[v];
   if (v === "console") renderConsole();
 }
-document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => show(b.dataset.view)));
+document.querySelectorAll(".nav button[data-view]").forEach(b => b.addEventListener("click", () => show(b.dataset.view)));
 
 /* ================= Victim journey ================= */
 const C0 = CASES[0], P0 = plan(C0);
@@ -876,10 +922,148 @@ async function autoplay() {
   await clickEl(document.querySelector('.nav button[data-view="impact"]')); await sleep(4200);
   caption("Every rule is <b>deterministic, versioned and sourced</b>, with unverified values flagged.");
   await clickEl(document.querySelector('.nav button[data-view="rules"]')); await sleep(3800);
+  caption("Judges can try it: <b>real OCR</b> reads any UPI screenshot, right in the browser.");
+  await clickEl($("#tryNav")); await sleep(700);
+  await clickEl($("#sampleBtn"));
+  for (let i = 0; i < 300 && !$("#buildPlan"); i++) await new Promise(r => setTimeout(r, 100));
+  await sleep(1400); await clickEl($("#buildPlan")); await sleep(4200);
+  await clickEl($("#dlDraft"), 0, 0).catch(() => {}); await sleep(900); closeTry(); await sleep(500);
   capEl.classList.remove("show"); cur.classList.remove("on");
   titleCard(`${markBig}<h1>Golden Hour</h1><p>Two agent crews, one case packet: guided recovery in Tamil for the victim, reconciled and explainable cases for the bank.</p><div class="chips"><span>No fees</span><span>Never holds money</span><span>Human approves every decision</span></div><small>Team Golden Hour · Chennai Institute of Technology · github.com/mahak867/Golden-Hour</small>`);
   await sleep(5200); document.title = "DONE";
 }
+
+
+/* ================= Try it yourself (real OCR, in-browser) ================= */
+const TRY = { worker: null, lastText: "" };
+function loadScript(src) { return new Promise((res, rej) => { if (window.Tesseract) return res(); const sc = document.createElement("script"); sc.src = src; sc.onload = res; sc.onerror = () => rej(new Error("Could not load OCR engine")); document.head.appendChild(sc); }); }
+function openTry() { $("#tryModal").classList.add("open"); }
+function closeTry() { $("#tryModal").classList.remove("open"); }
+$("#tryBtn").addEventListener("click", openTry);
+$("#tryNav").addEventListener("click", openTry);
+$("#tryClose").addEventListener("click", closeTry);
+$("#tryModal").addEventListener("click", e => { if (e.target.id === "tryModal") closeTry(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeTry(); });
+const drop = $("#drop");
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) runOCR(f); });
+$("#tryFile").addEventListener("change", e => { const f = e.target.files[0]; if (f) runOCR(f); });
+$("#sampleBtn").addEventListener("click", async e => { e.preventDefault(); e.stopPropagation(); const blob = await sampleReceipt(); runOCR(blob); });
+
+async function sampleReceipt() {
+  const c = document.createElement("canvas"); c.width = 720; c.height = 900; const g = c.getContext("2d");
+  g.fillStyle = "#ffffff"; g.fillRect(0, 0, 720, 900);
+  g.fillStyle = "#188038"; g.font = "bold 34px Inter, Arial"; g.fillText("Payment successful", 60, 110);
+  g.fillStyle = "#111"; g.font = "bold 76px Inter, Arial"; g.fillText("₹ 25,500", 60, 220);
+  const rows = [["Paid to", "luckydraw.demo@upi"], ["UPI Ref No.", "512398447016"], ["Date", "14 Nov 2026, 11:42 am"], ["From", "Demo Bank XXXX 8812"]];
+  g.font = "30px Inter, Arial"; rows.forEach(([a, b], i) => { const y = 340 + i * 90; g.fillStyle = "#666"; g.fillText(a, 60, y); g.fillStyle = "#111"; g.fillText(b, 300, y); g.fillStyle = "#e5e5e5"; g.fillRect(60, y + 28, 600, 2); });
+  g.fillStyle = "rgba(208,59,59,.18)"; g.font = "bold 90px Inter, Arial"; g.save(); g.translate(360, 700); g.rotate(-0.35); g.textAlign = "center"; g.fillText("SYNTHETIC", 0, 0); g.restore();
+  return new Promise(r => c.toBlob(r, "image/png"));
+}
+
+async function runOCR(file) {
+  const url = URL.createObjectURL(file);
+  $("#dropHint").innerHTML = `<img src="${url}" alt="Uploaded screenshot preview">`;
+  $("#prog").hidden = false; const bar = $("#prog i"); bar.style.width = "4%"; $("#progTxt").textContent = "Loading OCR engine (first run downloads about 3 MB)…";
+  try {
+    await loadScript("vendor/tesseract/tesseract.min.js");
+    if (!TRY.worker) {
+      TRY.worker = await Tesseract.createWorker("eng", 1, { workerPath: "vendor/tesseract/worker.min.js", corePath: "vendor/tesseract/", langPath: "vendor/tesseract/lang", gzip: true,
+        logger: m => { if (m.progress != null) { bar.style.width = Math.max(4, Math.round(m.progress * 100)) + "%"; $("#progTxt").textContent = `${m.status} · ${Math.round(m.progress * 100)}%`; } } });
+    }
+    const t0 = performance.now();
+    const { data } = await TRY.worker.recognize(file);
+    bar.style.width = "100%"; $("#progTxt").textContent = `Read ${data.text.trim().split(/\s+/).length} words in ${((performance.now() - t0) / 1000).toFixed(1)}s · on this device`;
+    TRY.lastText = data.text; renderTry(parseReceipt(data.text));
+  } catch (err) {
+    $("#progTxt").textContent = "OCR could not start here (" + err.message + "). Fill the fields by hand below.";
+    renderTry(parseReceipt(""));
+  }
+}
+
+function parseReceipt(t) {
+  const txt = t.replace(/[|]/g, " ");
+  const out = { amount: null, utr: null, vpa: null, when: null, ack: null, aadhaar: false };
+  const amt = [...txt.matchAll(/(?:₹|Rs\.?|INR|%|\?)\s?([0-9]{1,3}(?:,[0-9]{2,3})*(?:\.[0-9]{1,2})?|[0-9]+(?:\.[0-9]{1,2})?)/gi)].map(m => Number(m[1].replace(/,/g, ""))).filter(n => n >= 1 && n < 1e8);
+  if (amt.length) out.amount = Math.max(...amt);
+  if (!out.amount) {
+    const lines = txt.split(/\n/).map(l => l.trim());
+    const hit = lines.map(l => l.match(/^[^0-9A-Za-z]{0,3}([0-9]{1,2}(?:,[0-9]{2})*,[0-9]{3}(?:\.[0-9]{1,2})?|[0-9]{3,6}\.[0-9]{2})[^0-9A-Za-z]{0,3}$/)).find(Boolean);
+    if (hit) out.amount = Number(hit[1].replace(/,/g, ""));
+  }
+  const ref = txt.match(/(?:UTR|UPI\s*Ref(?:erence)?\.?\s*(?:No\.?|ID)?|UPI\s*transaction\s*ID|Ref(?:erence)?\s*No\.?|RRN)[^0-9]{0,12}([0-9]{12})/i);
+  out.utr = ref ? ref[1] : ((txt.match(/(?<![0-9])([0-9]{12})(?![0-9])/) || [])[1] || null);
+  const v = txt.match(/([a-zA-Z0-9.\-_]{2,})\s?@\s?([a-zA-Z]{2,})/); if (v) out.vpa = (v[1] + "@" + v[2]).toLowerCase();
+  const d = txt.match(/([0-3]?[0-9])\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*,?\s+(20[0-9]{2})(?:,?\s+([0-1]?[0-9]):([0-5][0-9])\s*(am|pm)?)?/i)
+    || txt.match(/([0-3]?[0-9])[\/\-.]([0-1]?[0-9])[\/\-.](20[0-9]{2})/);
+  if (d) {
+    const M = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+    let mo = isNaN(d[2]) ? M[d[2].slice(0, 3).toLowerCase()] : Number(d[2]) - 1, hh = Number(d[4] || 12), mm = Number(d[5] || 0);
+    if (d[6] && /pm/i.test(d[6]) && hh < 12) hh += 12; if (d[6] && /am/i.test(d[6]) && hh === 12) hh = 0;
+    out.when = new Date(Number(d[3]), mo, Number(d[1]), hh, mm);
+  }
+  const a = txt.match(/(?<![0-9])([0-9]{14})(?![0-9])/); if (a) out.ack = a[1];
+  out.aadhaar = /\b[2-9][0-9]{3}\s[0-9]{4}\s[0-9]{4}\b/.test(txt);
+  return out;
+}
+const toLocalInput = d => d ? new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16) : "";
+
+function renderTry(f) {
+  const found = k => f[k] ? `<span class="pill good">${icon("check", 11)} found</span>` : `<span class="pill warn">${icon("alert", 11)} add</span>`;
+  $("#tryRes").innerHTML = `<h4>${icon("scan", 15, 'style="color:var(--gold)"')}Fields read from your screenshot <span class="muted" style="font-weight:400;font-size:12px">edit anything the OCR got wrong</span></h4>
+  <table class="tbl2">
+    <tr><td>Amount paid (₹)</td><td><input id="f-amt" value="${f.amount ?? ""}" inputmode="decimal"></td><td>${found("amount")}</td></tr>
+    <tr><td>UTR / UPI Ref</td><td><input id="f-utr" value="${f.utr ?? ""}" maxlength="12"></td><td>${found("utr")}</td></tr>
+    <tr><td>Paid to (VPA)</td><td><input id="f-vpa" value="${f.vpa ?? ""}"></td><td>${found("vpa")}</td></tr>
+    <tr><td>Paid at</td><td><input id="f-when" type="datetime-local" value="${toLocalInput(f.when)}"></td><td>${found("when")}</td></tr>
+    <tr><td>Reported to 1930 at</td><td><input id="f-rep" type="datetime-local" value="${f.when ? toLocalInput(new Date(f.when.getTime() + 40 * 6e4)) : ""}"></td><td><span class="pill neutral">you add</span></td></tr>
+    <tr><td>Held in scammer a/c (₹)</td><td><input id="f-held" value="${f.amount ?? ""}" inputmode="decimal"></td><td><span class="pill neutral">from police SMS</span></td></tr>
+  </table>
+  ${f.aadhaar ? `<div class="callout" style="margin-top:8px">${icon("lock", 15)}<div>An Aadhaar-like number was detected. It is never shown or stored.</div></div>` : ""}
+  <div style="display:flex;gap:8px;margin-top:10px;align-items:center"><button class="btn primary sm" id="buildPlan">${icon("route", 13)}Build my recovery plan</button><button class="btn ghost sm" id="showRaw">Show raw OCR text</button></div>
+  <div class="raw" id="raw" hidden></div><div class="outcome" id="outcome"></div>`;
+  $("#showRaw").onclick = () => { const r = $("#raw"); r.hidden = !r.hidden; r.textContent = TRY.lastText.replace(/\b[2-9][0-9]{3}\s[0-9]{4}\s[0-9]{4}\b/g, "XXXX XXXX XXXX") || "(no text read)"; };
+  $("#buildPlan").onclick = buildTryPlan;
+}
+
+function buildTryPlan() {
+  const amt = Number(($("#f-amt").value || "0").replace(/,/g, "")), held = Number(($("#f-held").value || "0").replace(/,/g, ""));
+  const when = $("#f-when").value ? new Date($("#f-when").value) : null, rep = $("#f-rep").value ? new Date($("#f-rep").value) : null;
+  const utr = $("#f-utr").value.trim(), vpa = $("#f-vpa").value.trim();
+  const errs = []; if (!amt) errs.push("amount"); if (!/^[0-9]{12}$/.test(utr)) errs.push("12-digit UTR"); if (!when) errs.push("payment time"); if (!rep) errs.push("report time");
+  if (errs.length) { $("#outcome").innerHTML = `<div class="callout">${icon("alert", 15)}<div>Please add: ${errs.join(", ")}.</div></div>`; return; }
+  const mins = Math.round((rep - when) / 6e4), fir = held > R.SOP_SMALL_HOLD, bankDue = addWD(when, R.BANK_REPORT_WD), holdLift = addD(rep, R.HOLD_LIFT_DAYS), now = new Date();
+  const golden = mins >= 0 && mins <= 60;
+  const daysLeft = Math.ceil((bankDue - now) / 864e5);
+  const routes = [
+    [held > 0 ? "gold" : "neutral", "NCRP Money Restoration request" + (fir ? " + FIR" : ""), held > 0 ? (fir ? `${inr(held)} is held, above the ${inr(R.SOP_SMALL_HOLD)} per-account limit, so an FIR goes with the request.` : `${inr(held)} is held, within the ${inr(R.SOP_SMALL_HOLD)} per-account limit: no court order needed.`) : "Nothing reported as held yet. Report on 1930 / cybercrime.gov.in first; restoration needs a hold."],
+    ["warn", "Bank dispute", daysLeft >= 0 ? `Report to your bank by ${fmtD(bankDue)} (${daysLeft} day${daysLeft === 1 ? "" : "s"} left).` : `The ${R.BANK_REPORT_WD}-working-day window ended on ${fmtD(bankDue)}. Still file it; the RBI Ombudsman is the next step.`],
+    ["info", "Magistrate release petition · BNSS s.503", "If several victims claim the same account, or the bank does not release the money, the court route applies."],
+    ["neutral", "Watch the hold", `If no restoration request or court order is filed, the hold may lift around ${fmtD(holdLift)}.`],
+  ];
+  const draft = `MONEY RESTORATION REQUEST (draft prepared with Golden Hour, to be checked and filed by the victim)\n\nTransaction: UPI Ref ${utr}, ${inr(amt)} paid to ${vpa || "[payee VPA]"} on ${when.toLocaleString("en-IN")}.\nReported to 1930 / NCRP: ${rep.toLocaleString("en-IN")} (${mins} minutes after payment).\nAmount held in beneficiary account: ${held ? inr(held) : "[from police SMS]"}.\nNCRP acknowledgement no.: [14 digits]\nVictim bank account: [your account] · PAN: [your PAN]\n${fir ? "Attachments: payment screenshot, NCRP SMS, FIR copy (held amount above SOP limit)." : "Attachments: payment screenshot, NCRP SMS."}\n\nI request restoration of the amount held, which was obtained from me by deception.\n\nThis draft is information, not legal advice. Golden Hour never charges fees and never asks for OTP or PIN.`;
+  $("#outcome").innerHTML = `<div style="display:flex;gap:8px;flex-wrap:wrap"><span class="pill ${golden ? "good" : "warn"}">${golden ? icon("check", 11) + " reported inside the golden hour" : icon("alert", 11) + ` reported after ${mins} min`}</span><span class="pill ${fir ? "warn" : "good"}">${fir ? "FIR needed" : "no court order needed"}</span><span class="pill gold">${icon("clock", 11)} bank by ${fmtD(bankDue)}</span></div>` +
+    routes.map(([c, n, d]) => `<div class="route ${c === "gold" ? "rec" : ""}"><h4>${n}</h4><p style="margin:0">${d}</p></div>`).join("") +
+    `<div style="display:flex;gap:8px;align-items:center"><button class="btn primary sm" id="dlDraft">${icon("file", 13)}Download draft request (.txt)</button><span class="muted" style="font-size:11.5px">Generated on this device</span></div>`;
+  $("#dlDraft").onclick = () => { if (params.has("autoplay")) { toast("Draft generated on this device", "golden-hour-restoration-draft.txt"); return; } const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([draft], { type: "text/plain" })); a.download = "golden-hour-restoration-draft.txt"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); };
+}
+
+/* Voice: browser speech recognition, Tamil or English */
+(function () {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition, b = $("#micBtn"), out = $("#micOut");
+  if (!SR) { b.disabled = true; b.title = "Speech recognition needs Chrome or Edge"; out.textContent = "Voice input works in Chrome or Edge."; return; }
+  let rec = null;
+  b.addEventListener("click", () => {
+    if (rec) { rec.stop(); return; }
+    rec = new SR(); rec.lang = "ta-IN"; rec.interimResults = true; rec.continuous = false;
+    b.classList.add("rec"); out.innerHTML = "Listening in Tamil… speak now (English works too).";
+    rec.onresult = e => { const t = [...e.results].map(r => r[0].transcript).join(" "); out.innerHTML = `<span class="ta" style="color:var(--text)">${t.replace(/[<>&]/g, "")}</span>`; const n = t.match(/([0-9][0-9,]{2,})/); if (n && $("#f-amt") && !$("#f-amt").value) $("#f-amt").value = n[1].replace(/,/g, ""); };
+    rec.onerror = e => { out.textContent = "Voice error: " + e.error; };
+    rec.onend = () => { b.classList.remove("rec"); rec = null; };
+    rec.start();
+  });
+})();
 
 /* ================= Boot ================= */
 charts(); rulesTable(); buildPipeline(); show(params.get("view") || "victim");

@@ -48,8 +48,14 @@ Two crews of agents share one case packet.
 
 ## Demo
 
-- **Video (99 s):** [`video/golden-hour-demo.mp4`](video/golden-hour-demo.mp4)
-- **Run it locally:** open `index.html` in a browser. It is one self-contained file with no build step.
+### Try it on your own screenshot
+Open the demo and click **Try your screenshot** in the sidebar. Drop in a UPI payment screenshot, or use the synthetic sample. Golden Hour reads it with real OCR (Tesseract, bundled in `vendor/`) and pulls out the amount, UTR, payee UPI ID and time. You can correct any field, then it builds your recovery plan and a draft restoration request you can download. **Everything runs in your browser and nothing is uploaded.** In Chrome or Edge you can also describe the scam by voice in Tamil or English.
+
+![Try it on your own screenshot](screenshots/try-it.png)
+
+
+- **Video (115 s):** [`video/golden-hour-demo.mp4`](video/golden-hour-demo.mp4)
+- **Run it locally:** serve the folder (`python3 -m http.server`) and open `http://localhost:8000`. The scripted walkthrough also works straight from `index.html`, but the OCR worker needs a web server.
   - `index.html?autoplay=1&captions=1` plays the scripted walkthrough with captions.
   - `index.html?view=bank` opens the bank console. Click any case to reconcile its account.
 - **Host it:** enable GitHub Pages for this repo (Settings → Pages → Deploy from branch → `main` / root). The demo is then served at `https://mahak867.github.io/Golden-Hour/`.
@@ -100,6 +106,7 @@ Golden Hour is free for victims. It is a B2B2C product: banks pay per case or pe
 | `screenshots/` | Prototype screenshots |
 | `charts/` | Charts built from cited public figures, plus the architecture diagram (`charts.html` is the source) |
 | `deck/` | Round 1 submission deck in two versions, text-only and with visuals, plus PDF previews |
+| `vendor/tesseract/` | Tesseract.js 5.1.1 and the English model, self-hosted for in-browser OCR (Apache-2.0) |
 | `tools/` | Playwright scripts that regenerate the screenshots, video and charts |
 
 To regenerate the assets, install Node 18+ and run `npm i playwright`. Then run `node tools/shot.js`, `node tools/record.js` or `node tools/charts.js`. To convert the recorded WebM to MP4:
