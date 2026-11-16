@@ -493,7 +493,7 @@ tr:last-child td { border-bottom: 0; }
           </div>
           <div class="panel chartp"><div class="ph"><h3>Tamil Nadu 2024: where scam money went</h3><span class="sub">₹ crore</span></div><svg id="ch1" viewBox="0 0 560 250" role="img" aria-label="Bar chart: lost 1,673.85, frozen 771.98, returned about 84 crore"></svg><div class="srcs">Source: TN Cyber Crime Wing via The News Minute and DT Next. Returned reported as ₹83.3–83.8 cr.</div></div>
           <div class="panel chartp"><div class="ph"><h3>Frozen money that reached victims</h3><span class="sub">returned ÷ frozen</span></div><svg id="ch2" viewBox="0 0 560 250" role="img" aria-label="Bar chart: TN 2024 10.9%, TN Jan–Jul 2025 19.9%, Chennai Jan–May 2025 21.8%"></svg><div class="srcs">Sources: The News Minute (TN 2024); DT Next (TN Jan–Jul 2025: ₹62.4 cr of ₹314 cr; Chennai Jan–May 2025: ₹10.45 cr of ₹48 cr).</div></div>
-          <div class="panel chartp"><div class="ph"><h3>Cyber-fraud losses reported in India</h3><span class="sub">₹ crore per year</span></div><svg id="ch3" viewBox="0 0 560 230" role="img" aria-label="Column chart: 2023 7,465; 2024 22,846; 2025 19,813 crore"></svg><div class="srcs">Sources: MHA/I4C in Lok Sabha via Scroll (2023, 2024); I4C/NCRP 2025 figure as reported in the press.</div></div>
+          <div class="panel chartp"><div class="ph"><h3>Cyber-fraud losses reported in India</h3><span class="sub">₹ crore per year</span></div><svg id="ch3" viewBox="0 0 560 230" role="img" aria-label="Column chart: 2023 7,465; 2024 22,846 crore"></svg><div class="srcs">Source: MHA/I4C written reply in the Lok Sabha, 22 Jul 2025 (via Scroll). 2024 was up 206% on 2023.</div></div>
           <div class="panel change"><div class="eyebrow">Where Golden Hour acts</div>
             <div class="it"><span class="n">1</span><div><b>After the freeze, not before the scam</b>Detection tools stop at the alert. The money is stuck between "frozen" and "returned".</div></div>
             <div class="it"><span class="n">2</span><div><b>One packet for every official route</b>MRM restoration, BNSS s.503, bank dispute and RB-IOS, pre-filled in the victim's language.</div></div>
@@ -538,10 +538,10 @@ const ACCT_PHONE = { XXXX4471: "+91 9XXXX 21407", XXXX8820: "+91 9XXXX 21407", X
 
 /* ================= Rules engine (deterministic) ================= */
 const RULES = [
-  { key: "SOP_SMALL_HOLD", value: 50000, unit: "₹ per held account", use: "Restoration without court order at or below this held amount; FIR required above it", src: "MHA SOP for NCRP-CFCFRMS, 02.01.2026 (as reported by Business Standard, Jan 2026)", status: "verify" },
+  { key: "SOP_SMALL_HOLD", value: 50000, unit: "₹ per held account", use: "Restoration without court order at or below this amount in any single account; FIR required above it", src: "MHA SOP for NCRP-CFCFRMS, 02.01.2026 (Business Standard, Free Press Journal, LiveLaw)", status: "verify" },
   { key: "HOLD_LIFT_DAYS", value: 90, unit: "days", use: "Hold may be lifted if no restoration request or court order arrives", src: "MHA SOP for NCRP-CFCFRMS (as reported)", status: "verify" },
   { key: "BANK_REPORT_WD", value: 3, unit: "working days", use: "Report to remitting bank for zero-liability window", src: "RBI circular on limiting customer liability, 6 Jul 2017", status: "official" },
-  { key: "AUTH_FRAUD_COVER", value: "Section DA", unit: "", use: "Deceived-but-authorised digital payments covered", src: "RBI Amendment Directions, Jun 2026 (final numbers to verify)", status: "verify" },
+  { key: "AUTH_FRAUD_COVER", value: "1 Jan 2027", unit: "effective", use: "Fraud where the customer was tricked into authorising the payment is covered; bank must prove customer liability", src: "RBI Responsible Business Conduct Third Amendment Directions, 24 Jun 2026", status: "official" },
   { key: "OMBUDSMAN_DAYS", value: 90, unit: "days", use: "Escalation window to RBI Ombudsman", src: "RB-IOS 2026 (from 1 Jul 2026, as reported)", status: "verify" },
   { key: "MAGISTRATE_ROUTE", value: "BNSS s.503", unit: "", use: "Court-ordered release; Madras HC: no separate FIR where NCRP ack exists", src: "BNSS 2023; DT Next report on Madras HC circular", status: "official" },
   { key: "PII_RETENTION", value: 30, unit: "days", use: "Delete screenshots and SMS after case packet is filed", src: "Golden Hour policy under DPDP Act 2023 / Rules 2025", status: "policy" },
@@ -564,8 +564,8 @@ function plan(c) {
       checks: [[true, "NCRP acknowledgement present (14 digits)"], [true, `Reported within golden hour (${mins} min)`], [fir, `Held ${inr(held)} > ${inr(R.SOP_SMALL_HOLD)} → FIR required`]], src: "MHA SOP for NCRP-CFCFRMS, 02.01.2026" },
     { name: "Magistrate release petition · BNSS s.503", tag: ["info", "Parallel"], desc: "Several victims claim one held account; a court-ordered pro-rata release is the fallback.",
       checks: [[multi, `${CASES.filter(x => x.acct === c.acct).length} victims claim against ${c.acct}`], [true, "Madras HC: no separate FIR where NCRP ack exists"]], src: "BNSS s.503 · Madras HC circular" },
-    { name: "Bank dispute · remitting bank", tag: ["warn", "Due " + fmtD(bankDue)], desc: `Report within ${R.BANK_REPORT_WD} working days; deceived-but-authorised UPI now covered (Section DA).`,
-      checks: [[true, "Payment type: authorised UPI (deceived)"], [TODAY <= bankDue, "Still inside reporting window"]], src: "RBI liability circular 2017 + 2026 Amendment Directions" },
+    { name: "Bank dispute · remitting bank", tag: ["warn", "Due " + fmtD(bankDue)], desc: `Report within ${R.BANK_REPORT_WD} working days. From 1 Jan 2027, payments a victim was tricked into authorising are also covered.`,
+      checks: [[true, "Payment type: authorised UPI (deceived)"], [TODAY <= bankDue, "Still inside reporting window"]], src: "RBI liability circular 2017 · Third Amendment Directions 2026 (effective 1 Jan 2027)" },
     { name: "RBI Ombudsman · RB-IOS 2026", tag: ["neutral", "If bank rejects"], desc: `Escalate on rejection or no resolution; ${R.OMBUDSMAN_DAYS}-day window.`,
       checks: [[false, "Bank response received"], [true, "Complaint eligible for CMS portal"]], src: "RB-IOS 2026" },
   ];
@@ -839,9 +839,9 @@ function charts() {
     [0, 25, 50, 75, 100].forEach(v => { const x = x0 + w * v / 100; s += `<line x1="${x}" x2="${x}" y1="12" y2="206" stroke="rgba(255,255,255,.07)"/><text x="${x}" y="226" text-anchor="middle" font-size="11" fill="#717789">${v}%</text>`; });
     d.forEach(([l, v], i) => { const y = 28 + i * 60, bw = w * v; s += `<text x="${x0 - 12}" y="${y + 20}" text-anchor="end" font-size="13" fill="#aeb2bf" font-weight="600">${l}</text><rect x="${x0}" y="${y}" width="${w}" height="32" rx="4" fill="rgba(255,255,255,.04)"/><path d="M${x0},${y} h${bw - 4} a4,4 0 0 1 4,4 v24 a4,4 0 0 1 -4,4 h-${bw - 4} z" fill="#d95926"/><text x="${x0 + bw + 8}" y="${y + 21}" font-size="14" fill="#f3f1ec" font-weight="700">${(v * 100).toFixed(1)}%</text>`; });
     $("#ch2").innerHTML = s + `<line x1="${x0}" x2="${x0}" y1="12" y2="206" stroke="rgba(255,255,255,.25)"/>`; }
-  { const d = [["2023", 7465], ["2024", 22845.73], ["2025", 19813]]; const y0 = 200, h = 165, mx = 25000; let s = "";
+  { const d = [["2023", 7465.18], ["2024", 22845.73]]; const y0 = 200, h = 165, mx = 25000; let s = "";
     [0, 10000, 20000].forEach(v => { const y = y0 - h * v / mx; s += `<line x1="70" x2="540" y1="${y}" y2="${y}" stroke="rgba(255,255,255,.07)"/><text x="62" y="${y + 4}" text-anchor="end" font-size="11" fill="#717789">${fm(v)}</text>`; });
-    d.forEach(([l, v], i) => { const x = 120 + i * 150, bh = h * v / mx, bw = 70; s += `<path d="M${x},${y0} v-${bh - 4} a4,4 0 0 1 4,-4 h${bw - 8} a4,4 0 0 1 4,4 v${bh - 4} z" fill="#3987e5"/><text x="${x + bw / 2}" y="${y0 - bh - 7}" text-anchor="middle" font-size="13" fill="#f3f1ec" font-weight="700">₹${fm(Math.round(v))} cr</text><text x="${x + bw / 2}" y="${y0 + 18}" text-anchor="middle" font-size="12.5" fill="#aeb2bf" font-weight="600">${l}</text>`; });
+    d.forEach(([l, v], i) => { const x = 170 + i * 180, bh = h * v / mx, bw = 90; s += `<path d="M${x},${y0} v-${bh - 4} a4,4 0 0 1 4,-4 h${bw - 8} a4,4 0 0 1 4,4 v${bh - 4} z" fill="#3987e5"/><text x="${x + bw / 2}" y="${y0 - bh - 7}" text-anchor="middle" font-size="13" fill="#f3f1ec" font-weight="700">₹${fm(Math.round(v))} cr</text><text x="${x + bw / 2}" y="${y0 + 18}" text-anchor="middle" font-size="12.5" fill="#aeb2bf" font-weight="600">${l}</text>`; });
     $("#ch3").innerHTML = s + `<line x1="70" x2="540" y1="${y0}" y2="${y0}" stroke="rgba(255,255,255,.25)"/>`; }
 }
 function rulesTable() {

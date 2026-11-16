@@ -114,7 +114,7 @@ ffmpeg -i video/raw/*.webm -c:v libx264 -pix_fmt yuv420p video/golden-hour-demo.
 2. DT Next – Chennai Jan–May 2025: ₹48 cr frozen, ₹10.45 cr returned; TN Jan–Jul 2025: ₹1,010 cr lost, ₹314 cr frozen, ₹62.4 cr refunded
 3. Scroll – MHA/I4C in Lok Sabha: ₹7,465 cr (2023) → ₹22,845.73 cr (2024) lost to cyber fraud
 4. MHA SOP for NCRP-CFCFRMS (02.01.2026); Business Standard (Jan 2026)
-5. RBI customer-liability circular (6 Jul 2017) and 2026 Amendment Directions; RB-IOS 2026
+5. RBI customer-liability circular (6 Jul 2017) and Third Amendment Directions (24 Jun 2026, effective 1 Jan 2027); RB-IOS 2026
 6. RBI Ombudsman Annual Report 2024-25
 
 ## Team

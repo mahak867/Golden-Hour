@@ -49,8 +49,8 @@ svg text { font-family: "Inter", "Segoe UI", system-ui, sans-serif; }
   <text class="t" x="8" y="24">Cyber-fraud losses reported in India</text>
   <text class="s" x="8" y="44">₹ crore per year</text>
   <g id="c3bars"></g>
-  <text class="src" x="8" y="358">Sources: MHA/I4C in Lok Sabha via Scroll (2023, 2024: +206%);</text>
-  <text class="src" x="8" y="372">I4C/NCRP 2025 figure as reported in the press.</text>
+  <text class="src" x="8" y="358">Source: MHA/I4C written reply in the Lok Sabha, 22 Jul 2025</text>
+  <text class="src" x="8" y="372">(via Scroll). 2024 was up 206% on 2023.</text>
 </svg></div>
 
 <!-- Architecture diagram -->
@@ -164,10 +164,10 @@ const fmt = n => n.toLocaleString("en-IN", { maximumFractionDigits: 2 });
 })();
 // Chart 3
 (function () {
-  const d = [["2023", 7465], ["2024", 22845.73], ["2025", 19813]];
+  const d = [["2023", 7465.18], ["2024", 22845.73]];
   const y0 = 310, h = 230, max = 25000, g = document.getElementById("c3bars"); let s = "";
   [0, 5000, 10000, 15000, 20000, 25000].forEach(v => { const y = y0 - h * v / max; s += `<line x1="60" x2="480" y1="${y}" y2="${y}" stroke="#2a3657"/><text class="ax" x="54" y="${y + 4}" text-anchor="end">${fmt(v)}</text>`; });
-  d.forEach(([l, v], i) => { const x = 100 + i * 130, bh = h * v / max, bw = 80;
+  d.forEach(([l, v], i) => { const x = 140 + i * 180, bh = h * v / max, bw = 100;
     s += `<path d="M${x},${y0} v-${bh - 4} a4,4 0 0 1 4,-4 h${bw - 8} a4,4 0 0 1 4,4 v${bh - 4} z" fill="#3987e5"/>`;
     s += `<text class="val" x="${x + bw / 2}" y="${y0 - bh - 8}" text-anchor="middle">₹${fmt(Math.round(v))} cr</text>`;
     s += `<text class="lbl" x="${x + bw / 2}" y="${y0 + 20}" text-anchor="middle">${l}</text>`; });
