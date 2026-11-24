@@ -9,7 +9,7 @@ FinTech track · K! Hacks 4.0 (CEG Tech Forum, Anna University) · Team Golden H
 
 ## Judges: start here (3 minutes)
 
-0. Short on time: open **2-minute tour** in the live demo (8 stills, a captioned video and real sources).
+0. Short on time: **[watch the guided playthrough](https://golden-hour-khacks.vercel.app/?guide=1)**. It runs the whole product and spotlights each feature as it is used (Pause / Exit at the top). Or open **2-minute tour** for stills, the captioned video and real sources.
 1. Open the **[live demo](https://golden-hour-khacks.vercel.app)** → **Try it on a payment screenshot** → **Use the synthetic sample** (or drop in any UPI screenshot; it never leaves your browser).
 2. Click **Build my recovery plan**. Change *Held in scammer a/c* to `90000` and rebuild: the plan switches to a BNSS s.503 court petition, because holds above ₹50,000 need a court order.
 3. Switch the drafts to **தமிழ்**, then **Save as PDF**.

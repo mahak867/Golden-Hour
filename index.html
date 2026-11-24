@@ -675,6 +675,15 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
   .stills { grid-template-columns: minmax(0, 1fr); } .still { border-right: 0; border-bottom: 1px solid var(--line); padding: 12px; }
   .stilllist { grid-template-columns: repeat(2, minmax(0, 1fr)); } .evlist { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Guided playthrough */
+#spot { position: fixed; z-index: 86; pointer-events: none; border: 2px solid var(--accent); border-radius: 8px; opacity: 0; transition: left .45s var(--ease-out), top .45s var(--ease-out), width .45s var(--ease-out), height .45s var(--ease-out), opacity .3s; }
+#spot.on, #dim.on { opacity: 1; }
+#dim { position: fixed; inset: 0; z-index: 85; pointer-events: none; background: rgba(20,18,15,.42); opacity: 0; transition: opacity .3s; }
+#guideBar { position: fixed; z-index: 92; top: 10px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 14px; background: var(--surface); border: 1px solid var(--line-2); border-radius: 8px; box-shadow: 0 8px 24px -12px rgba(28,27,24,.45); font-size: 12.5px; white-space: nowrap; }
+#guideBar .gstep { color: var(--ink-3); font-size: 12px; }
+#guideBar .gtrack { width: 120px; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; } #guideBar .gfill { display: block; height: 100%; width: 0; background: var(--accent); transition: width .4s; }
+@media (max-width: 700px) { #guideBar { top: auto; bottom: 64px; left: 8px; right: 8px; transform: none; flex-wrap: wrap; justify-content: center; } #guideBar .gtrack { width: 80px; } }
 </style>
 </head>
 <body>
@@ -759,7 +768,7 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
             <li><span class="n">2</span><div><b>Six agents build the plan</b>Routes, deadlines, Tamil and English drafts</div></li>
             <li><span class="n">3</span><div><b>The bank reconciles the hold</b>Pro-rata split and mule graph; an analyst approves</div></li>
           </ol>
-          <div class="intro-foot">Short on time? Take the <button class="linkbtn" data-go="demo">two-minute tour</button> (stills and a captioned video). Below, a synthetic case replays step by step. Figures and rules are sourced on <button class="linkbtn" data-go="impact">Impact</button> and <button class="linkbtn" data-go="rules">Rules</button>.</div>
+          <div class="intro-foot"><a class="linkbtn" href="?guide=1">▶ Watch a guided playthrough</a> (2 min, highlights each feature as it runs) · or take the <button class="linkbtn" data-go="demo">two-minute tour</button> (stills and a captioned video). Below, a synthetic case replays step by step. Figures and rules are sourced on <button class="linkbtn" data-go="impact">Impact</button> and <button class="linkbtn" data-go="rules">Rules</button>.</div>
         </div>
         <div class="journey">
           <div class="device" aria-label="Telegram conversation">
@@ -830,7 +839,7 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
           <header class="tourhead">
             <div><div class="eyebrow">Two-minute tour · synthetic data</div><h2>How Golden Hour works, step by step</h2>
             <p class="muted">Eight stills from the running prototype, then the same flow as a captioned video. Every number on screen is either computed by the code or sourced on the Impact page.</p></div>
-            <button class="btn primary" data-try>Try it yourself</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn primary" href="?guide=1">▶ Start guided playthrough</a><button class="btn" data-try>Try it yourself</button></div>
           </header>
           <div class="panel stills">
             <figure class="still"><div class="frame"><img id="stillImg" alt="" width="1440" height="900" decoding="async"></div>
@@ -966,8 +975,9 @@ async function sha(s) {
 const $ = s => document.querySelector(s);
 const icon = (id, s = 16, extra = "") => `<svg width="${s}" height="${s}" ${extra}><use href="#i-${id}"/></svg>`;
 const params = new URLSearchParams(location.search);
-let SPEED = Number(params.get("speed") || 1);
-const sleep = ms => new Promise(r => setTimeout(r, ms * SPEED));
+if (params.has("guide")) { params.set("autoplay", "1"); params.set("captions", "1"); }
+let SPEED = Number(params.get("speed") || 1), PAUSED = false;
+const sleep = async ms => { await new Promise(r => setTimeout(r, ms * SPEED)); while (PAUSED) await new Promise(r => setTimeout(r, 150)); };
 function initials(n) { return n.split(" ").map(x => x[0]).join("").slice(0, 2); }
 function avatar(c, s = 30) { return `<div class="av" style="width:${s}px;height:${s}px;background:linear-gradient(135deg,${c.av[0]},${c.av[1]})">${initials(c.victim)}</div>`; }
 function toast(title, sub) { const t = document.createElement("div"); t.className = "toast"; t.innerHTML = `<div class="ic">${icon("check", 15)}</div><div><b>${title}</b><small>${sub}</small></div>`; $("#toasts").appendChild(t); setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateY(6px)"; setTimeout(() => t.remove(), 260); }, 3600 * SPEED); }
@@ -1123,7 +1133,7 @@ function panePacket() {
 async function runVictim(auto) {
   buildPipeline(); chat().innerHTML = '<div class="daysep">Today</div>'; clockMin = 0; doneCount = 0; audit.length = 0;
   $("#st-steps").textContent = "0 / 6"; $("#st-state").textContent = "REPORTED"; t0 = performance.now(); clearInterval(timer); timer = setInterval(tick, 100);
-  caption("A scam victim in Coimbatore sends a <b>Tanglish voice note</b> to the Golden Hour Telegram bot.");
+  spot(document.querySelector(".device"), true); caption("A scam victim in Coimbatore sends a <b>Tanglish voice note</b> to the Golden Hour Telegram bot.");
   await sleep(600);
   const v = bubble("out", `<div class="voice"><div class="play">${icon("play", 14)}</div><div class="wv">${Array.from({ length: 30 }, (_, i) => `<i style="height:${5 + Math.round(Math.abs(Math.sin(i * 1.3) * Math.cos(i * .4)) * 19)}px"></i>`).join("")}</div><span class="dur">0:19</span></div><span class="tr"><b>Transcript · Tanglish</b><br>"Sir, oru trading app la ₹48,000 pottuten. Withdraw panna mudiyala. 1930 ku call panninen, ack number vandhuchu. Panam thirumba kidaikuma?"</span>`, { time: "09:58" });
   setNode(0, "run", "transcribing…");
@@ -1139,9 +1149,9 @@ async function runVictim(auto) {
   await sleep(900);
   bubble("out", receiptHTML(), {}); await sleep(350);
   bubble("out", `<span class="mono" style="font-size:11.5px">VM-NCRPGV: Your complaint is registered on NCRP. Ack No. 31211260045871</span>`, {});
-  caption("She shares the payment screenshot and the NCRP acknowledgement SMS.");
+  spot(document.querySelector(".device"), true); caption("She shares the payment screenshot and the NCRP acknowledgement SMS.");
   paneEvidence(); readyTab("evidence"); openTab("evidence"); setTimeout(animateScan, 200);
-  await sleep(900); caption("<b>Evidence agent</b> extracts and validates every field, and masks Aadhaar before any model call.");
+  await sleep(900); spot(document.querySelector("#pipeline"), true); caption("<b>Evidence agent</b> extracts and validates every field, and masks Aadhaar before any model call.");
   await runAgent(1, 2100, "2.1s · 6 fields");
   await sleep(2600);
   paneRoutes(); readyTab("routes"); caption("<b>Route Planner</b> picks official routes with deterministic rules. Each one shows its checks and source.");
@@ -1165,7 +1175,7 @@ async function runVictim(auto) {
   bubble("in", `<span class="ta">ஆவணங்கள் தயார். சரிபார்த்து நீங்களே சமர்ப்பிக்கவும். நினைவூட்டல்: வங்கி புகார் கடைசி நாள் 17 நவம்பர்.</span><span class="tr">Documents ready. Please check and submit them yourself. Reminder: bank report due 17 Nov.</span><div class="kb"><span>Restoration request</span><span>Bank letter</span><span class="full">Remind me</span></div>`);
   await sleep(2600);
   panePacket(); readyTab("packet"); if (auto) await clickEl(document.querySelector('.itab[data-k="packet"]')); else openTab("packet");
-  caption("The consented, redacted <b>case packet</b> goes to the bank crew.");
+  spot(document.querySelector(".inspector"), true); caption("The consented, redacted <b>case packet</b> goes to the bank crew.");
   await sleep(2600); clearInterval(timer);
 }
 
@@ -1283,10 +1293,25 @@ function rulesTable() {
 }
 /* ================= Cursor, captions, cards ================= */
 const cur = $("#cursor"); let cx = 720, cy = 860;
-async function moveTo(el, dx = 0, dy = 0) { const r = el.getBoundingClientRect(); cx = r.left + r.width / 2 + dx; cy = r.top + r.height / 2 + dy; cur.style.transform = `translate(${cx - 3}px, ${cy - 2}px)`; await sleep(780); }
-async function clickEl(el, dx, dy) { if (!params.has("autoplay")) { el.click(); return; } await moveTo(el, dx, dy); const rp = document.createElement("div"); rp.className = "ripple"; rp.style.left = cx + "px"; rp.style.top = cy + "px"; document.body.appendChild(rp); setTimeout(() => rp.remove(), 600); el.click(); await sleep(250); }
+async function moveTo(el, dx = 0, dy = 0) { spot(el); const r = el.getBoundingClientRect(); cx = r.left + r.width / 2 + dx; cy = r.top + r.height / 2 + dy; cur.style.transform = `translate(${cx - 3}px, ${cy - 2}px)`; await sleep(780); }
+async function clickEl(el, dx, dy) { if (!params.has("autoplay")) { el.click(); return; } await moveTo(el, dx, dy); if (GUIDE) setTimeout(() => { const v = el.dataset && el.dataset.view ? document.querySelector("#v-" + el.dataset.view) : el.matches(".itab") ? el.closest(".inspector") : null; if (v) spot(v, true); }, 420); const rp = document.createElement("div"); rp.className = "ripple"; rp.style.left = cx + "px"; rp.style.top = cy + "px"; document.body.appendChild(rp); setTimeout(() => rp.remove(), 600); el.click(); await sleep(250); }
 const capEl = $("#caption");
-function caption(h) { if (!params.has("captions")) return; capEl.classList.remove("show"); setTimeout(() => { capEl.innerHTML = h; capEl.classList.add("show"); }, 120); }
+/* Guided playthrough: spotlight + progress bar (only with ?guide=1) */
+const GUIDE = params.has("guide"), GUIDE_TOTAL = 23; let spotEl = null, guideStep = 0;
+function spotTarget(el) { if (!el) return null; if (el.matches(".itab")) return el.closest(".inspector") || el; if (el.matches("button, .btn, [data-view], .gnode")) return el; return el.closest(".route, .docbox, .facts, tr, .panel, .device, .mbox") || el; }
+function spot(el, exact) { if (!GUIDE) return; spotEl = exact ? el : spotTarget(el); placeSpot(); }
+function placeSpot() { const sp = $("#spot"), dm = $("#dim"); if (!sp) return; if (!spotEl || !spotEl.isConnected || !spotEl.getClientRects().length) { sp.classList.remove("on"); dm.classList.remove("on"); return; } const r = spotEl.getBoundingClientRect(), pad = 6, x1 = Math.max(0, r.left - pad), y1 = Math.max(0, r.top - pad), x2 = Math.min(innerWidth, r.right + pad), y2 = Math.min(innerHeight, r.bottom + pad); Object.assign(sp.style, { left: x1 + "px", top: y1 + "px", width: (x2 - x1) + "px", height: (y2 - y1) + "px" }); dm.style.clipPath = `polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, ${x1}px ${y1}px, ${x1}px ${y2}px, ${x2}px ${y2}px, ${x2}px ${y1}px, ${x1}px ${y1}px)`; sp.classList.add("on"); dm.classList.add("on"); }
+function guideTick() { if (!GUIDE) return; guideStep++; const b = $("#guideBar"); if (!b) return; b.querySelector(".gstep").textContent = `Step ${Math.min(guideStep, GUIDE_TOTAL)} of ${GUIDE_TOTAL}`; b.querySelector(".gfill").style.width = Math.min(100, 100 * guideStep / GUIDE_TOTAL) + "%"; }
+function initGuide() {
+  if (!GUIDE) return;
+  document.body.insertAdjacentHTML("beforeend", `<div id="dim" aria-hidden="true"></div><div id="spot" aria-hidden="true"></div><div id="guideBar" role="region" aria-label="Guided playthrough"><b>Guided playthrough</b><span class="gstep mono">Step 0 of ${GUIDE_TOTAL}</span><span class="gtrack"><i class="gfill"></i></span><button class="btn sm" id="guidePause">Pause</button><button class="btn ghost sm" id="guideRestart">Restart</button><button class="btn ghost sm" id="guideExit">Exit</button></div>`);
+  $("#guidePause").onclick = () => { PAUSED = !PAUSED; $("#guidePause").textContent = PAUSED ? "Resume" : "Pause"; };
+  $("#guideRestart").onclick = () => location.reload();
+  $("#guideExit").onclick = () => { location.href = location.pathname; };
+  addEventListener("keydown", e => { if (e.key === "Escape") location.href = location.pathname; if (e.key === " " && document.activeElement === document.body) { e.preventDefault(); $("#guidePause").click(); } });
+  const loop = () => { placeSpot(); requestAnimationFrame(loop); }; loop();
+}
+function caption(h) { guideTick(); if (!params.has("captions")) return; capEl.classList.remove("show"); setTimeout(() => { capEl.innerHTML = h; capEl.classList.add("show"); }, 120); }
 function titleCard(html) { $("#cardinner").innerHTML = html; $("#card").classList.add("show"); }
 function hideCard() { $("#card").classList.remove("show"); }
 const markBig = `<div class="mark" style="width:60px;height:60px;border-radius:8px;margin:0 auto;display:grid;place-items:center;background:#1c1b18;color:#f2c48d"><svg width="34" height="34"><use href="#i-sun"/></svg></div>`;
@@ -1533,7 +1558,7 @@ function initTour() {
 if (params.has("autoplay")) document.body.classList.add("autoplay");
 $("#tryModal").setAttribute("aria-hidden", "true");
 charts(); rulesTable(); buildPipeline(); const VIEWS = ["demo", "victim", "console", "impact", "rules"]; if (!VIEWS.includes(params.get("view"))) params.delete("view"); show(params.get("view") || "victim");
-if (params.has("autoplay")) autoplay();
+if (params.has("autoplay")) { initGuide(); autoplay(); }
 else if (params.get("view") === "console") { /* console shown */ }
 else { SPEED = Number(params.get("speed") || 0.45); runVictim(false); }
 </script>
