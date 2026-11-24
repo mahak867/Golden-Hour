@@ -17,8 +17,8 @@ FinTech track · K! Hacks 4.0 (CEG Tech Forum, Anna University) · Team Golden H
 | What | Evidence |
 |---|---|
 | Rules engine | [`engine.js`](engine.js): every rule value cites its source and is marked *official*, *reported* or *our policy* |
-| Tests | **34 named cases** run on every push ([`tests/engine.test.js`](tests/engine.test.js)): ₹50,000 vs ₹50,001, 31 Dec 2026 vs 1 Jan 2027, weekend deadlines, compensation caps, exact pro-rata to the rupee |
-| OCR | **60 synthetic receipts** (3 layouts × 4 conditions): UTR 60/60, amount 58/60, date 60/60, payee UPI ID 56/60, median 0.3 s per image on-device ([`bench/ocr-bench.json`](bench/ocr-bench.json), `node tools/ocr-bench.js`) |
+| Tests | **35 named cases** run on every push ([`tests/engine.test.js`](tests/engine.test.js)): ₹50,000 vs ₹50,001, 31 Dec 2026 vs 1 Jan 2027, weekend deadlines, compensation caps, exact pro-rata to the rupee |
+| OCR | **60 synthetic receipts** (3 layouts × 4 conditions), English + Tamil model: amount 60/60, UTR 60/60, date 60/60, payee UPI ID 56/60, median 0.3 s per image on-device ([`bench/ocr-bench.json`](bench/ocr-bench.json), `node tools/ocr-bench.js`) |
 | Honesty | [What is real and what is scripted](#what-is-real-in-the-prototype) |
 
 ### Who does what: code, model or person
@@ -92,7 +92,7 @@ Measured in headless Chromium on a 4-core test machine: the first read takes abo
 ![Try it on your own screenshot](screenshots/try-it.png)
 
 
-- **Video (115 s):** [`video/golden-hour-demo.mp4`](video/golden-hour-demo.mp4)
+- **Video (125 s, captions; [narration script](video/narration-script.md)):** [`video/golden-hour-demo.mp4`](video/golden-hour-demo.mp4)
 - **Run it locally:** serve the folder (`python3 -m http.server`) and open `http://localhost:8000`. The scripted walkthrough also works straight from `index.html`, but the OCR worker needs a web server.
   - `index.html?autoplay=1&captions=1` plays the scripted walkthrough with captions.
   - `index.html?view=bank` opens the bank console. Click any case to reconcile its account.
@@ -116,7 +116,7 @@ The prototype has four views:
 These parts are working code:
 
 - **Rules engine ([`engine.js`](engine.js)):** deterministic route planning over the case fields (held amount, report time, payment date), deadlines, and the Tamil/English drafts. Every rule value has a source and a status (official, reported, or our policy), shown in the **Rules & sources** view.
-- **Tests ([`tests/engine.test.js`](tests/engine.test.js)):** 34 named cases on routes, deadlines, compensation, the hold rules, pro-rata splits, mule clusters, the receipt parser and the drafts, run on every push. Run them with `node --test tests/engine.test.js`.
+- **Tests ([`tests/engine.test.js`](tests/engine.test.js)):** 35 named cases on routes, deadlines, compensation, the hold rules, pro-rata splits, mule clusters, the receipt parser and the drafts, run on every push. Run them with `node --test tests/engine.test.js`.
 - **OCR:** Tesseract in the browser, on real screenshots.
 - **Deadline calculations:** working-day arithmetic.
 - **Pro-rata lien reconciliation:** rounding is exact to the rupee.
@@ -172,7 +172,8 @@ ffmpeg -i video/raw/*.webm -c:v libx264 -pix_fmt yuv420p video/golden-hour-demo.
 
 | Component | Licence |
 |---|---|
-| Tesseract.js 5.1.1 and the English model (`vendor/tesseract/`) | Apache-2.0 |
+| Tesseract.js 5.1.1 (`vendor/tesseract/`) | Apache-2.0 |
+| Tesseract English and Tamil models from `tessdata_fast` (`vendor/tesseract/lang/`) | Apache-2.0 |
 | Inter, JetBrains Mono, Noto Sans Tamil (`fonts/`) | SIL Open Font License 1.1 |
 | Playwright (dev tools only) | Apache-2.0 |
 

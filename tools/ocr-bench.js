@@ -1,7 +1,8 @@
 // OCR benchmark: 60 synthetic UPI receipts through the same in-browser OCR and parser the demo uses.
 // 3 generic layouts (no real app branding) x 5 random transactions x 4 conditions
 // (clean, JPEG quality 0.4, rotated 2 degrees, scaled to 75%). Seeded, so runs are repeatable.
-// Usage: node tools/ocr-bench.js   → writes bench/ocr-bench.json and prints a summary.
+// Usage: node tools/ocr-bench.js   (OCR_LANGS=eng to test English only; default eng+tam, as in the app)
+// Previously:   → writes bench/ocr-bench.json and prints a summary.
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path');
 
@@ -13,7 +14,8 @@ const fs = require('fs'), path = require('path');
   await p.goto(srv.url + 'index.html?view=rules');
   await p.waitForTimeout(500);
 
-  const res = await p.evaluate(async () => {
+  const LANGS = (process.env.OCR_LANGS || "eng+tam").split("+");
+  const res = await p.evaluate(async (LANGS) => {
     let seed = 20261124; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
     const pick = a => a[Math.floor(rnd() * a.length)];
     const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -62,7 +64,7 @@ const fs = require('fs'), path = require('path');
       return new Promise(r => o.toBlob(r, "image/png"));
     }
     await loadScript("vendor/tesseract/tesseract.min.js");
-    const w = await Tesseract.createWorker("eng", 1, { workerPath: "vendor/tesseract/worker.min.js", corePath: "vendor/tesseract/", langPath: "vendor/tesseract/lang", gzip: true });
+    const w = await Tesseract.createWorker(LANGS, 1, { workerPath: "vendor/tesseract/worker.min.js", corePath: "vendor/tesseract/", langPath: "vendor/tesseract/lang", gzip: true });
     const rows = [], COND = ["clean", "jpeg-q40", "rotate-2deg", "scale-75%"];
     for (let layout = 0; layout < 3; layout++) for (let i = 0; i < 5; i++) {
       const t = txn(), c = draw(layout, t);
@@ -77,13 +79,13 @@ const fs = require('fs'), path = require('path');
     }
     await w.terminate();
     return rows;
-  });
+  }, LANGS);
 
   const n = res.length, pct = k => res.filter(r => r[k]).length;
   const ms = res.map(r => r.ms).sort((a, b) => a - b), median = ms[Math.floor(n / 2)];
   const by = key => Object.fromEntries([...new Set(res.map(r => r[key]))].map(v => { const s = res.filter(r => r[key] === v); return [v, Object.fromEntries(["amount", "utr", "vpa", "date", "time"].map(f => [f, `${s.filter(r => r[f]).length}/${s.length}`]))]; }));
   const all4 = res.filter(r => r.amount && r.utr && r.vpa && r.date).length;
-  const summary = { receipts: n, generated: new Date().toISOString().slice(0, 10), note: "Synthetic receipts, 3 generic layouts x 5 transactions x 4 conditions. Headless Chromium, 4-core machine, English model.", correct: { amount: `${pct("amount")}/${n}`, utr: `${pct("utr")}/${n}`, payee_upi_id: `${pct("vpa")}/${n}`, date: `${pct("date")}/${n}`, time: `${pct("time")}/${n}`, all_four_key_fields: `${all4}/${n}` }, median_ms_per_image: median, by_condition: by("cond"), by_layout: by("layout") };
+  const summary = { receipts: n, generated: new Date().toISOString().slice(0, 10), note: `Synthetic receipts, 3 generic layouts x 5 transactions x 4 conditions. Headless Chromium, 4-core machine, OCR languages: ${LANGS.join("+")}.`, correct: { amount: `${pct("amount")}/${n}`, utr: `${pct("utr")}/${n}`, payee_upi_id: `${pct("vpa")}/${n}`, date: `${pct("date")}/${n}`, time: `${pct("time")}/${n}`, all_four_key_fields: `${all4}/${n}` }, median_ms_per_image: median, by_condition: by("cond"), by_layout: by("layout") };
   fs.mkdirSync(path.join(__dirname, '../bench'), { recursive: true });
   fs.writeFileSync(path.join(__dirname, '../bench/ocr-bench.json'), JSON.stringify({ summary, rows: res }, null, 1));
   console.log(JSON.stringify(summary, null, 1));

@@ -268,7 +268,7 @@ Name: [your name]    Mobile: [number]    Date: [date]`,
       const hit = lines.map(l => l.match(/^[^0-9A-Za-z]{0,3}([0-9]{1,2}(?:,[0-9]{2})*,[0-9]{3}(?:\.[0-9]{1,2})?|[0-9]{3,6}\.[0-9]{2})[^0-9A-Za-z]{0,3}$/)).find(Boolean);
       if (hit) out.amount = Number(hit[1].replace(/,/g, ""));
     }
-    const ref = txt.match(/(?:UTR|UPI\s*Ref(?:erence)?\.?\s*(?:No\.?|ID)?|UPI\s*transaction\s*ID|Ref(?:erence)?\s*No\.?|RRN)[^0-9]{0,12}([0-9]{12})(?![0-9])/i);
+    const ref = txt.match(/(?:UTR|UPI\s*Ref(?:erence)?\.?\s*(?:No\.?|ID)?|UPI\s*transaction\s*ID|Ref(?:erence)?\s*No\.?|RRN|குறிப்பு\s*எண்|பரிவர்த்தனை\s*(?:ஐடி|எண்))[^0-9]{0,12}([0-9]{12})(?![0-9])/i);
     out.utr = ref ? ref[1] : ((txt.match(/(?<![0-9])([0-9]{12})(?![0-9])/) || [])[1] || null);
     // UPI IDs end in a handle with no dot-domain after it (excludes emails such as support@bank.com)
     const vpas = [...txt.matchAll(/([a-zA-Z0-9.\-_]{2,})\s?@\s?([a-zA-Z][a-zA-Z0-9]{1,})(?![.a-zA-Z0-9])/g)].map(m => (m[1] + "@" + m[2]).toLowerCase());

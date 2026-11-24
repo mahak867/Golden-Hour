@@ -245,3 +245,10 @@ test("parser: UTR, date, time and Aadhaar masking flag", () => {
   assert.equal(f.when.getDate(), 14); assert.equal(f.when.getHours(), 11);
   assert.equal(f.aadhaar, true);
 });
+
+test("parser: Tamil-language receipt (English + Tamil OCR output)", () => {
+  const f = GH.parseReceipt("பணம்‌ செலுத்தப்பட்டது\n₹48,000\nபெறுநர்‌ quickcash21@ybl\nUPI குறிப்பு எண்‌ 512398447016\n9 அக் 2026 999988887777\nதேதி 14 Nov 2026, 11:42 am");
+  assert.equal(f.amount, 48000);
+  assert.equal(f.utr, "512398447016");
+  assert.equal(f.vpa, "quickcash21@ybl");
+});
