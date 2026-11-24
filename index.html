@@ -8,10 +8,10 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%275%27 fill=%27%231c1b18%27/%3E%3Cpath d=%27M6 22.5h20M10.5 22.5a5.5 5.5 0 0 1 11 0M16 10v2.6%27 stroke=%27%23f2c48d%27 stroke-width=%272%27 stroke-linecap=%27round%27 fill=%27none%27/%3E%3C/svg%3E">
 <meta name="description" content="Golden Hour: a multi-agent copilot that turns frozen scam money into filed refund claims. Concept prototype on synthetic data.">
 <style>
-@font-face { font-family: "Inter"; src: url("fonts/Inter.ttf") format("truetype"); font-weight: 100 900; font-display: swap; }
-@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono.ttf") format("truetype"); font-weight: 100 800; font-display: swap; }
-@font-face { font-family: "Noto Sans Tamil"; src: url("fonts/NotoSansTamil.ttf") format("truetype"); font-weight: 100 900; font-display: swap; }
-@font-face { font-family: "Newsreader"; src: url("fonts/Newsreader.ttf") format("truetype"); font-weight: 200 800; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter.woff2") format("woff2"), url("fonts/Inter.ttf") format("truetype"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono.woff2") format("woff2"), url("fonts/JetBrainsMono.ttf") format("truetype"); font-weight: 100 800; font-display: swap; }
+@font-face { font-family: "Noto Sans Tamil"; src: url("fonts/NotoSansTamil.woff2") format("woff2"), url("fonts/NotoSansTamil.ttf") format("truetype"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Newsreader"; src: url("fonts/Newsreader.woff2") format("woff2"), url("fonts/Newsreader.ttf") format("truetype"); font-weight: 200 800; font-display: swap; }
 
 /* ================= Design tokens: "paper & ink" =================
    Type   11 · 12 · 13 · 14 · 16 · 20 · 26 · 34 (display serif: Newsreader; UI: Inter; figures/IDs: JetBrains Mono)
@@ -1404,7 +1404,7 @@ function buildTryPlan() {
 }
 function savePdf() {
   // Browser print keeps Tamil shaping intact (jsPDF / pdf-lib break Tamil vowel signs). Nothing leaves the device.
-  const text = GH.draft(TRY.doc, TRY.lang, TRY.case, TRY.plan), font = new URL("fonts/NotoSansTamil.ttf", location.href).href, serif = new URL("fonts/Newsreader.ttf", location.href).href;
+  const text = GH.draft(TRY.doc, TRY.lang, TRY.case, TRY.plan), font = new URL("fonts/NotoSansTamil.woff2", location.href).href, serif = new URL("fonts/Newsreader.woff2", location.href).href;
   const title = `Golden Hour · ${GH.DOC_NAMES[TRY.doc][TRY.lang === "ta" ? 1 : 0]} (draft)`;
   const esc = t => t.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
   if (params.has("autoplay")) { toast("PDF ready to save", title); return; }

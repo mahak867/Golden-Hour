@@ -178,7 +178,7 @@ ffmpeg -i video/raw/*.webm -c:v libx264 -pix_fmt yuv420p video/golden-hour-demo.
 |---|---|
 | Tesseract.js 5.1.1 (`vendor/tesseract/`) | Apache-2.0 |
 | Tesseract English and Tamil models from `tessdata_fast` (`vendor/tesseract/lang/`) | Apache-2.0 |
-| Inter, JetBrains Mono, Noto Sans Tamil, Newsreader (`fonts/`) | SIL Open Font License 1.1 |
+| Inter, JetBrains Mono, Noto Sans Tamil, Newsreader (`fonts/`, served as subset WOFF2) | SIL Open Font License 1.1 |
 | Playwright (dev tools only) | Apache-2.0 |
 
 All other code in this repository was written by the team for K! Hacks 4.0.

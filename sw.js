@@ -1,9 +1,9 @@
 /* Golden Hour service worker: the app, OCR engine and fonts work offline after the first visit.
  * Pages: network first (always fresh when online). Static files: cache first. Nothing user-generated is cached. */
-const VERSION = "gh-v2";
+const VERSION = "gh-v3";
 const CORE = [
   "./", "index.html", "engine.js", "features.js", "manifest.webmanifest",
-  "fonts/Inter.ttf", "fonts/JetBrainsMono.ttf", "fonts/NotoSansTamil.ttf", "fonts/Newsreader.ttf",
+  "fonts/Inter.woff2", "fonts/JetBrainsMono.woff2", "fonts/NotoSansTamil.woff2", "fonts/Newsreader.woff2",
   "icons/icon-192.png", "icons/icon-512.png",
 ];
 const LAZY = /\/(vendor|fonts|icons)\//;
