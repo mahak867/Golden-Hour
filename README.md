@@ -19,6 +19,8 @@ FinTech track · K! Hacks 4.0 (CEG Tech Forum, Anna University) · Team Golden H
 |---|---|
 | Rules engine | [`engine.js`](engine.js): every rule value cites its source and is marked *official*, *reported* or *our policy* |
 | Tests | **35 named cases** run on every push ([`tests/engine.test.js`](tests/engine.test.js)): ₹50,000 vs ₹50,001, 31 Dec 2026 vs 1 Jan 2027, weekend deadlines, compensation caps, exact pro-rata to the rupee |
+| Randomised check | **1,000 random cases** (amounts, dates across 2026–2027, report delays, holds): every plan obeys the rules, every draft is complete in both languages, every packet matches the schema; plus 1,000 random pro-rata splits that add up to the rupee ([`tests/random.test.js`](tests/random.test.js)) |
+| Bank integration | Case packet schema: [`schema/case-packet.schema.json`](schema/case-packet.schema.json) (payment facts only, SHA-256 on both sides). The bank console exports the reconciled split as CSV and the packet as JSON for a case-management or dispute-system import |
 | OCR | **60 synthetic receipts** (3 layouts × 4 conditions), English + Tamil model: amount 60/60, UTR 60/60, date 60/60, payee UPI ID 56/60, median 0.3 s per image on-device ([`bench/ocr-bench.json`](bench/ocr-bench.json), `node tools/ocr-bench.js`) |
 | Honesty | [What is real and what is scripted](#what-is-real-in-the-prototype) |
 | Real-world voices | [`data/evidence.json`](data/evidence.json): 15 quotes from victims, courts and Tamil Nadu police, verbatim with source and date (shown in the app's **Two-minute tour**) |
@@ -118,7 +120,7 @@ The prototype has four views:
 These parts are working code:
 
 - **Rules engine ([`engine.js`](engine.js)):** deterministic route planning over the case fields (held amount, report time, payment date), deadlines, and the Tamil/English drafts. Every rule value has a source and a status (official, reported, or our policy), shown in the **Rules & sources** view.
-- **Tests ([`tests/engine.test.js`](tests/engine.test.js)):** 35 named cases on routes, deadlines, compensation, the hold rules, pro-rata splits, mule clusters, the receipt parser and the drafts, run on every push. Run them with `node --test tests/engine.test.js`.
+- **Tests ([`tests/engine.test.js`](tests/engine.test.js)):** 35 named cases on routes, deadlines, compensation, the hold rules, pro-rata splits, mule clusters, the receipt parser and the drafts, run on every push. Run them with `node --test tests/engine.test.js tests/random.test.js`.
 - **OCR:** Tesseract in the browser, on real screenshots.
 - **Deadline calculations:** working-day arithmetic.
 - **Pro-rata lien reconciliation:** rounding is exact to the rupee.

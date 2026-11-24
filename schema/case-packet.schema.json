@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://golden-hour-khacks.vercel.app/schema/case-packet.schema.json",
+  "title": "Golden Hour case packet v1",
+  "description": "What the victim side hands to a bank's restoration / fraud-ops desk. Payment facts only: no name, PAN, Aadhaar or contact details. The SHA-256 of this JSON is shown on both sides.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "amount_inr", "held_inr", "utr", "paid_at", "reported_at", "reported_after_min", "route", "rbi_regime", "deadlines"],
+  "properties": {
+    "schema": { "const": "golden-hour/case-packet@1" },
+    "amount_inr": { "type": "number", "exclusiveMinimum": 0, "description": "Amount the victim paid" },
+    "held_inr": { "type": "number", "minimum": 0, "description": "Amount the victim reports as held (from the police SMS); the bank checks it against its lien record" },
+    "utr": { "type": "string", "pattern": "^[0-9]{12}$", "description": "UPI reference (UTR / RRN)" },
+    "payee_vpa": { "type": ["string", "null"], "description": "Payee UPI ID" },
+    "ncrp_ack": { "type": ["string", "null"], "pattern": "^[0-9]{14}$", "description": "NCRP / 1930 acknowledgement number" },
+    "paid_at": { "type": "string", "format": "date-time" },
+    "reported_at": { "type": "string", "format": "date-time" },
+    "reported_after_min": { "type": "integer", "minimum": 0 },
+    "route": { "enum": ["report", "mrm", "s503", null], "description": "Recommended first route: report on 1930, NCRP Money Restoration request, or BNSS s.503 petition" },
+    "rbi_regime": { "enum": ["2017", "2027"], "description": "Which RBI customer-liability rules apply, by payment date" },
+    "deadlines": {
+      "type": "object", "additionalProperties": false, "required": ["bank_report", "hold_lift"],
+      "properties": {
+        "bank_report": { "type": "string", "format": "date" },
+        "hold_lift": { "type": ["string", "null"], "format": "date", "description": "Only for holds up to ₹50,000; null above that (release needs an order)" }
+      }
+    }
+  }
+}

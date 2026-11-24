@@ -292,9 +292,18 @@ Name: [your name]    Mobile: [number]    Date: [date]`,
     return out;
   }
 
+  /* Bank-side export: the reconciled split as CSV, ready for a case-management or dispute system import. */
+  function splitCsv(acct, split) {
+    const q = v => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v);
+    const rows = [["account", "case_id", "claimed_inr", "share_pct", "release_inr", "packet_sha256"]];
+    split.claims.forEach(c => rows.push([acct, c.id, c.amount, (100 * c.share / Math.max(1, Math.min(split.lien, split.total))).toFixed(2), c.share, c.hash || ""]));
+    rows.push([acct, "TOTAL", split.total, "100.00", split.claims.reduce((s, c) => s + c.share, 0), ""]);
+    return rows.map(r => r.map(q).join(",")).join("\n") + "\n";
+  }
+
   const DOC_NAMES = { restoration: ["Restoration request", "மீட்பு விண்ணப்பம்"], s503: ["s.503 petition", "பிரிவு 503 மனு"], bank: ["Bank letter", "வங்கிக் கடிதம்"] };
 
-  const GH = { RULES, R, addWD, addD, fmtD, fmtDT, inr, validate, planCase, draft, parseReceipt, splitLien, clusterGraph, casePacket, DOC_NAMES };
+  const GH = { RULES, R, addWD, addD, fmtD, fmtDT, inr, validate, planCase, draft, parseReceipt, splitLien, clusterGraph, casePacket, splitCsv, DOC_NAMES };
   if (typeof module !== "undefined" && module.exports) module.exports = GH;
   root.GH = GH;
 })(typeof window !== "undefined" ? window : globalThis);
