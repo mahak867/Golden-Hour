@@ -9,6 +9,7 @@ FinTech track · K! Hacks 4.0 (CEG Tech Forum, Anna University) · Team Golden H
 
 ## Judges: start here (3 minutes)
 
+0. Short on time: open **2-minute tour** in the live demo (8 stills, a captioned video and real sources).
 1. Open the **[live demo](https://golden-hour-khacks.vercel.app)** → **Try it live** → **Use our synthetic sample** (or drop in any UPI screenshot; it never leaves your browser).
 2. Click **Build my recovery plan**. Change *Held in scammer a/c* to `90000` and rebuild: the plan switches to a BNSS s.503 court petition, because holds above ₹50,000 need a court order.
 3. Switch the drafts to **தமிழ்**, then **Save as PDF**.
@@ -20,6 +21,7 @@ FinTech track · K! Hacks 4.0 (CEG Tech Forum, Anna University) · Team Golden H
 | Tests | **35 named cases** run on every push ([`tests/engine.test.js`](tests/engine.test.js)): ₹50,000 vs ₹50,001, 31 Dec 2026 vs 1 Jan 2027, weekend deadlines, compensation caps, exact pro-rata to the rupee |
 | OCR | **60 synthetic receipts** (3 layouts × 4 conditions), English + Tamil model: amount 60/60, UTR 60/60, date 60/60, payee UPI ID 56/60, median 0.3 s per image on-device ([`bench/ocr-bench.json`](bench/ocr-bench.json), `node tools/ocr-bench.js`) |
 | Honesty | [What is real and what is scripted](#what-is-real-in-the-prototype) |
+| Real-world voices | [`data/evidence.json`](data/evidence.json): 14 quotes from victims, courts and Tamil Nadu police, verbatim with source and date (shown in the app's **Two-minute tour**) |
 
 ### Who does what: code, model or person
 
