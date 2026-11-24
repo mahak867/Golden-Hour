@@ -637,6 +637,9 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-property: opacity, color, background-color, border-color !important; } }
 
 /* Tour */
+#graph.hl .gnode:not(.lit) { opacity: .2; } #graph.hl .gedge:not(.lit) { stroke-opacity: .1; } #graph .gnode, #graph .gedge { transition: opacity .15s, stroke-opacity .15s; }
+.signals { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 3px; } .signals li { display: flex; gap: 8px; align-items: baseline; } .signals .mk { font-family: var(--mono); font-size: 11px; width: 14px; flex: none; } .signals .ok { color: #b3261e; } .signals .no { color: var(--ink-4); }
+.graphcard { grid-template-rows: auto minmax(270px, 1fr) auto; }
 .gnode { outline: none; } .gnode:focus-visible > circle:first-child { stroke: var(--accent); stroke-width: 2.5; }
 .pane:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 #docTabs { scroll-margin-top: 150px; }
@@ -807,8 +810,8 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
             <div class="right">
               <div class="panel recon" id="recon"></div>
               <div class="panel graphcard">
-                <div class="ph"><h3>Mule-graph explainer</h3><span class="sub">case → payee UPI ID → account → phone</span><div class="end"><span class="muted mono" id="clcount"></span></div></div>
-                <div class="graphwrap" id="graphwrap"><svg id="graph" viewBox="0 0 600 250" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Network graph of victims, payee UPI IDs, mule accounts and linked phone numbers"></svg><div class="gtip" id="gtip"></div></div>
+                <div class="ph"><h3>Mule-graph explainer</h3><span class="sub">where the money went: victim → payee UPI ID → mule account → phone</span><div class="end"><span class="muted mono" id="clcount"></span></div></div>
+                <div class="graphwrap" id="graphwrap"><svg id="graph" viewBox="0 0 640 316" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Network graph of victims, payee UPI IDs, mule accounts and linked phone numbers"></svg><div class="gtip" id="gtip"></div></div>
                 <div>
                   <div class="legend"><span><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="4.5" fill="#2f5a87"/></svg>Victim case</span><span><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><rect x=".5" y=".5" width="9" height="9" rx="1" fill="#8a5f00"/></svg>Payee VPA</span><span><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 0 10 5 5 10 0 5z" fill="#b3261e"/></svg>Mule account</span><span><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="3.6" fill="none" stroke="#6b4fa0" stroke-width="1.8"/></svg>Linked phone</span></div>
                   <div class="why" id="why"></div>
@@ -1202,29 +1205,60 @@ function renderRecon() {
   $("#approveSplit").addEventListener("click", async () => { const h = await sha("approve" + selAcct + Date.now()); toast(`Split draft approved for ${selAcct}`, `audit ${h.slice(0, 12)}… · status sent to ${proRata(selAcct).claims.length} victims`); });
 }
 function drawGraph(cl) {
-  const svg = $("#graph"), W = 600, H = 250, nodes = {};
-  const col = n => n.startsWith("case") ? "#2f5a87" : n.startsWith("vpa") ? "#8a5f00" : n.startsWith("acct") ? "#b3261e" : "#6b4fa0";
-  const shape = (n, x, y) => { const c = col(n); if (n.startsWith("case")) return `<circle class="core" cx="${x}" cy="${y}" r="6" fill="${c}"/>`; if (n.startsWith("vpa")) return `<rect class="core" x="${x - 5.5}" y="${y - 5.5}" width="11" height="11" rx="1.5" fill="${c}"/>`; if (n.startsWith("acct")) return `<path class="core" d="M${x} ${y - 7.5} L${x + 7.5} ${y} L${x} ${y + 7.5} L${x - 7.5} ${y}Z" fill="${c}"/>`; return `<circle class="core" cx="${x}" cy="${y}" r="5" fill="#fffefb" stroke="${c}" stroke-width="2.2"/>`; };
-  const layer = n => n.startsWith("case") ? 0 : n.startsWith("vpa") ? 1 : n.startsWith("acct") ? 2 : 3;
-  const lbl = n => { const v = n.split(":")[1]; if (n.startsWith("case")) return CASES.find(x => x.id === v).victim.split(" ")[0]; if (n.startsWith("vpa")) return v.replace(".demo@upi", "@"); if (n.startsWith("phone")) return "…" + v.slice(-5); return v; };
+  // Layered money-flow graph: victim cases → payee UPI IDs → mule accounts → phones. Line width = money that flowed.
+  const svg = $("#graph"), W = 640, H = 316, GUT = 78, nodes = {};
+  const ROWS = ["Victims", "Payee UPI IDs", "Mule accounts", "Phones"], ROWY = [46, 114, 186, 250];
+  const C = { case: "#2f5a87", vpa: "#8a5f00", acct: "#b3261e", phone: "#6b4fa0" };
+  const kind = n => n.split(":")[0], val = n => n.slice(n.indexOf(":") + 1), layer = n => ({ case: 0, vpa: 1, acct: 2, phone: 3 }[kind(n)]);
+  const k = v => v >= 1e5 ? "₹" + (v / 1e5).toFixed(v % 1e5 ? 1 : 0) + "L" : "₹" + Math.round(v / 1e3) + "k";
+  const flow = {}, add = (key, v) => flow[key] = (flow[key] || 0) + v;
+  CASES.forEach(c => { add("case:" + c.id + ">vpa:" + c.vpa, c.amount); add("vpa:" + c.vpa + ">acct:" + c.acct, c.amount); add("acct:" + c.acct + ">phone:" + ACCT_PHONE[c.acct], c.amount); });
+  const maxF = Math.max(...Object.values(flow));
+  const claimsOn = a => CASES.filter(c => c.acct === a).reduce((s, c) => s + c.amount, 0);
+  const phoneAccts = p => Object.keys(ACCT_PHONE).filter(a => ACCT_PHONE[a] === p);
+  const sub = n => { const t = kind(n), v = val(n); if (t === "case") return k(CASES.find(x => x.id === v).amount); if (t === "vpa") return k(CASES.filter(c => c.vpa === v).reduce((s, c) => s + c.amount, 0)); if (t === "acct") return `${k(LIENS[v])} held`; const n2 = phoneAccts(v).length; return `${n2} acct${n2 > 1 ? "s" : ""}`; };
+  const lbl = n => { const v = val(n); if (n.startsWith("case")) return CASES.find(x => x.id === v).victim.split(" ")[0]; if (n.startsWith("vpa")) return v.replace(/\.demo@upi$/, "@").replace(/@upi$/, "@"); if (n.startsWith("phone")) return "…" + v.slice(-5); return v; };
+  const shape = (n, x, y) => { const c = C[kind(n)]; if (n.startsWith("case")) return `<circle class="core" cx="${x}" cy="${y}" r="6.5" fill="${c}"/>`; if (n.startsWith("vpa")) return `<rect class="core" x="${x - 6}" y="${y - 6}" width="12" height="12" rx="1.5" fill="${c}"/>`; if (n.startsWith("acct")) return `<path class="core" d="M${x} ${y - 8.5} L${x + 8.5} ${y} L${x} ${y + 8.5} L${x - 8.5} ${y}Z" fill="${c}"/>`; return `<circle class="core" cx="${x}" cy="${y}" r="5.5" fill="#fffefb" stroke="${c}" stroke-width="2.4"/>`; };
   const widths = cl.groups.map(g => Math.max(...[0, 1, 2, 3].map(l => g.filter(n => layer(n) === l).length))), tw = widths.reduce((a, b) => a + b, 0);
-  let x0 = 10; const boxes = [];
-  cl.groups.forEach((g, gi) => { const bw = (W - 20) * widths[gi] / tw; [0, 1, 2, 3].forEach(l => { const ns = g.filter(n => layer(n) === l); ns.forEach((n, i) => nodes[n] = { x: x0 + bw * (i + .5) / ns.length, y: 40 + l * 58 }); }); boxes.push([x0, bw, g]); x0 += bw; });
-  const selGroup = cl.groups.findIndex(g => g.includes("acct:" + selAcct));
-  let s = "";
-  boxes.forEach(([bx, bw, g], gi) => { const on = gi === selGroup; s += `<rect x="${bx + 4}" y="8" width="${bw - 8}" height="${H - 16}" rx="4" fill="${on ? "#fbf4ec" : "none"}" stroke="${on ? "#e3c3a6" : "#e3dfd5"}" ${on ? "" : 'stroke-dasharray="3 3"'}/><text x="${bx + 14}" y="25" fill="${on ? "#7f3909" : "#696459"}" font-size="11" font-weight="600">Cluster ${String.fromCharCode(65 + gi)}</text>`; });
-  cl.edges.forEach(([a, b]) => { const on = cl.groups[selGroup].includes(a); s += `<line x1="${nodes[a].x}" y1="${nodes[a].y}" x2="${nodes[b].x}" y2="${nodes[b].y}" stroke="${on ? "#8f897e" : "#d8d3c9"}" stroke-width="${on ? 1.3 : 1}"/>`; });
-  Object.entries(nodes).forEach(([n, p]) => { const on = cl.groups[selGroup].includes(n); s += `<g class="gnode" data-n="${n}" opacity="${on ? 1 : .55}"><circle cx="${p.x}" cy="${p.y}" r="12" fill="transparent"/>${shape(n, p.x, p.y)}<text x="${p.x}" y="${p.y + 21}" text-anchor="middle" font-size="10.5" fill="${on ? "#1c1b18" : "#696459"}">${lbl(n)}</text></g>`; });
+  let x0 = GUT; const boxes = [];
+  cl.groups.forEach((g, gi) => { const bw = (W - GUT - 8) * widths[gi] / tw; [0, 1, 2, 3].forEach(l => { const ns = g.filter(n => layer(n) === l); ns.forEach((n, i) => nodes[n] = { x: x0 + bw * (i + .5) / ns.length, y: ROWY[l] }); }); boxes.push([x0, bw, g]); x0 += bw; });
+  const selGroup = Math.max(0, cl.groups.findIndex(g => g.includes("acct:" + selAcct)));
+  let s = `<defs><pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="#b3261e" stroke-width="1.2" opacity=".35"/></pattern></defs>`;
+  ROWS.forEach((r, i) => { s += `<text x="8" y="${ROWY[i] + 4}" font-size="10" fill="#696459" font-weight="500">${r}</text><line x1="${GUT - 6}" x2="${W - 8}" y1="${ROWY[i]}" y2="${ROWY[i]}" stroke="#ece8df" stroke-dasharray="2 4"/>`; });
+  boxes.forEach(([bx, bw], gi) => { const on = gi === selGroup; s += `<rect x="${bx + 3}" y="10" width="${bw - 6}" height="${H - 40}" rx="4" fill="${on ? "#fbf4ec" : "none"}" stroke="${on ? "#e3c3a6" : "#e3dfd5"}" ${on ? "" : 'stroke-dasharray="3 3"'}/><text x="${bx + 12}" y="25" fill="${on ? "#7f3909" : "#696459"}" font-size="11" font-weight="600">Cluster ${String.fromCharCode(65 + gi)}</text>`; });
+  cl.edges.forEach(([a, b]) => { const on = cl.groups[selGroup].includes(a), f = flow[a + ">" + b] || 0, sw = 1 + 5.5 * f / maxF, shared = b.startsWith("phone") && phoneAccts(val(b)).length > 1;
+    const x1 = nodes[a].x, y1 = nodes[a].y, x2 = nodes[b].x, y2 = nodes[b].y, my = (y1 + y2) / 2;
+    s += `<path class="gedge" data-a="${a}" data-b="${b}" d="M${x1} ${y1} C${x1} ${my}, ${x2} ${my}, ${x2} ${y2}" fill="none" stroke="${shared ? "#b3261e" : on ? "#9c9588" : "#ddd8ce"}" stroke-width="${sw.toFixed(1)}" stroke-opacity="${on ? .75 : .5}" ${shared ? 'stroke-dasharray="5 3"' : ""} stroke-linecap="round"/>`;
+  });
+  Object.entries(nodes).forEach(([n, p]) => { const on = cl.groups[selGroup].includes(n), isA = n.startsWith("acct");
+    let extra = "";
+    if (isA) { const a = val(n), cov = Math.min(1, LIENS[a] / Math.max(1, claimsOn(a))), bw2 = 36; extra = `<text x="${p.x}" y="${p.y - 13}" text-anchor="middle" font-size="9" fill="#7f3909" font-family="JetBrains Mono, monospace">${sub(n)}</text><rect x="${p.x - bw2 / 2}" y="${p.y + 27}" width="${bw2}" height="4" rx="1" fill="url(#hatch)" stroke="#e3c3a6" stroke-width=".6"/><rect x="${p.x - bw2 / 2}" y="${p.y + 27}" width="${(bw2 * cov).toFixed(1)}" height="4" rx="1" fill="#9a440c"/>`; }
+    s += `<g class="gnode" data-n="${n}" opacity="${on ? 1 : .5}"><circle cx="${p.x}" cy="${p.y}" r="13" fill="transparent"/>${shape(n, p.x, p.y)}<text x="${p.x}" y="${p.y + 20}" text-anchor="middle" font-size="10.5" font-weight="500" fill="${on ? "#1c1b18" : "#696459"}">${lbl(n)}</text>${isA ? "" : `<text x="${p.x}" y="${p.y + 31}" text-anchor="middle" font-size="9" fill="#696459" font-family="JetBrains Mono, monospace">${sub(n)}</text>`}${extra}</g>`; });
+  s += `<text x="${GUT}" y="${H - 5}" font-size="9.5" fill="#696459">Line width = money that flowed · bar under an account = lien ÷ claims · <tspan fill="#b3261e">red dashes = phone shared by accounts</tspan></text>`;
   svg.innerHTML = s;
   const tip = $("#gtip"), wrap = $("#graphwrap");
   svg.setAttribute("role", "group"); svg.setAttribute("aria-label", "Mule graph. Tab through nodes; Enter selects a case or account.");
   svg.querySelectorAll(".gnode").forEach(g => { const [t, v] = g.dataset.n.split(":"); g.setAttribute("tabindex", "0"); g.setAttribute("role", "button"); g.setAttribute("aria-label", ({ case: "Victim case", vpa: "Payee UPI ID", acct: "Account", phone: "Phone" }[t] || t) + " " + v);
     g.addEventListener("focus", () => g.dispatchEvent(new Event("mouseenter"))); g.addEventListener("blur", () => g.dispatchEvent(new Event("mouseleave")));
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); const n = g.dataset.n; g.dispatchEvent(new MouseEvent("click")); requestAnimationFrame(() => { const again = document.querySelector(`.gnode[data-n="${CSS.escape(n)}"]`); if (again) again.focus(); }); } }); });
+  const reach = n => { const set = new Set([n]); const walk = (dir) => { let grew = true; while (grew) { grew = false; cl.edges.forEach(([x, y]) => { const [from, to] = dir > 0 ? [x, y] : [y, x]; if (set.has(from) && !set.has(to) && Math.sign(layer(to) - layer(from)) === dir && (dir > 0 ? layer(from) >= layer(n) : layer(from) <= layer(n))) { set.add(to); grew = true; } }); } }; walk(1); walk(-1); return set; };
+  const lit = n => { const set = reach(n); svg.classList.add("hl"); svg.querySelectorAll(".gnode").forEach(g => g.classList.toggle("lit", set.has(g.dataset.n))); svg.querySelectorAll(".gedge").forEach(e => e.classList.toggle("lit", set.has(e.dataset.a) && set.has(e.dataset.b))); };
+  const unlit = () => { svg.classList.remove("hl"); svg.querySelectorAll(".lit").forEach(e => e.classList.remove("lit")); };
+  svg.querySelectorAll(".gnode").forEach(g => { g.addEventListener("mouseenter", () => lit(g.dataset.n)); g.addEventListener("mouseleave", unlit); });
   svg.querySelectorAll(".gnode").forEach(g => { g.addEventListener("mouseenter", () => { const n = g.dataset.n, [t, v] = n.split(":"); let html = ""; if (t === "case") { const c = CASES.find(x => x.id === v); html = `<b>${c.victim} · ${c.id}</b><span>${inr(c.amount)} · ${c.type}</span>`; } else if (t === "vpa") { const cs = CASES.filter(x => x.vpa === v); html = `<b>${v}</b><span>${cs.length} victim payment${cs.length > 1 ? "s" : ""} · ${inr(cs.reduce((a, c) => a + c.amount, 0))}</span>`; } else if (t === "acct") { html = `<b>Account ${v}</b><span>Lien ${inr(LIENS[v])} · phone ${ACCT_PHONE[v]}</span>`; } else { const as = Object.entries(ACCT_PHONE).filter(([, p]) => p === v).map(([a]) => a); html = `<b>${v}</b><span>Linked to ${as.join(", ")}</span>`; } tip.innerHTML = html; const r = g.getBoundingClientRect(), wr = wrap.getBoundingClientRect(); tip.style.left = Math.min(wr.width - 190, Math.max(6, r.left - wr.left - 70)) + "px"; tip.style.top = (r.top - wr.top - 58) + "px"; tip.classList.add("on"); }); g.addEventListener("mouseleave", () => tip.classList.remove("on")); g.addEventListener("click", () => { const n = g.dataset.n; const c = n.startsWith("case") ? CASES.find(x => x.id === n.split(":")[1]) : null; if (c) { selAcct = c.acct; renderConsole(); } else if (n.startsWith("acct")) { selAcct = n.split(":")[1]; renderConsole(); } }); });
   const big = cl.groups[selGroup], accts = big.filter(n => n.startsWith("acct")).map(n => n.split(":")[1]), vic = big.filter(n => n.startsWith("case")).length, vp = big.filter(n => n.startsWith("vpa")).length, amt = CASES.filter(c => accts.includes(c.acct)).reduce((a, c) => a + c.amount, 0);
   $("#clcount").textContent = `${cl.groups.length} clusters`;
-  $("#why").innerHTML = accts.length > 1 ? `<b>Why Cluster ${String.fromCharCode(65 + selGroup)} is flagged:</b> ${vic} victims paid ${vp} different UPI IDs that settle into ${accts.length} accounts (${accts.join(", ")}), both registered to phone ${ACCT_PHONE[accts[0]]}. Combined claims ${inr(amt)}. <span class="muted">Analyst confirms before reporting.</span>` : `<b>Cluster ${String.fromCharCode(65 + selGroup)}:</b> ${vic} victim${vic > 1 ? "s" : ""} paid ${vp} UPI ID${vp > 1 ? "s" : ""} settling into ${accts[0]}. Combined claims ${inr(amt)}. <span class="muted">No cross-account link found.</span>`;
+  const gl = String.fromCharCode(65 + selGroup), phones = [...new Set(accts.map(a => ACCT_PHONE[a]))], lien = accts.reduce((t, a) => t + (LIENS[a] || 0), 0);
+  const cs = CASES.filter(c => accts.includes(c.acct)), fast = cs.filter(c => (new Date(c.reportedAt) - new Date(c.fraudAt)) / 6e4 <= 60).length;
+  const days = cs.length ? Math.round((Math.max(...cs.map(c => +new Date(c.fraudAt))) - Math.min(...cs.map(c => +new Date(c.fraudAt)))) / 864e5) : 0;
+  const sig = [
+    [accts.length > 1 && phones.length < accts.length, `${accts.length} accounts share one registered phone (${phones.map(p => "…" + p.slice(-5)).join(", ")})`, "No phone shared across accounts"],
+    [vic >= 3, `${vic} victims within ${days} days`, `${vic} victim${vic > 1 ? "s" : ""}`],
+    [vp > accts.length, `${vp} payee UPI IDs funnel into ${accts.length} account${accts.length > 1 ? "s" : ""}`, `${vp} UPI ID${vp > 1 ? "s" : ""}, ${accts.length} account${accts.length > 1 ? "s" : ""}`],
+    [amt > lien, `Claims ${inr(amt)} exceed the lien ${inr(lien)} (${Math.round(100 * amt / Math.max(1, lien))}%): pro-rata split needed`, `Lien ${inr(lien)} covers claims ${inr(amt)}`],
+  ];
+  const score = sig.filter(x => x[0]).length;
+  $("#why").innerHTML = `<b>Cluster ${gl} · ${score} of 4 mule signals</b> <span class="muted">· ${fast} of ${vic} reported inside the golden hour</span><ul class="signals">${sig.map(([on, yes, no]) => `<li><span class="mk ${on ? "ok" : "no"}">${on ? "●" : "○"}</span><span>${on ? yes : no}</span></li>`).join("")}</ul><div class="muted" style="margin-top:6px">Rules, not a model: each signal is a count from the case packets. An analyst confirms before anything is reported.</div>`;
 }
 
 /* ================= Impact charts (validated palette on dark surface) ================= */
