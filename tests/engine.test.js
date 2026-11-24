@@ -242,7 +242,7 @@ test("parser: misread UPI handle snaps to a known handle", () => {
 test("parser: UTR, date, time and Aadhaar masking flag", () => {
   const f = GH.parseReceipt("UPI Ref No. 512398447016\nDate 14 Nov 2026, 11:42 am\n2345 6789 1234");
   assert.equal(f.utr, "512398447016");
-  assert.equal(f.when.getDate(), 14); assert.equal(f.when.getHours(), 11);
+  assert.equal(f.when.toISOString(), "2026-11-14T06:12:00.000Z"); // 11:42 IST, on any device time zone
   assert.equal(f.aadhaar, true);
 });
 

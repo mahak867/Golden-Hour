@@ -9,7 +9,7 @@ const fs = require('fs'), path = require('path');
 (async () => {
   const srv = await require('./serve')();
   const b = await chromium.launch();
-  const p = await b.newPage();
+  const p = await b.newPage({ timezoneId: 'Asia/Kolkata' }); // receipts are drawn and parsed in IST
   p.on('pageerror', e => console.log('PAGEERROR', e.message));
   await p.goto(srv.url + 'index.html?view=rules');
   await p.waitForTimeout(500);

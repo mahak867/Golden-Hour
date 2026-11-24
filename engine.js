@@ -21,7 +21,8 @@
   const R = Object.fromEntries(RULES.map(r => [r.key, r.value]));
   const DAY = 864e5;
 
-  const addWD = (d, n) => { const x = new Date(d); let c = 0; while (c < n) { x.setDate(x.getDate() + 1); const w = x.getDay(); if (w && w !== 6) c++; } return x; };
+  // Working days are counted on the IST calendar, whatever the device's time zone.
+  const addWD = (d, n) => { let x = new Date(d).getTime(), c = 0; while (c < n) { x += 864e5; const w = new Date(x + 330 * 6e4).getUTCDay(); if (w && w !== 6) c++; } return new Date(x); };
   const addD = (d, n) => new Date(new Date(d).getTime() + n * DAY);
   const fmtD = d => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" });
   const fmtDT = d => new Date(d).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Kolkata" });
@@ -284,7 +285,7 @@ Name: [your name]    Mobile: [number]    Date: [date]`,
       const near = txt.slice(Math.max(0, m.index - 30), m.index + m[0].length + 30);
       let hh = 0, mm = 0; const tm = near.match(TIME) || txt.match(TIME);
       if (tm) { hh = +tm[1]; mm = +tm[2]; if (tm[3] && /pm/i.test(tm[3]) && hh < 12) hh += 12; if (tm[3] && /am/i.test(tm[3]) && hh === 12) hh = 0; if (hh > 23) hh = 0; }
-      out.when = new Date(Y, Mo, D, hh, mm); out.timeFound = !!tm;
+      out.when = new Date(Date.UTC(Y, Mo, D, hh, mm) - 330 * 6e4); out.timeFound = !!tm; // receipts show IST
     }
     const a = txt.match(/(?<![0-9])([0-9]{14})(?![0-9])/); if (a) out.ack = a[1];
     out.aadhaar = /\b[2-9][0-9]{3}\s[0-9]{4}\s[0-9]{4}\b/.test(txt);
