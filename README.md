@@ -43,7 +43,7 @@ When a scam is reported quickly, the money often gets frozen. It rarely comes ba
 
 ![Tamil Nadu 2024: where scam money went](charts/tn-2024-funnel.png)
 
-- **Tamil Nadu 2024:** ₹1,673 cr lost, ₹772 cr frozen, about ₹84 cr returned. That is roughly 11% of the frozen money. *(TN Cyber Crime Wing, via The News Minute and DT Next)*
+- **Tamil Nadu 2024:** ₹1,674 cr lost, ₹772 cr frozen, about ₹84 cr returned. That is roughly 11% of the frozen money. *(TN Cyber Crime Wing, via The News Minute and DT Next)*
 - **Chennai, Jan–May 2025:** ₹48 cr frozen, ₹10.45 cr returned "after legal processes". *(DT Next)*
 - **The victim has to start the restoration.** That means 4+ separate channels, most of them English-first:
   - the MHA SOP (Jan 2026) and the NCRP Money Restoration Module

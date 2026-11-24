@@ -61,7 +61,7 @@ svg text { font-family: "Inter", "Segoe UI", system-ui, sans-serif; }
   </defs>
   <!-- victim lane -->
   <rect class="lane" x="4" y="4" width="842" height="262" rx="14"/>
-  <text class="lt" x="20" y="28">VICTIM CREW · LangGraph state machine · every transition audit-logged</text>
+  <text class="lt" x="20" y="28">VICTIM CREW · CODE today, MODEL only where marked (finals) · every step audit-logged</text>
   <rect class="box" x="20" y="64" width="96" height="78" rx="10"/>
   <text class="bt" x="68" y="94" text-anchor="middle">Telegram</text>
   <text class="bs" x="68" y="112" text-anchor="middle">Tamil voice</text>
@@ -71,13 +71,13 @@ svg text { font-family: "Inter", "Segoe UI", system-ui, sans-serif; }
   <text class="bs" x="146" y="184" style="fill:#d9ff43;font-weight:700">⑥ Safety &amp; Consent wraps ①–⑤:</text>
   <text class="bs" x="338" y="184">DPDP consent · PII redaction · information, not legal advice · victim approves</text>
   <!-- rails -->
-  <text class="bs" x="20" y="214" style="font-weight:700;fill:#b4bdd3">Official rails (victim files personally):</text>
+  <text class="bs" x="20" y="214" style="font-weight:700;fill:#b4bdd3">Official rails (PERSON: the victim files personally):</text>
   <g id="rails"></g>
   <!-- packet -->
   <rect class="box hot" x="868" y="98" width="128" height="72" rx="10"/>
   <text class="bt" x="932" y="126" text-anchor="middle">Case packet</text>
-  <text class="bs" x="932" y="144" text-anchor="middle">JSON + PDF</text>
-  <text class="bs" x="932" y="159" text-anchor="middle">consented, redacted</text>
+  <text class="bs" x="932" y="144" text-anchor="middle">JSON + SHA-256</text>
+  <text class="bs" x="932" y="159" text-anchor="middle">same hash both sides</text>
   <path class="arrow" d="M832,134 L864,134"/>
   <path class="arrow" d="M996,134 L1018,134"/>
   <!-- bank lane -->
@@ -85,16 +85,16 @@ svg text { font-family: "Inter", "Segoe UI", system-ui, sans-serif; }
   <text class="lt" x="1034" y="28">BANK CREW</text>
   <text class="bs" x="1034" y="44">fraud-ops console</text>
   <rect class="box" x="1034" y="58" width="208" height="76" rx="10"/>
-  <text class="bt" x="1046" y="80">⑦ Reconciliation</text>
+  <text class="bt" x="1046" y="80">⑦ Reconciliation · CODE</text>
   <text class="bs" x="1046" y="98">lien vs claims per mule account</text>
   <text class="bs" x="1046" y="113">multi-victim pro-rata split draft</text>
   <rect class="box" x="1034" y="146" width="208" height="92" rx="10"/>
-  <text class="bt" x="1046" y="168">⑧ Mule-graph explainer</text>
+  <text class="bt" x="1046" y="168">⑧ Mule graph · CODE</text>
   <text class="bs" x="1046" y="186">victim ↔ VPA ↔ account ↔ phone</text>
   <text class="bs" x="1046" y="201">clusters + a reason for every flag</text>
   <g transform="translate(1190,222)"><circle r="5" cx="0" cy="0" fill="#3987e5"/><circle r="5" cx="18" cy="-8" fill="#eda100"/><circle r="5" cx="36" cy="0" fill="#e66767"/><line x1="0" y1="0" x2="18" y2="-8" stroke="#6d7896"/><line x1="18" y1="-8" x2="36" y2="0" stroke="#6d7896"/></g>
   <rect class="box hot" x="1034" y="250" width="208" height="62" rx="10"/>
-  <text class="bt" x="1046" y="274">Human analyst</text>
+  <text class="bt" x="1046" y="274">Analyst · PERSON</text>
   <text class="bs" x="1046" y="293">approve / query · audit log</text>
   <path class="arrow" d="M1138,134 L1138,144"/>
   <path class="arrow" d="M1138,238 L1138,248"/>
@@ -105,33 +105,62 @@ svg text { font-family: "Inter", "Segoe UI", system-ui, sans-serif; }
   <!-- data strip -->
   <rect x="4" y="282" width="1000" height="114" rx="14" fill="#0f1527" stroke="#2a3657"/>
   <text class="lt" x="20" y="306">DATA &amp; STACK</text>
-  <text class="bs" x="20" y="328">Supabase Postgres + encrypted storage (row-level security) · labelled mock MRM / NCRP / bank portals (no public APIs) · synthetic data only</text>
-  <text class="bs" x="20" y="348">LangGraph · Claude / Gemini vision → strict JSON · Sarvam / AI4Bharat Tamil STT · Presidio PII redaction · NetworkX graph · Telegram Bot API</text>
+  <text class="bs" x="20" y="328">Live today: Tesseract.js OCR on the device · rules engine (34 named tests) · Web Crypto SHA-256 audit chain · union-find mule graph · synthetic data only</text>
+  <text class="bs" x="20" y="348">Finals build: LangGraph orchestration · Sarvam / AI4Bharat Tamil speech · Supabase Postgres (row-level security) · Telegram Bot API · labelled mock portals</text>
   <text class="bs" x="20" y="368">Production path: Setu Account Aggregator for statements · bank integration via fraud-ops console · no fees, no custody of funds, no representation</text>
 </svg></div>
 
 
-<!-- Simple architecture (deck) -->
+<!-- Simple architecture (deck slide 4). Tags: CODE = runs today, deterministic; MODEL = finals build; PERSON = a human decides.
+     QR code (https://golden-hour-khacks.vercel.app) generated once with node-qrcode 1.5.4 (MIT) and pasted as a static path. -->
 <div class="fig" id="arch2"><svg width="1260" height="380" viewBox="0 0 1260 380">
-  <defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#b4bdd3"/></marker></defs>
-  <style>.a2 { stroke: #b4bdd3; stroke-width: 2.2; fill: none; marker-end: url(#ah3); } .h { font-size: 20px; font-weight: 700; fill: #eef2fb; } .p { font-size: 15px; fill: #b4bdd3; } .chip { fill: #18223d; stroke: #3a4766; } .ct { font-size: 15px; fill: #eef2fb; font-weight: 600; }</style>
-  <rect x="10" y="110" width="170" height="120" rx="16" fill="#121a30" stroke="#3a4766"/>
-  <text class="h" x="95" y="160" text-anchor="middle">Victim</text><text class="p" x="95" y="186" text-anchor="middle">voice note or</text><text class="p" x="95" y="206" text-anchor="middle">screenshot</text>
-  <path class="a2" d="M182,170 L222,170"/>
-  <rect x="226" y="40" width="470" height="260" rx="18" fill="#121a30" stroke="#d9ff43" stroke-width="1.6"/>
-  <text class="h" x="250" y="76" style="fill:#d9ff43">Victim crew</text><text class="p" x="390" y="76">on Telegram</text>
+  <defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#b4bdd3"/></marker></defs>
+  <style>
+    .a2 { stroke: #b4bdd3; stroke-width: 2.4; fill: none; marker-end: url(#ah3); }
+    .h { font-size: 21px; font-weight: 800; fill: #eef2fb; } .p { font-size: 14px; fill: #b4bdd3; }
+    .chip { fill: #18223d; stroke: #3a4766; stroke-width: 1.4; } .chip.person { fill: rgba(242,184,75,.10); stroke: #f2b84b; }
+    .ct { font-size: 15.5px; fill: #eef2fb; font-weight: 700; } .cs { font-size: 13.5px; fill: #b4bdd3; }
+    .tg { font-size: 10.5px; font-weight: 800; letter-spacing: .6px; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  </style>
+  <!-- victim (person) -->
+  <rect x="4" y="96" width="132" height="132" rx="14" fill="#121a30" stroke="#f2b84b" stroke-width="1.6"/>
+  <text class="h" x="70" y="134" text-anchor="middle">Victim</text>
+  <text class="p" x="70" y="158" text-anchor="middle">voice note or</text><text class="p" x="70" y="176" text-anchor="middle">UPI screenshot</text>
+  <g id="victimTag"></g>
+  <path class="a2" d="M138,162 L154,162"/>
+  <!-- victim crew -->
+  <rect x="158" y="6" width="470" height="300" rx="18" fill="#121a30" stroke="#d9ff43" stroke-width="1.6"/>
+  <text class="h" x="174" y="38" style="fill:#d9ff43">Victim crew</text><text class="p" x="306" y="38">6 agents · Tamil + English</text>
   <g id="chips2"></g>
-  <path class="a2" d="M698,170 L738,170"/>
-  <rect x="742" y="120" width="130" height="100" rx="14" fill="#18223d" stroke="#d9ff43"/>
-  <text class="h" x="807" y="164" text-anchor="middle">Case</text><text class="h" x="807" y="190" text-anchor="middle">file</text>
-  <path class="a2" d="M874,170 L914,170"/>
-  <rect x="918" y="40" width="332" height="260" rx="18" fill="#121a30" stroke="#3a4766"/>
-  <text class="h" x="942" y="76">Bank crew</text><text class="p" x="1052" y="76">fraud-ops console</text>
-  <rect class="chip" x="942" y="98" width="284" height="50" rx="12"/><text class="ct" x="960" y="129">Reconciliation</text>
-  <rect class="chip" x="942" y="160" width="284" height="50" rx="12"/><text class="ct" x="960" y="191">Mule-graph explainer</text>
-  <rect x="942" y="222" width="284" height="50" rx="12" fill="rgba(217,255,67,.08)" stroke="#d9ff43"/><text class="ct" x="960" y="253" style="fill:#d9ff43">Analyst approves</text>
-  <path d="M460,302 L460,334" stroke="#6d7896" stroke-width="2" stroke-dasharray="5 4" fill="none"/>
-  <text class="p" x="460" y="362" text-anchor="middle">Victim files on the official channels: police portal, bank, magistrate, RBI Ombudsman</text>
+  <!-- packet -->
+  <path class="a2" d="M630,162 L648,162"/>
+  <rect x="652" y="70" width="152" height="186" rx="14" fill="#1d2540" stroke="#d9ff43" stroke-width="2"/>
+  <text class="h" x="728" y="102" text-anchor="middle">Case packet</text>
+  <text class="p" x="728" y="124" text-anchor="middle">consented, redacted</text>
+  <rect x="662" y="138" width="132" height="56" rx="8" fill="#0d1530" stroke="#3a4766"/>
+  <text class="tg" x="728" y="158" text-anchor="middle" style="fill:#d9ff43">SHA-256</text>
+  <text class="mono" x="728" y="181" text-anchor="middle" style="font-size:14px;fill:#eef2fb">#44ffb451a2fb…</text>
+  <text class="p" x="728" y="218" text-anchor="middle" style="fill:#eef2fb;font-weight:700">same hash on</text>
+  <text class="p" x="728" y="237" text-anchor="middle" style="fill:#eef2fb;font-weight:700">both sides</text>
+  <path class="a2" d="M806,162 L822,162"/>
+  <!-- bank crew -->
+  <rect x="826" y="6" width="290" height="300" rx="18" fill="#121a30" stroke="#3a4766" stroke-width="1.6"/>
+  <text class="h" x="842" y="38">Bank crew</text><text class="p" x="956" y="38">fraud desk (demo)</text>
+  <g id="chips3"></g>
+  <!-- official channels (person) -->
+  <path d="M393,308 L393,326" stroke="#6d7896" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+  <g id="filesTag"></g>
+  <text class="p" x="250" y="346" style="fill:#eef2fb">Victim reviews and files: NCRP portal · bank · magistrate (BNSS s.503) · RBI Ombudsman</text>
+  <text class="p" x="4" y="374" style="font-size:15px">CODE = runs today, deterministic, tested · MODEL = added in the finals build · PERSON = a human decides. No agent files a claim or moves money.</text>
+  <!-- QR to live demo -->
+  <rect x="1132" y="40" width="126" height="126" rx="8" fill="#ffffff"/>
+  <g transform="translate(1141,49) scale(3.7931)"><path stroke="#000000" d="M0 0.5h7m1 0h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h7M0 1.5h1m5 0h1m1 0h1m1 0h1m3 0h1m2 0h1m2 0h1m1 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m2 0h1m2 0h2m2 0h1m1 0h2m2 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h3m1 0h1m2 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m2 0h3m1 0h5m1 0h1m2 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m2 0h4m1 0h1m2 0h1m1 0h2m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h1m1 0h2m1 0h2m2 0h4M0 8.5h1m1 0h2m1 0h3m2 0h1m2 0h2m1 0h3m3 0h1m2 0h1m1 0h2M1 9.5h1m1 0h2m2 0h3m2 0h1m3 0h9m3 0h1M1 10.5h1m1 0h1m1 0h4m2 0h1m2 0h1m6 0h1m1 0h1m2 0h2M3 11.5h2m2 0h1m1 0h1m3 0h3m2 0h6m4 0h1M0 12.5h2m1 0h5m2 0h2m5 0h1m1 0h1m5 0h2M0 13.5h1m1 0h4m1 0h1m5 0h1m1 0h1m1 0h4m1 0h1m3 0h3M0 14.5h4m1 0h2m1 0h1m1 0h2m2 0h1m1 0h2m1 0h1m1 0h1m4 0h3M0 15.5h3m1 0h1m2 0h2m1 0h1m1 0h2m1 0h2m2 0h1m1 0h3m3 0h1M1 16.5h3m1 0h4m6 0h1m7 0h3m1 0h1M3 17.5h1m1 0h1m1 0h1m2 0h1m2 0h1m1 0h1m1 0h1m2 0h1m2 0h1m1 0h3M0 18.5h1m1 0h3m1 0h3m1 0h1m4 0h3m2 0h1m1 0h2m2 0h1M3 19.5h1m1 0h1m1 0h1m4 0h1m3 0h2m3 0h1m2 0h1m1 0h1M1 20.5h2m1 0h4m1 0h2m1 0h2m2 0h11M8 21.5h2m2 0h3m1 0h1m2 0h2m3 0h5M0 22.5h7m1 0h1m1 0h1m1 0h2m2 0h1m1 0h3m1 0h1m1 0h2m1 0h1M0 23.5h1m5 0h1m1 0h3m4 0h2m3 0h1m3 0h2m1 0h2M0 24.5h1m1 0h3m1 0h1m2 0h3m2 0h2m1 0h1m2 0h5m1 0h1M0 25.5h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h4m1 0h1m1 0h1m1 0h3m2 0h1M0 26.5h1m1 0h3m1 0h1m1 0h3m1 0h2m2 0h1m1 0h1m1 0h1m2 0h1m2 0h1m1 0h1M0 27.5h1m5 0h1m2 0h1m10 0h4m1 0h1m1 0h1M0 28.5h7m1 0h3m3 0h1m1 0h1m1 0h3m6 0h1"/></g>
+  <text class="ct" x="1195" y="192" text-anchor="middle">Scan: live demo</text>
+  <text class="cs" x="1195" y="212" text-anchor="middle">golden-hour-</text>
+  <text class="cs" x="1195" y="229" text-anchor="middle">khacks.vercel.app</text>
+  <text class="cs" x="1195" y="258" text-anchor="middle" style="fill:#d9ff43">runs in your</text>
+  <text class="cs" x="1195" y="275" text-anchor="middle" style="fill:#d9ff43">browser</text>
 </svg></div>
 
 <script>
@@ -174,15 +203,23 @@ const fmt = n => n.toLocaleString("en-IN", { maximumFractionDigits: 2 });
   s += `<line x1="60" x2="480" y1="${y0}" y2="${y0}" stroke="#5a6684" stroke-width="1.5"/>`;
   g.innerHTML = s;
 })();
-// Simple architecture chips
+// Simple architecture chips (deck): each agent tagged CODE / MODEL (finals) / PERSON
 (function () {
-  const a = ["Intake", "Evidence", "Route Planner", "Drafter", "Deadline Guardian", "Safety & Consent"]; let s = "";
-  a.forEach((t, i) => { const col = i % 2, row = Math.floor(i / 2), x = 250 + col * 226, y = 98 + row * 64; s += `<rect class="chip" x="${x}" y="${y}" width="212" height="50" rx="12"/><text class="ct" x="${x + 18}" y="${y + 31}">${t}</text>`; });
+  const C = { CODE: "#3ecf8e", MODEL: "#b69cff", PERSON: "#f2b84b" };
+  const tag = (k, x, y, label) => { label = label || k; const w = label.length * 7 + 12; return `<rect x="${x - w}" y="${y}" width="${w}" height="19" rx="9.5" fill="none" stroke="${C[k]}" stroke-width="1.3"/><text class="tg" x="${x - w / 2}" y="${y + 13.5}" text-anchor="middle" fill="${C[k]}">${label}</text>`; };
+  const chip = ([t, sub, k, label], x, y, w) => `<rect class="chip ${k === "PERSON" ? "person" : ""}" x="${x}" y="${y}" width="${w}" height="70" rx="12"/><text class="ct" x="${x + 14}" y="${y + 28}">${t}</text><text class="cs" x="${x + 14}" y="${y + 52}">${sub}</text>` + tag(k, x + w - 10, y + 40 - (sub ? 32 : 0), label);
+  const v = [["Intake", "Tamil / Tanglish speech", "MODEL", "MODEL · FINALS"], ["Evidence", "on-device OCR, UTR check", "CODE"], ["Route Planner", "rules + sources, 34 tests", "CODE"], ["Drafter", "Tamil/English, s.503", "CODE"], ["Deadline Guardian", "90-day hold, bank clocks", "CODE"], ["Safety & Consent", "no OTP/PIN, audit chain", "CODE"]];
+  let s = ""; v.forEach((a, i) => { s += chip(a, 172 + (i % 2) * 224, 56 + Math.floor(i / 2) * 82, 216); });
   document.getElementById("chips2").innerHTML = s;
+  const b = [["Reconciliation", "pro-rata split to the rupee", "CODE"], ["Mule-graph explainer", "clusters + reason per flag", "CODE"], ["Analyst approves", "every bank action", "PERSON"]];
+  s = ""; b.forEach((a, i) => { s += chip(a, 840, 56 + i * 82, 262); });
+  document.getElementById("chips3").innerHTML = s;
+  document.getElementById("victimTag").innerHTML = tag("PERSON", 112, 194);
+  document.getElementById("filesTag").innerHTML = tag("PERSON", 240, 332);
 })();
 // Architecture agents
 (function () {
-  const a = [["① Intake & Triage", "Sarvam STT", "Tamil / Tanglish"], ["② Evidence", "vision LLM → JSON", "UTR check, redaction"], ["③ Route Planner", "deterministic rules", "SOP · BNSS · RBI"], ["④ Drafter", "forms, petition,", "Tamil read-back"], ["⑤ Deadlines", "90-day hold, bank", "& Ombudsman clocks"]];
+  const a = [["① Intake & Triage", "MODEL (finals):", "Sarvam / AI4Bharat"], ["② Evidence", "CODE: on-device", "OCR, UTR check"], ["③ Route Planner", "CODE: rules with", "sources, 34 tests"], ["④ Drafter", "CODE: Tamil +", "English, s.503"], ["⑤ Deadlines", "CODE: hold, bank", "& Ombudsman clocks"]];
   const g = document.getElementById("agentsRow"); let s = ""; const bw = 126, gap = 12; let x = 146;
   s += `<path class="arrow" d="M116,103 L${x - 2},103"/>`;
   a.forEach(([t, l1, l2], i) => { s += `<rect class="box" x="${x}" y="62" width="${bw}" height="82" rx="10"/><text class="bt" x="${x + 8}" y="84" style="font-size:12px">${t}</text><text class="bs" x="${x + 8}" y="104">${l1}</text><text class="bs" x="${x + 8}" y="119">${l2}</text>`;
