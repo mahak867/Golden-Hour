@@ -201,9 +201,39 @@ Name: [your name]    Mobile: [number]    Date: [date]`,
     return body + "\n\n— " + FOOT[lang === "ta" ? "ta" : "en"] + "\n";
   }
 
+  /* Pro-rata split of one lien across all victim claims on that account.
+   * Shares are whole rupees, never exceed a claim, and sum exactly to min(lien, total claims). */
+  function splitLien(claims, lien) {
+    const total = claims.reduce((s, c) => s + c.amount, 0), ratio = total ? Math.min(1, lien / total) : 0;
+    const sh = claims.map(c => ({ ...c, share: Math.floor(c.amount * ratio) }));
+    let rem = Math.min(lien, total) - sh.reduce((s, x) => s + x.share, 0);
+    const order = [...sh].sort((a, b) => b.amount - a.amount);
+    for (let i = 0; rem > 0 && order.length; i = (i + 1) % order.length) { if (order[i].share < order[i].amount) { order[i].share++; rem--; } }
+    return { claims: sh, total, lien, ratio };
+  }
+
+  /* Union-find over case → payee UPI ID → account → phone links. Returns connected groups, largest first. */
+  function clusterGraph(cases, acctPhone) {
+    const parent = {}; const f = x => (parent[x] ??= x, parent[x] === x ? x : (parent[x] = f(parent[x])));
+    const edges = [];
+    cases.forEach(c => edges.push(["case:" + c.id, "vpa:" + c.vpa], ["vpa:" + c.vpa, "acct:" + c.acct]));
+    Object.entries(acctPhone).forEach(([a, p]) => edges.push(["acct:" + a, "phone:" + p]));
+    edges.forEach(([a, b]) => { parent[f(a)] = f(b); });
+    const g = {}; Object.keys(parent).forEach(n => (g[f(n)] ??= []).push(n));
+    return { edges, groups: Object.values(g).sort((a, b) => b.length - a.length) };
+  }
+
+  /* The case packet both crews share. Same fields on the victim and bank side; hashed for the audit trail. */
+  function casePacket(c, p) {
+    return { schema: "golden-hour/case-packet@1", amount_inr: c.amount, held_inr: p.held, utr: c.utr, payee_vpa: c.vpa || null, ncrp_ack: c.ack || null,
+      paid_at: new Date(c.paidAt).toISOString(), reported_at: new Date(c.reportedAt).toISOString(), reported_after_min: p.mins,
+      route: p.routes.filter(r => r.rec).map(r => r.id)[0] || null, rbi_regime: p.rbi2027 ? "2027" : "2017",
+      deadlines: { bank_report: new Date(p.bankDue).toISOString().slice(0, 10), hold_lift: p.holdLapses ? new Date(p.holdLift).toISOString().slice(0, 10) : null } };
+  }
+
   const DOC_NAMES = { restoration: ["Restoration request", "மீட்பு விண்ணப்பம்"], s503: ["s.503 petition", "பிரிவு 503 மனு"], bank: ["Bank letter", "வங்கிக் கடிதம்"] };
 
-  const GH = { RULES, R, addWD, addD, fmtD, fmtDT, inr, validate, planCase, draft, DOC_NAMES };
+  const GH = { RULES, R, addWD, addD, fmtD, fmtDT, inr, validate, planCase, draft, splitLien, clusterGraph, casePacket, DOC_NAMES };
   if (typeof module !== "undefined" && module.exports) module.exports = GH;
   root.GH = GH;
 })(typeof window !== "undefined" ? window : globalThis);

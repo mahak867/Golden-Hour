@@ -213,6 +213,7 @@ tr:last-child td { border-bottom: 0; }
 /* routes */
 .routes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .route { border: 1px solid var(--line); border-radius: 14px; padding: 12px 13px; background: linear-gradient(180deg, rgba(255,255,255,.025), transparent); }
+.route.handoff { border-color: rgba(106,167,255,.35); background: linear-gradient(180deg, rgba(106,167,255,.07), transparent); }
 .route.rec { border-color: rgba(242,184,75,.35); background: linear-gradient(180deg, rgba(242,184,75,.07), rgba(242,184,75,.01)); }
 .route h4 { margin: 0 0 6px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
 .route p { margin: 0 0 8px; font-size: 12.5px; color: var(--text-2); }
@@ -666,23 +667,8 @@ function plan(c) {
   ];
   return { held, mins, fir, multi, bankDue, holdLift, holdLapses, fraud, rep, routes };
 }
-function proRata(acct) {
-  const claims = CASES.filter(c => c.acct === acct), total = claims.reduce((s, c) => s + c.amount, 0), lien = LIENS[acct], ratio = Math.min(1, lien / total);
-  const sh = claims.map(c => ({ ...c, share: Math.floor(c.amount * ratio) }));
-  let rem = Math.min(lien, total) - sh.reduce((s, x) => s + x.share, 0);
-  const order = [...sh].sort((a, b) => b.amount - a.amount);
-  for (let i = 0; rem > 0; i = (i + 1) % order.length, rem--) order[i].share++;
-  return { claims: sh, total, lien, ratio };
-}
-function clusters() {
-  const parent = {}; const f = x => (parent[x] ??= x, parent[x] === x ? x : (parent[x] = f(parent[x])));
-  const edges = [];
-  CASES.forEach(c => edges.push(["case:" + c.id, "vpa:" + c.vpa], ["vpa:" + c.vpa, "acct:" + c.acct]));
-  Object.entries(ACCT_PHONE).forEach(([a, p]) => edges.push(["acct:" + a, "phone:" + p]));
-  edges.forEach(([a, b]) => { parent[f(a)] = f(b); });
-  const g = {}; Object.keys(parent).forEach(n => (g[f(n)] ??= []).push(n));
-  return { edges, groups: Object.values(g).sort((a, b) => b.length - a.length) };
-}
+function proRata(acct) { return GH.splitLien(CASES.filter(c => c.acct === acct), LIENS[acct]); }
+function clusters() { return GH.clusterGraph(CASES, ACCT_PHONE); }
 async function sha(s) {
   try { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); }
   catch { let h = 2166136261; for (const ch of s) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16).padStart(8, "0").repeat(8); }
@@ -882,13 +868,13 @@ function countUp(el, to, fmt) { const st = performance.now(), d = 900; const f =
 function renderConsole() {
   const held = Object.values(LIENS).reduce((a, b) => a + b, 0), claimed = CASES.reduce((a, c) => a + c.amount, 0), cl = clusters();
   if (!consoleBuilt) {
-    const k = [["Open case packets", CASES.length, x => Math.round(x), "<b>2</b> new in the last 7 days", [2, 3, 3, 4, 3, 5, 7], "#6aa7ff", "file"], ["Held under lien", held, inr, "across <b>4</b> payee accounts", [90, 110, 120, 150, 160, 180, 197], "#f2b84b", "lock"], ["Claimed by victims", claimed, inr, "<b>" + Math.round(100 * held / claimed) + "%</b> covered by liens", [120, 150, 160, 190, 200, 220, 232], "#a78bfa", "bank"], ["Mule clusters", cl.groups.length, x => Math.round(x), "<b>1</b> spans two accounts", [1, 1, 2, 2, 2, 3, 3], "#f2555a", "graph"]];
+    const k = [["Open case packets", CASES.length, x => Math.round(x), "<b>2</b> new in the last 7 days", [2, 3, 3, 4, 3, 5, 7], "#6aa7ff", "file"], ["Held under lien", held, inr, `across <b>${Object.keys(LIENS).length}</b> payee accounts`, [90, 110, 120, 150, 160, 180, 197], "#f2b84b", "lock"], ["Claimed by victims", claimed, inr, "<b>" + Math.round(100 * held / claimed) + "%</b> covered by liens", [120, 150, 160, 190, 200, 220, 232], "#a78bfa", "bank"], ["Mule clusters", cl.groups.length, x => Math.round(x), "<b>1</b> spans two accounts", [1, 1, 2, 2, 2, 3, 3], "#f2555a", "graph"]];
     $("#kpis").innerHTML = k.map(([l, v, f, d, s, c, ic], i) => `<div class="panel kpi"><div class="l">${icon(ic, 14, `style="color:${c}"`)}${l}</div><div class="v" id="kv${i}">0</div><div class="d">${d}</div>${spark(s, c)}</div>`).join("");
     k.forEach(([, v, f], i) => countUp($("#kv" + i), v, f));
     consoleBuilt = true;
   }
   const stc = { "Packet received": "gold", "Bank verified": "good", "Query sent": "info", "Restoration filed": "good" }, stl = { "Packet received": "New packet", "Bank verified": "Verified", "Query sent": "Query sent", "Restoration filed": "Filed" };
-  $("#queue").innerHTML = `<tr><th>Victim</th><th>Amount</th><th>Payee → account</th><th>Reported</th><th>Status</th></tr>` + CASES.map(c => { const m = Math.round((new Date(c.reportedAt) - new Date(c.fraudAt)) / 6e4); return `<tr class="row ${c.acct === selAcct ? "sel" : ""}" data-acct="${c.acct}" data-id="${c.id}"><td><div class="who">${avatar(c)}<div><b>${c.victim}</b><small>${c.id} · ${c.city}</small></div></div></td><td class="num mono" style="font-size:12.5px">${inr(c.amount)}</td><td class="flow">${c.vpa}<br>→ <span class="acc">${c.acct}</span></td><td>${m <= 60 ? `<span class="pill good">${m} min</span>` : `<span class="pill warn">${(m / 60).toFixed(1)} h</span>`}</td><td><span class="pill ${stc[c.status]}">${stl[c.status]}</span></td></tr>`; }).join("");
+  $("#queue").innerHTML = `<tr><th>Victim</th><th>Amount</th><th>Payee → account</th><th>Reported</th><th>Status</th></tr>` + CASES.map(c => { const m = Math.round((new Date(c.reportedAt) - new Date(c.fraudAt)) / 6e4); return `<tr class="row ${c.acct === selAcct ? "sel" : ""}" data-acct="${c.acct}" data-id="${c.id}"><td><div class="who">${avatar(c)}<div><b>${c.victim}</b><small>${c.id} · ${c.hash ? `<span class="mono" style="color:var(--gold-2)">#${c.hash.slice(0, 12)}</span>` : c.city}</small></div></div></td><td class="num mono" style="font-size:12.5px">${inr(c.amount)}</td><td class="flow">${c.vpa}<br>→ <span class="acc">${c.acct}</span></td><td>${m <= 60 ? `<span class="pill good">${m} min</span>` : `<span class="pill warn">${(m / 60).toFixed(1)} h</span>`}</td><td><span class="pill ${stc[c.status]}">${stl[c.status]}</span></td></tr>`; }).join("");
   document.querySelectorAll("#queue tr.row").forEach(tr => tr.addEventListener("click", () => { selAcct = tr.dataset.acct; renderConsole(); }));
   renderRecon(); drawGraph(cl);
 }
@@ -898,7 +884,7 @@ function renderRecon() {
   $("#recon").innerHTML = `<div class="ph"><h3>${icon("lock", 15, 'style="color:var(--gold)"')}Lien reconciliation · <span class="mono" style="font-size:13px">${selAcct}</span></h3><span class="sub">${pr.claims.length} claimant${pr.claims.length > 1 ? "s" : ""}</span><div class="end">${over ? `<span class="pill warn">${icon("alert", 11)} over-claimed</span>` : `<span class="pill good">${icon("check", 11)} fully covered</span>`}</div></div>
     <div class="bar">${pr.claims.map((c, i) => `<div style="flex:${c.share} 1 0;background:${SHARE_COL[i]}">${Math.round(100 * c.share / Math.min(pr.lien, pr.total))}%</div>`).join("")}</div>
     <div class="scale"><span>Lien held ${inr(pr.lien)} · claims ${inr(pr.total)}${over ? ` · each victim gets ${(pr.ratio * 100).toFixed(1)}%` : ""}</span></div>
-    <table><tr><th>Victim</th><th>Claimed</th><th>Pro-rata release</th></tr>${pr.claims.map((c, i) => `<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${SHARE_COL[i]};margin-right:8px"></span>${c.victim} <span class="muted">${c.id}</span></td><td class="mono num">${inr(c.amount)}</td><td class="mono num"><b>${inr(c.share)}</b></td></tr>`).join("")}</table>
+    <table><tr><th>Victim</th><th>Claimed</th><th>Pro-rata release</th></tr>${pr.claims.map((c, i) => `<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${SHARE_COL[i]};margin-right:8px"></span>${c.victim} <span class="muted">${c.id}</span>${c.mine ? ' <span class="pill gold">your packet</span>' : ""}</td><td class="mono num">${inr(c.amount)}</td><td class="mono num"><b>${inr(c.share)}</b></td></tr>`).join("")}</table>
     <div class="foot"><button class="btn primary sm" id="approveSplit">${icon("check", 13)}Approve split draft</button><button class="btn ghost sm">Query victim</button><span class="muted" style="font-size:11.5px;margin-left:auto">draft for BNSS s.503 / SOP order</span></div>`;
   $("#approveSplit").addEventListener("click", async () => { const h = await sha("approve" + selAcct + Date.now()); toast(`Split draft approved for ${selAcct}`, `audit ${h.slice(0, 12)}… · status sent to ${proRata(selAcct).claims.length} victims`); });
 }
@@ -1101,11 +1087,22 @@ function buildTryPlan() {
       <div class="doctabs" id="docTabs">${p.docs.map(d => `<button class="btn ghost sm" data-d="${d}">${GH.DOC_NAMES[d][0]}</button>`).join("")}</div>
       <pre class="docprev" id="docPrev"></pre>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary sm" id="dlDraft">${icon("file", 13)}Download this draft</button><span class="muted" style="font-size:11.5px">Generated on this device. You check it and file it yourself.</span></div></div>
+    <div class="route handoff"><h4>${icon("bank", 14)}Agents that win together</h4><p style="margin:0 0 8px">Send the same case packet to the bank's fraud desk. Their reconciliation agent adds your claim to the hold on the scammer's account and splits it fairly between all victims.</p><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary sm" id="sendBank">${icon("bank", 13)}Send case packet to bank desk</button><span class="muted" id="sendInfo" style="font-size:11.5px">Synthetic bank, demo account. Only payment facts are shared: no name, PAN or Aadhaar.</span></div></div>
     <div class="callout">${icon("shield", 15)}<div><b>Golden Hour never charges a fee and never asks for your OTP or PIN.</b> Anyone who offers to “recover” your money for a fee is running a second scam. Free legal aid: 15100.</div></div>`;
   $("#langSeg").onclick = e => { const l = e.target.dataset.l; if (l) { TRY.lang = l; showDoc(); } };
   $("#docTabs").onclick = e => { const d = e.target.closest("[data-d]"); if (d) { TRY.doc = d.dataset.d; showDoc(); } };
   $("#dlDraft").onclick = () => { const name = `golden-hour-${TRY.doc}-${TRY.lang}.txt`; if (params.has("autoplay")) { toast("Draft generated on this device", name); return; } const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["\ufeff" + GH.draft(TRY.doc, TRY.lang, TRY.case, TRY.plan)], { type: "text/plain;charset=utf-8" })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); };
+  $("#sendBank").onclick = sendToBank;
   showDoc();
+}
+async function sendToBank() {
+  const c = TRY.case, p = TRY.plan, pk = GH.casePacket(c, p), h = await sha(JSON.stringify(pk));
+  const match = CASES.find(x => x.vpa === c.vpa && !x.mine), acct = match ? match.acct : "XXXX4471";
+  const prev = CASES.findIndex(x => x.mine); if (prev >= 0) CASES.splice(prev, 1);
+  CASES.unshift({ id: "C-" + (1042 + Math.floor(Math.random() * 900)), mine: true, victim: "You", city: "Demo", amount: c.amount, vpa: c.vpa || "your-payee@upi", acct, type: "Your case packet", fraudAt: new Date(c.paidAt).toISOString(), reportedAt: new Date(c.reportedAt).toISOString(), ack: c.ack || "", status: "Packet received", av: ["#fff1c9", "#f2b84b"], hash: h, packet: pk });
+  $("#sendInfo").innerHTML = `Sent · packet <span class="mono">#${h.slice(0, 12)}</span>`;
+  toast("Case packet received by the bank desk", `#${h.slice(0, 12)} · joined the hold on ${acct}`);
+  await sleep(params.has("autoplay") ? 900 : 450); closeTry(); selAcct = acct; consoleBuilt = false; show("console");
 }
 function showDoc() {
   if (!TRY.plan.docs.includes(TRY.doc)) TRY.doc = TRY.plan.docs[0];

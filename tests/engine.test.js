@@ -107,3 +107,120 @@ test("drafts never ask for OTP, PIN or a fee", () => {
     assert.doesNotMatch(t, /\b(OTP|PIN|fee)\b/i, `${doc}/${l}`);
   }
 });
+
+/* ---------- Named hard cases: boundaries a real victim can hit ---------- */
+const P = (o, now = NOW) => GH.planCase({ ...base, ...o }, now);
+
+test("hard case: held exactly ₹50,000 → MRM, no court order", () => {
+  const p = P({ amount: 50000, held: 50000 });
+  assert.equal(p.big, false); assert.equal(p.primary, "restoration"); assert.equal(p.holdLapses, true);
+});
+
+test("hard case: held ₹50,001 → s.503 petition, hold does not lapse", () => {
+  const p = P({ amount: 50001, held: 50001 });
+  assert.equal(p.big, true); assert.equal(p.primary, "s503"); assert.equal(p.holdLapses, false);
+});
+
+test("hard case: paid 31 Dec 2026 23:59 IST → 2017 rules", () => {
+  assert.equal(P({ paidAt: at("2026-12-31T23:59:00"), reportedAt: at("2027-01-01T00:20:00") }).rbi2027, false);
+});
+
+test("hard case: paid 1 Jan 2027 00:00 IST → 2027 rules", () => {
+  assert.equal(P({ paidAt: at("2027-01-01T00:00:00"), reportedAt: at("2027-01-01T00:20:00") }).rbi2027, true);
+});
+
+test("hard case: paid on Saturday → bank deadline skips the weekend", () => {
+  // Sat 14 Nov 2026 → Mon 16, Tue 17, Wed 18
+  const p = P({ paidAt: at("2026-11-14T11:00:00"), reportedAt: at("2026-11-14T11:30:00") });
+  assert.equal(GH.fmtD(p.bankDue), GH.fmtD(at("2026-11-18T11:00:00")));
+});
+
+test("hard case: 2027 payment → 5-day bank window, calendar days", () => {
+  const p = P({ paidAt: at("2027-03-05T10:00:00"), reportedAt: at("2027-03-05T10:15:00") }, at("2027-03-06T10:00:00"));
+  assert.equal(Math.round((p.bankDue - at("2027-03-05T10:00:00")) / 864e5), 5);
+});
+
+test("hard case: held more than lost → claim is capped at the amount lost", () => {
+  const p = P({ amount: 30000, held: 45000 });
+  assert.equal(p.claim, 30000);
+  assert.ok(GH.draft("restoration", "en", { ...base, amount: 30000, held: 45000 }, p).includes("₹30,000"));
+});
+
+test("hard case: nothing held, 2027, loss ≤ ₹50k → report first, compensation still offered", () => {
+  const p = P({ amount: 20000, held: 0, paidAt: at("2027-02-01T10:00:00"), reportedAt: at("2027-02-01T10:30:00") });
+  assert.equal(p.routes[0].id, "report");
+  assert.equal(p.compEligible, true);
+});
+
+test("hard case: loss exactly ₹50,000 is eligible for compensation, ₹50,001 is not", () => {
+  const d = { paidAt: at("2027-02-01T10:00:00"), reportedAt: at("2027-02-01T10:30:00") };
+  assert.equal(P({ ...d, amount: 50000, held: 50000 }).compEligible, true);
+  assert.equal(P({ ...d, amount: 50001, held: 50001 }).compEligible, false);
+});
+
+test("hard case: compensation caps at ₹25,000 (₹30k loss → ₹25,000, ₹29k → ₹24,650)", () => {
+  const d = { paidAt: at("2027-02-01T10:00:00"), reportedAt: at("2027-02-01T10:30:00") };
+  assert.equal(P({ ...d, amount: 30000, held: 30000 }).compAmount, 25000);
+  assert.equal(P({ ...d, amount: 29000, held: 29000 }).compAmount, 24650);
+});
+
+test("hard case: 13-digit UTR and 15-digit acknowledgement are rejected", () => {
+  assert.ok(GH.validate({ ...base, utr: "4365129077810" }).includes("12-digit UTR"));
+  assert.ok(GH.validate({ ...base, ack: "312102600312345" }).includes("14-digit NCRP acknowledgement"));
+});
+
+test("hard case: hold lapsing within 15 days is flagged critical", () => {
+  const p = P({}, at("2027-02-01T10:00:00"));
+  const hold = p.routes.find(r => r.id === "hold");
+  assert.ok(p.holdDaysLeft <= 15 && p.holdDaysLeft >= 0);
+  assert.equal(hold.tone, "crit");
+});
+
+test("hard case: reporting window already over → still advises filing, no negative days", () => {
+  const p = P({}, at("2026-12-20T10:00:00"));
+  const bank = p.routes.find(r => r.id === "bank");
+  assert.match(bank.desc, /ended on/);
+  assert.doesNotMatch(bank.desc, /-\d+ day/);
+});
+
+test("hard case: Tamil drafts never ask for OTP or PIN in the body", () => {
+  const big = { ...base, amount: 120000, held: 90000 };
+  const p = GH.planCase(big, NOW);
+  for (const d of ["restoration", "s503", "bank"]) {
+    const body = GH.draft(d, "ta", big, p).split("— ")[0];
+    assert.doesNotMatch(body, /OTP|PIN|கட்டணம்/, d);
+  }
+});
+
+test("pro-rata: three victims on one ₹80,000 lien share it exactly, to the rupee", () => {
+  const claims = [{ id: "a", amount: 48000 }, { id: "b", amount: 33333 }, { id: "c", amount: 28667 }];
+  const r = GH.splitLien(claims, 80000);
+  assert.equal(r.claims.reduce((s, c) => s + c.share, 0), 80000);
+  for (const c of r.claims) assert.ok(c.share <= c.amount && Number.isInteger(c.share));
+});
+
+test("pro-rata: lien larger than all claims → every victim is paid in full, nothing extra", () => {
+  const r = GH.splitLien([{ id: "a", amount: 10000 }, { id: "b", amount: 5000 }], 30000);
+  assert.deepEqual(r.claims.map(c => c.share), [10000, 5000]);
+});
+
+test("pro-rata: awkward amounts still sum exactly (no lost rupee)", () => {
+  const claims = Array.from({ length: 7 }, (_, i) => ({ id: String(i), amount: 1001 + i * 997 }));
+  const r = GH.splitLien(claims, 12345);
+  assert.equal(r.claims.reduce((s, c) => s + c.share, 0), 12345);
+});
+
+test("mule clusters: two accounts sharing a phone form one group", () => {
+  const cases = [{ id: "1", vpa: "a@upi", acct: "A1" }, { id: "2", vpa: "b@upi", acct: "B1" }, { id: "3", vpa: "c@upi", acct: "C1" }];
+  const g = GH.clusterGraph(cases, { A1: "+91 9", B1: "+91 9", C1: "+91 8" });
+  assert.equal(g.groups.length, 2);
+  assert.ok(g.groups[0].includes("acct:A1") && g.groups[0].includes("acct:B1"));
+});
+
+test("case packet: same fields for victim and bank, no PII beyond the payment", () => {
+  const c = { ...base, ack: "31210260031234" };
+  const pk = GH.casePacket(c, GH.planCase(c, NOW));
+  assert.equal(pk.schema, "golden-hour/case-packet@1");
+  assert.equal(pk.utr, "436512907781"); assert.equal(pk.route, "mrm"); assert.equal(pk.rbi_regime, "2017");
+  assert.ok(!("name" in pk) && !("pan" in pk) && !("aadhaar" in pk));
+});
