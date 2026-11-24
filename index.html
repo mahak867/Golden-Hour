@@ -14,7 +14,7 @@
 :root {
   --ink-0: #06080d; --ink-1: #0a0d15; --ink-2: #0f131e; --ink-3: #151a28; --ink-4: #1c2233;
   --line: rgba(255,255,255,.07); --line-2: rgba(255,255,255,.12); --line-3: rgba(255,255,255,.18);
-  --text: #f3f1ec; --text-2: #aeb2bf; --muted: #717789; --faint: #4b5163;
+  --text: #f3f1ec; --text-2: #b4b8c4; --muted: #8b91a3; --faint: #7a8094;
   --gold: #f2b84b; --gold-2: #ffd98a; --amber: #e8892f; --gold-ink: #1a1305;
   --good: #3ccf8e; --warn: #f5a524; --crit: #f2555a; --info: #6aa7ff; --violet: #a78bfa;
   --c-blue: #3987e5; --c-orange: #d95926;
@@ -363,16 +363,16 @@ tr:last-child td { border-bottom: 0; }
 .micbtn.rec { background: rgba(242,85,90,.15); border-color: rgba(242,85,90,.5); color: #ff9ea1; }
 @media (max-width: 860px) { .mgrid { grid-template-columns: 1fr; } }
 /* ---------- Toasts, cursor, captions, title cards ---------- */
-.toasts { position: fixed; right: 22px; bottom: 22px; display: grid; gap: 8px; z-index: 30; }
+.toasts { position: fixed; right: 22px; bottom: 22px; display: grid; gap: 8px; z-index: 91; }
 .toast { display: flex; gap: 10px; align-items: center; min-width: 300px; padding: 11px 13px; border-radius: 12px; background: rgba(21,26,40,.96); border: 1px solid var(--line-2); box-shadow: var(--shadow-2); font-size: 12.5px; transition: opacity .25s var(--ease-out), transform .25s var(--ease-out); }
 @starting-style { .toast { opacity: 0; transform: translateY(10px) scale(.97); } }
 .toast .ic { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: rgba(60,207,142,.15); color: var(--good); flex: none; }
 .toast small { display: block; color: var(--muted); font-family: var(--mono); font-size: 11px; }
-#cursor { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; transform: translate(-100px, -100px); transition: transform .7s var(--ease-in-out); display: none; filter: drop-shadow(0 4px 8px rgba(0,0,0,.6)); }
+#cursor { position: fixed; left: 0; top: 0; z-index: 96; pointer-events: none; transform: translate(-100px, -100px); transition: transform .7s var(--ease-in-out); display: none; filter: drop-shadow(0 4px 8px rgba(0,0,0,.6)); }
 #cursor.on { display: block; }
-.ripple { position: fixed; z-index: 59; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; border: 2px solid var(--gold); pointer-events: none; animation: rip .5s var(--ease-out) forwards; }
+.ripple { position: fixed; z-index: 95; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; border: 2px solid var(--gold); pointer-events: none; animation: rip .5s var(--ease-out) forwards; }
 @keyframes rip { from { opacity: .9; transform: scale(.4); } to { opacity: 0; transform: scale(1.4); } }
-#caption { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 50; max-width: 980px; width: max-content; padding: 11px 18px; border-radius: 14px; background: rgba(8,10,16,.82); border: 1px solid var(--line-2); backdrop-filter: blur(14px); box-shadow: var(--shadow-2); font-size: 16px; color: var(--text); text-align: center; opacity: 0; transition: opacity .3s var(--ease-out), transform .3s var(--ease-out); }
+#caption { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 90; max-width: 980px; width: max-content; padding: 11px 18px; border-radius: 14px; background: rgba(8,10,16,.82); border: 1px solid var(--line-2); backdrop-filter: blur(14px); box-shadow: var(--shadow-2); font-size: 16px; color: var(--text); text-align: center; opacity: 0; transition: opacity .3s var(--ease-out), transform .3s var(--ease-out); }
 #caption.show { opacity: 1; }
 #caption b { color: var(--gold-2); font-weight: 650; }
 #card { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; text-align: center; background: radial-gradient(800px 420px at 50% 40%, rgba(242,184,75,.14), transparent 70%), #05070b; opacity: 0; pointer-events: none; transition: opacity .5s var(--ease-out); }
@@ -431,6 +431,151 @@ tr:last-child td { border-bottom: 0; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-property: opacity, color, background-color, border-color !important; } }
 @media (max-width: 1180px) { body { overflow: auto; } .app { grid-template-columns: 1fr; height: auto; } .side { display: none; } .view { position: static; display: none; opacity: 1; transform: none; } .view.active { display: block; } .content { overflow: visible; } .journey, .cgrid, .impact, .ev, .routes, .dl, .drafts, .safety { grid-template-columns: 1fr; } .device { margin: 0 auto; height: 760px; } .orch { max-height: none; } .kpis, .hero { grid-template-columns: repeat(2, 1fr); } .hero { grid-column: auto; } .ibody { min-height: 560px; } }
+
+/* ================= Redesign layer: onboarding, Try-it flow, a11y, responsive fixes ================= */
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 2px; border-radius: 8px; }
+.res input:focus-visible { outline: none; }
+.btn.lg { padding: 12px 18px; font-size: 14.5px; border-radius: 12px; }
+.linkbtn { border: 0; background: none; padding: 0; color: var(--gold-2); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-size: inherit; }
+
+/* top bar */
+.mbrand { display: none; align-items: center; gap: 9px; flex: none; }
+.mbrand .mark { width: 28px; height: 28px; border-radius: 8px; background: radial-gradient(circle at 30% 25%, #ffe6a8, #f2b84b 45%, #b8661c); display: grid; place-items: center; }
+.mbrand b { font-size: 15px; letter-spacing: -.01em; }
+.crumb { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.sbpill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 5px 10px; border-radius: 999px; border: 1px solid rgba(245,165,36,.32); background: rgba(245,165,36,.08); color: #ffd38a; white-space: nowrap; cursor: help; }
+.top .right .btn { flex: none; }
+
+/* hero */
+#v-victim { display: flex; flex-direction: column; gap: 16px; }
+#v-victim .journey { height: auto; flex: 1 0 660px; }
+.intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 28px; padding: 20px 24px 16px; position: relative; overflow: hidden; flex: none;
+  background: radial-gradient(700px 220px at 0% 0%, rgba(242,184,75,.13), transparent 70%), linear-gradient(180deg, var(--ink-2), #0c1019); border-color: rgba(242,184,75,.22); }
+.intro .eyebrow { color: var(--gold-2); }
+.intro h1 { margin: 6px 0 6px; font-size: 28px; line-height: 1.15; letter-spacing: -.025em; font-weight: 750; }
+.intro h1 span { background: linear-gradient(180deg, #ffe3a3, #f2b84b); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.intro p { margin: 0; max-width: 760px; font-size: 14px; line-height: 1.55; color: var(--text-2); }
+.intro p b { color: var(--text); }
+.intro-cta { display: flex; flex-direction: column; gap: 8px; align-items: stretch; justify-content: center; min-width: 290px; }
+.intro-cta .btn { justify-content: center; }
+.intro-cta small { color: var(--muted); font-size: 12px; text-align: center; }
+.how { grid-column: 1 / -1; list-style: none; margin: 2px 0 0; padding: 12px 0 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.how li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; font-size: 12.5px; color: var(--text-2); }
+.how li b { display: block; color: var(--text); font-size: 13px; }
+.how .n, .stepn { width: 26px; height: 26px; border-radius: 8px; display: inline-grid; place-items: center; background: rgba(242,184,75,.14); color: var(--gold-2); font-weight: 700; font-size: 12.5px; flex: none; }
+.intro-foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
+.intro-foot svg { color: var(--gold); }
+body.autoplay .intro { display: none; }
+body.autoplay #v-victim .journey { flex: 1 1 auto; height: 100%; }
+
+/* orchestration header: never clip */
+.orch-head { flex-wrap: wrap; row-gap: 8px; }
+.orch-head > div:first-child { flex: 1 1 280px; min-width: 0; }
+.orch-head h2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.orch-head .stats { flex: none; }
+
+/* console fixes */
+.queue td:last-child, .queue th:last-child { white-space: nowrap; padding-right: 12px; }
+.queue td.flow { max-width: 0; width: 34%; overflow: hidden; text-overflow: ellipsis; }
+.queue .who small { white-space: nowrap; }
+
+/* impact: never collapse charts */
+.impact { height: auto; min-height: 100%; grid-template-rows: auto minmax(270px, 1fr) minmax(270px, 1fr); }
+
+/* Try-it modal */
+.mhead { flex-wrap: wrap; position: sticky; top: 0; z-index: 3; background: linear-gradient(180deg, #0f131e 85%, rgba(15,19,30,.9)); border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.mtitle { flex: 1 1 300px; min-width: 0; }
+.mhead .x { margin-left: 0; flex: none; order: 2; }
+.steps { order: 3; flex-basis: 100%; list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.steps li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); padding: 7px 10px; border-radius: 10px; background: rgba(255,255,255,.025); border: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.steps li i { font-style: normal; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; background: var(--ink-4); color: var(--text-2); flex: none; }
+.steps li.on { color: var(--text); border-color: rgba(242,184,75,.5); background: rgba(242,184,75,.09); }
+.steps li.on i { background: var(--gold); color: var(--gold-ink); }
+.steps li.done { color: #9be8c4; }
+.steps li.done i { background: rgba(60,207,142,.2); color: var(--good); }
+.samplebtn { width: 100%; justify-content: flex-start; padding: 12px 14px; text-align: left; gap: 12px; }
+.samplebtn b { display: block; font-size: 14px; }
+.samplebtn small { display: block; font-weight: 500; font-size: 12px; opacity: .8; }
+.or { display: flex; align-items: center; gap: 10px; margin: 12px 0 10px; color: var(--muted); font-size: 12px; }
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line-2); }
+.drop { min-height: 210px; }
+.drop:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 2px; }
+.reshead { font-size: 14.5px !important; gap: 10px !important; flex-wrap: wrap; margin-bottom: 10px !important; }
+.reshead:focus { outline: none; }
+.buildrow { display: flex; gap: 10px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+.outcome { margin-top: 18px; gap: 10px; scroll-margin-top: 140px; }
+#planHead { scroll-margin-top: 150px; margin: 0 !important; }
+.outcome .route h4 { font-size: 13.5px; flex-wrap: wrap; }
+.outcome .route p { font-size: 13px; line-height: 1.55; }
+.outcome .docbox { border-color: rgba(242,184,75,.35); background: linear-gradient(180deg, rgba(242,184,75,.05), transparent); }
+.outcome .handoff { padding: 14px 14px 12px; }
+.outcome .handoff h4 { font-size: 14.5px; }
+.docprev { font-size: 12.5px; max-height: 300px; }
+.docprev.ta { font-size: 13.5px; line-height: 1.75; }
+#langSeg span { padding: 5px 12px; font-size: 13px; }
+.callout.err { border-color: rgba(242,85,90,.45); background: rgba(242,85,90,.07); color: #ffc2c4; }
+.callout.err svg { color: var(--crit); }
+.res .tbl2 td:first-child label { cursor: pointer; }
+.res { scroll-margin-top: 150px; }
+.samplebtn.ghost small { opacity: .7; }
+.stepn::before { content: attr(data-n); }
+.view { visibility: hidden; transition: opacity .32s var(--ease-out), transform .32s var(--ease-out), visibility 0s linear .32s; }
+.view.active { visibility: visible; transition-delay: 0s; }
+.modal { visibility: hidden; transition: opacity .22s var(--ease-out), visibility 0s linear .22s; }
+.modal.open { visibility: visible; transition-delay: 0s; }
+.recon td .muted { white-space: nowrap; }
+
+@media (max-width: 1380px) { .sbpill .long { display: none; } }
+@media (max-width: 1180px) {
+  .mbrand { display: flex; }
+  .crumb { display: none; }
+  #v-victim { display: none; }
+  #v-victim.active { display: flex; }
+  #v-victim .journey { flex: none; }
+  .intro { grid-template-columns: 1fr; }
+  .intro-cta { min-width: 0; }
+  .mnav button.try { color: var(--gold-2); }
+  .mnav button.try svg { color: var(--gold); }
+}
+@media (max-width: 640px) {
+  .top { height: 56px; }
+  .top .right { gap: 8px; }
+  .top .right .btn { padding: 7px 11px; }
+  .clock { display: none; }
+  .sbpill { padding: 4px 8px; font-size: 11px; }
+  .intro { padding: 16px 16px 14px; }
+  .intro h1 { font-size: 23px; }
+  .intro p { font-size: 13.5px; }
+  .how { grid-template-columns: 1fr; gap: 10px; }
+  .intro-foot { flex-wrap: wrap; }
+  .device { height: 680px; }
+  .orch-head .stats { width: 100%; justify-content: space-between; }
+  .kpi svg.spark { display: none; }
+  .kpi .v { font-size: 21px; }
+  .modal { place-items: stretch; }
+  .mbox { width: 100vw !important; max-height: none !important; height: 100vh; height: 100dvh; border-radius: 0; border: 0; }
+  .mhead { padding: 12px 12px 10px; }
+  .mhead .logo { display: none; }
+  .mhead h3 { font-size: 15.5px; }
+  .mtitle .muted { display: none; }
+  .steps { gap: 4px; }
+  .steps li { flex-direction: column; gap: 3px; font-size: 10.5px; padding: 6px 2px; text-align: center; white-space: normal; line-height: 1.2; }
+  .drop { min-height: 150px; }
+  .drop img { max-height: 240px; margin: 0 auto; }
+  .intro-foot svg { display: none; }
+  .recon .foot { flex-wrap: wrap; } .recon .foot span { margin-left: 0 !important; flex-basis: 100%; }
+  .res .tbl2, .res .tbl2 tbody { display: block; }
+  .res .tbl2 tr { display: grid; grid-template-columns: 1fr auto; gap: 5px 8px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+  .res .tbl2 td { border: 0; padding: 0 !important; }
+  .res .tbl2 td:first-child { grid-column: 1; grid-row: 1; width: auto; font-size: 12.5px; align-self: center; }
+  .res .tbl2 td:last-child { display: block !important; grid-column: 2; grid-row: 1; }
+  .res .tbl2 td:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+  .res input { font-size: 16px; padding: 9px 10px; }
+  .buildrow .btn.primary, .outcome .handoff .btn.primary { width: 100%; justify-content: center; }
+  .toast { min-width: 0; max-width: calc(100vw - 24px); }
+  .toasts { right: 12px; left: 12px; }
+}
 </style>
 </head>
 <body>
@@ -469,8 +614,8 @@ tr:last-child td { border-bottom: 0; }
     </div>
     <nav class="nav" aria-label="Views">
       <div class="grp">Workspace</div>
-      <button data-view="victim" class="active"><svg width="18" height="18"><use href="#i-phone"/></svg>Victim journey<span class="count" style="color:var(--gold-2);border-color:rgba(242,184,75,.3)">live</span></button>
-      <button data-view="console"><svg width="18" height="18"><use href="#i-bank"/></svg>Fraud-ops console<span class="count">7</span></button>
+      <button data-view="victim" class="active"><svg width="18" height="18"><use href="#i-phone"/></svg>Victim journey<span class="count" style="color:var(--gold-2);border-color:rgba(242,184,75,.3)">replay</span></button>
+      <button data-view="console"><svg width="18" height="18"><use href="#i-bank"/></svg>Fraud-ops console<span class="count" id="consoleCount">7</span></button>
       <button id="tryNav" class="trynav"><svg width="18" height="18"><use href="#i-scan"/></svg>Try it live<span class="count" style="color:#8eeac0;border-color:rgba(60,207,142,.3)">real OCR</span></button>
       <div class="grp">Evidence</div>
       <button data-view="impact"><svg width="18" height="18"><use href="#i-chart"/></svg>Impact (real data)</button>
@@ -483,21 +628,38 @@ tr:last-child td { border-bottom: 0; }
     </div>
   </aside>
 
-  <div class="main">
+  <main class="main">
     <header class="top">
+      <div class="mbrand"><div class="mark"><svg width="16" height="16" style="color:#1a1305" aria-hidden="true"><use href="#i-sun"/></svg></div><b>Golden Hour</b></div>
       <div class="crumb" id="crumb"></div>
-      <div class="search"><svg width="15" height="15"><use href="#i-search"/></svg>Search cases, UTR, VPA…<kbd>⌘K</kbd></div>
       <div class="right">
-        <span class="envpill"><i></i>All agents healthy</span>
-        <span class="clock" id="clock">16 Nov 2026 · 10:05 IST</span>
-        <div class="iconbtn"><svg width="16" height="16"><use href="#i-bell"/></svg><span class="dot"></span></div>
-        <div class="av" style="background:linear-gradient(135deg,#a9cbff,#6aa7ff)">AN</div>
+        <span class="sbpill" title="Concept prototype. All people, accounts, UPI IDs and phone numbers are fictional. No real portal is contacted."><svg width="12" height="12" aria-hidden="true"><use href="#i-alert"/></svg><span>Synthetic data<span class="long"> · concept prototype</span></span></span>
+        <span class="clock" id="clock" title="Demo clock">16 Nov 2026 · 10:05 IST</span>
+        <button class="btn primary sm" id="tryTop"><svg width="14" height="14" aria-hidden="true"><use href="#i-scan"/></svg>Try it live</button>
       </div>
     </header>
 
     <div class="content">
       <!-- Victim journey -->
       <section class="view active" id="v-victim" aria-label="Victim journey">
+        <div class="intro panel" id="intro">
+          <div class="intro-copy">
+            <div class="eyebrow">For scam victims in Tamil Nadu · and the banks holding their money</div>
+            <h1>Get frozen scam money <span>back to the victim.</span></h1>
+            <p>Police can freeze scam money within the golden hour, yet in Tamil Nadu only about <b>11% of frozen money</b> reached victims in 2024. Golden Hour reads a victim's UPI screenshot, picks the official recovery routes, drafts the forms in <span class="ta">தமிழ்</span> and English, and gives the bank one reconciled case packet.</p>
+          </div>
+          <div class="intro-cta">
+            <button class="btn primary lg" id="tryBtn"><svg width="16" height="16" aria-hidden="true"><use href="#i-scan"/></svg>Try it live on a payment screenshot</button>
+            <button class="btn ghost" id="goConsole"><svg width="15" height="15" aria-hidden="true"><use href="#i-bank"/></svg>See the bank console</button>
+            <small>30 seconds · sample screenshot included · runs in your browser</small>
+          </div>
+          <ol class="how" aria-label="How it works">
+            <li><span class="n">1</span><div><b>Victim shares proof</b>Screenshot or Tamil voice note on Telegram</div></li>
+            <li><span class="n">2</span><div><b>Six agents build the plan</b>Routes, deadlines, Tamil + English drafts</div></li>
+            <li><span class="n">3</span><div><b>Bank reconciles the hold</b>Pro-rata split, mule graph, human approves</div></li>
+          </ol>
+          <div class="intro-foot"><svg width="13" height="13" aria-hidden="true"><use href="#i-play"/></svg>Below: a synthetic victim's case replaying step by step · sources on <button class="linkbtn" data-go="impact">Impact</button> and <button class="linkbtn" data-go="rules">Rules</button></div>
+        </div>
         <div class="journey">
           <div class="device" aria-label="Telegram conversation">
             <div class="screen">
@@ -517,11 +679,10 @@ tr:last-child td { border-bottom: 0; }
           <div class="orch">
             <div class="orch-head">
               <div>
-                <div class="eyebrow">Agent orchestration · LangGraph state machine</div>
+                <div class="eyebrow">Demo case replay · six-agent state machine</div>
                 <h2>Case C-1041 · Selvi K., Coimbatore</h2>
                 <div class="sub">UPI investment scam · ₹48,000 · reported to 1930 in 47 min</div>
               </div>
-              <button class="btn primary sm trybtn" id="tryBtn"><svg width="14" height="14"><use href="#i-scan"/></svg>Try with your own screenshot</button>
               <div class="stats">
                 <div class="stat"><b id="st-state">REPORTED</b><span>case state</span></div>
                 <div class="stat"><b id="st-time">00:00.0</b><span>elapsed</span></div>
@@ -591,22 +752,25 @@ tr:last-child td { border-bottom: 0; }
         </div>
       </section>
     </div>
-  </div>
+  </main>
 </div>
 
 
 <div class="modal" id="tryModal" role="dialog" aria-modal="true" aria-labelledby="tryTitle">
   <div class="panel mbox">
-    <div class="mhead"><div class="logo" style="padding:0"><div class="mark" style="width:30px;height:30px"><svg width="17" height="17" style="color:#1a1305"><use href="#i-sun"/></svg></div></div><div><h3 id="tryTitle">Try Golden Hour on your own payment screenshot</h3><div class="muted" style="font-size:12.5px">Real text recognition (Tesseract OCR) and the same rules engine as the demo case.</div></div><button class="x" id="tryClose" aria-label="Close"><svg width="14" height="14"><use href="#i-x"/></svg></button></div>
+    <div class="mhead"><div class="logo" style="padding:0"><div class="mark" style="width:30px;height:30px"><svg width="17" height="17" style="color:#1a1305" aria-hidden="true"><use href="#i-sun"/></svg></div></div><div class="mtitle"><h3 id="tryTitle">Try Golden Hour on a payment screenshot</h3><div class="muted" style="font-size:12.5px">Real text recognition (Tesseract OCR) and the same rules engine as the demo case.</div></div><button class="x" id="tryClose" aria-label="Close"><svg width="14" height="14" aria-hidden="true"><use href="#i-x"/></svg></button>
+      <ol class="steps" id="trySteps" aria-label="Progress"><li class="on"><i>1</i>Screenshot</li><li><i>2</i>Check fields</li><li><i>3</i>Plan &amp; drafts</li><li><i>4</i>Send to bank</li></ol></div>
     <div class="mgrid">
-      <div>
-        <label class="drop" id="drop"><input type="file" id="tryFile" accept="image/*" hidden><div class="hint" id="dropHint"><div class="glyph" style="width:52px;height:52px;border-radius:14px;margin:0 auto;display:grid;place-items:center;background:var(--ink-3);border:1px solid var(--line);color:var(--gold)"><svg width="24" height="24"><use href="#i-scan"/></svg></div><b>Drop a UPI payment screenshot</b><span class="muted" style="font-size:12px">GPay, PhonePe, Paytm or a bank SMS · PNG or JPG · click to browse</span></div></label>
-        <div class="prog" id="prog" hidden><i></i></div><div class="muted mono" id="progTxt" style="font-size:11px"></div>
-        <div class="privacy"><svg width="15" height="15" style="flex:none"><use href="#i-lock"/></svg><div>Runs entirely in your browser. The image and text never leave this device. Don't use a real screenshot that shows full account or Aadhaar numbers.</div></div>
-        <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn ghost sm" id="sampleBtn"><svg width="14" height="14"><use href="#i-file"/></svg>Use our synthetic sample</button><button class="btn ghost sm micbtn" id="micBtn"><svg width="14" height="14"><use href="#i-mic"/></svg>Describe it by voice (Tamil / English)</button></div>
+      <div class="tryleft">
+        <button class="btn primary samplebtn" id="sampleBtn"><svg width="16" height="16" aria-hidden="true"><use href="#i-file"/></svg><span><b>Use our synthetic sample</b><small>Fastest: no upload needed</small></span></button>
+        <div class="or"><span>or use your own</span></div>
+        <label class="drop" id="drop" tabindex="0" role="button" aria-label="Upload a UPI payment screenshot"><input type="file" id="tryFile" accept="image/*" hidden><div class="hint" id="dropHint"><div class="glyph" style="width:46px;height:46px;border-radius:14px;margin:0 auto;display:grid;place-items:center;background:var(--ink-3);border:1px solid var(--line);color:var(--gold)"><svg width="22" height="22" aria-hidden="true"><use href="#i-scan"/></svg></div><b>Drop a UPI payment screenshot</b><span class="muted" style="font-size:12px">GPay, PhonePe, Paytm or a bank SMS · PNG or JPG · click to browse</span></div></label>
+        <div class="prog" id="prog" hidden><i></i></div><div class="muted mono" id="progTxt" style="font-size:11px" aria-live="polite"></div>
+        <button class="btn ghost sm micbtn" id="micBtn" style="margin-top:10px"><svg width="14" height="14" aria-hidden="true"><use href="#i-mic"/></svg>Describe it by voice (Tamil / English)</button>
         <div class="muted" id="micOut" style="font-size:12px;margin-top:8px"></div>
+        <div class="privacy"><svg width="15" height="15" style="flex:none" aria-hidden="true"><use href="#i-lock"/></svg><div>Runs entirely in your browser. The image and text never leave this device. Don't use a real screenshot that shows full account or Aadhaar numbers.</div></div>
       </div>
-      <div class="res" id="tryRes"><div class="empty" style="min-height:300px"><div><div class="glyph"><svg width="26" height="26"><use href="#i-route"/></svg></div><b>Your recovery plan appears here</b><div class="muted" style="margin-top:4px">Fields found in the screenshot are editable before the plan is built.</div></div></div></div>
+      <div class="res" id="tryRes"><div class="empty" style="min-height:300px"><div><div class="glyph"><svg width="26" height="26" aria-hidden="true"><use href="#i-route"/></svg></div><b>Your recovery plan appears here</b><div class="muted" style="margin-top:4px;max-width:340px">Start with the sample. You can check and edit every field before the plan is built.</div></div></div></div>
     </div>
   </div>
 </div>
@@ -617,8 +781,8 @@ tr:last-child td { border-bottom: 0; }
   <button data-view="impact"><svg width="18" height="18"><use href="#i-chart"/></svg>Impact</button>
   <button data-view="rules"><svg width="18" height="18"><use href="#i-book"/></svg>Rules</button>
 </nav>
-<div class="toasts" id="toasts"></div>
-<svg id="cursor" width="26" height="30" viewBox="0 0 26 30"><path d="M3 2.5 3 24l5.6-5.2 3.7 8.4 4-1.8-3.7-8.2 7.8-.4z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<svg id="cursor" aria-hidden="true" width="26" height="30" viewBox="0 0 26 30"><path d="M3 2.5 3 24l5.6-5.2 3.7 8.4 4-1.8-3.7-8.2 7.8-.4z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>
 <div id="caption"></div>
 <div id="card"><div class="inner" id="cardinner"></div></div>
 
@@ -685,14 +849,16 @@ function avatar(c, s = 30) { return `<div class="av" style="width:${s}px;height:
 function toast(title, sub) { const t = document.createElement("div"); t.className = "toast"; t.innerHTML = `<div class="ic">${icon("check", 15)}</div><div><b>${title}</b><small>${sub}</small></div>`; $("#toasts").appendChild(t); setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateY(6px)"; setTimeout(() => t.remove(), 260); }, 3600 * SPEED); }
 
 /* ================= Navigation ================= */
-const CRUMBS = { victim: `Cases <span>›</span> <b>C-1041 · Selvi K.</b> <span class="pill gold" style="margin-left:6px">Live</span>`, console: `Bank <span>›</span> <b>Fraud-ops console</b> <span class="pill neutral" style="margin-left:6px">Demo Bank · Coimbatore region</span>`, impact: `Evidence <span>›</span> <b>Impact (real data)</b>`, rules: `Evidence <span>›</span> <b>Rules &amp; sources</b>` };
+const CRUMBS = { victim: `Demo case <span>›</span> <b>C-1041 · Selvi K.</b> <span class="pill gold" style="margin-left:6px">Replay</span>`, console: `Bank <span>›</span> <b>Fraud-ops console</b> <span class="pill neutral" style="margin-left:6px">Demo Bank · Coimbatore region</span>`, impact: `Evidence <span>›</span> <b>Impact (real data)</b>`, rules: `Evidence <span>›</span> <b>Rules &amp; sources</b>` };
 function show(v) {
-  document.querySelectorAll(".nav button[data-view], .mnav button[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  document.querySelectorAll(".nav button[data-view], .mnav button[data-view]").forEach(b => { b.classList.toggle("active", b.dataset.view === v); if (b.dataset.view === v) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
   document.querySelectorAll(".view").forEach(x => x.classList.toggle("active", x.id === "v-" + v));
   $("#crumb").innerHTML = CRUMBS[v];
   if (v === "console") renderConsole();
 }
 document.querySelectorAll(".nav button[data-view], .mnav button[data-view]").forEach(b => b.addEventListener("click", () => { show(b.dataset.view); if (innerWidth <= 1180) scrollTo({ top: 0 }); }));
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => { show(b.dataset.go); scrollTo({ top: 0 }); }));
+$("#goConsole").addEventListener("click", () => { show("console"); scrollTo({ top: 0 }); });
 
 /* ================= Victim journey ================= */
 const C0 = CASES[0], P0 = plan(C0);
@@ -867,6 +1033,7 @@ function spark(vals, color) { const w = 92, h = 30, mx = Math.max(...vals), mn =
 function countUp(el, to, fmt) { const st = performance.now(), d = 900; const f = t => { const k = Math.min(1, (t - st) / d), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(to * e); if (k < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); }
 function renderConsole() {
   const held = Object.values(LIENS).reduce((a, b) => a + b, 0), claimed = CASES.reduce((a, c) => a + c.amount, 0), cl = clusters();
+  $("#consoleCount").textContent = CASES.length;
   if (!consoleBuilt) {
     const k = [["Open case packets", CASES.length, x => Math.round(x), "<b>2</b> new in the last 7 days", [2, 3, 3, 4, 3, 5, 7], "#6aa7ff", "file"], ["Held under lien", held, inr, `across <b>${Object.keys(LIENS).length}</b> payee accounts`, [90, 110, 120, 150, 160, 180, 197], "#f2b84b", "lock"], ["Claimed by victims", claimed, inr, "<b>" + Math.round(100 * held / claimed) + "%</b> covered by liens", [120, 150, 160, 190, 200, 220, 232], "#a78bfa", "bank"], ["Mule clusters", cl.groups.length, x => Math.round(x), "<b>1</b> spans two accounts", [1, 1, 2, 2, 2, 3, 3], "#f2555a", "graph"]];
     $("#kpis").innerHTML = k.map(([l, v, f, d, s, c, ic], i) => `<div class="panel kpi"><div class="l">${icon(ic, 14, `style="color:${c}"`)}${l}</div><div class="v" id="kv${i}">0</div><div class="d">${d}</div>${spark(s, c)}</div>`).join("");
@@ -884,6 +1051,7 @@ function renderRecon() {
   $("#recon").innerHTML = `<div class="ph"><h3>${icon("lock", 15, 'style="color:var(--gold)"')}Lien reconciliation · <span class="mono" style="font-size:13px">${selAcct}</span></h3><span class="sub">${pr.claims.length} claimant${pr.claims.length > 1 ? "s" : ""}</span><div class="end">${over ? `<span class="pill warn">${icon("alert", 11)} over-claimed</span>` : `<span class="pill good">${icon("check", 11)} fully covered</span>`}</div></div>
     <div class="bar">${pr.claims.map((c, i) => `<div style="flex:${c.share} 1 0;background:${SHARE_COL[i]}">${Math.round(100 * c.share / Math.min(pr.lien, pr.total))}%</div>`).join("")}</div>
     <div class="scale"><span>Lien held ${inr(pr.lien)} · claims ${inr(pr.total)}${over ? ` · each victim gets ${(pr.ratio * 100).toFixed(1)}%` : ""}</span></div>
+    ${pr.claims.filter(c => c.query).map(c => `<div class="callout" style="margin:8px 0 0">${icon("alert", 15)}<div><b>Mismatch flagged</b> · ${c.query}</div></div>`).join("")}
     <table><tr><th>Victim</th><th>Claimed</th><th>Pro-rata release</th></tr>${pr.claims.map((c, i) => `<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${SHARE_COL[i]};margin-right:8px"></span>${c.victim} <span class="muted">${c.id}</span>${c.mine ? ' <span class="pill gold">your packet</span>' : ""}</td><td class="mono num">${inr(c.amount)}</td><td class="mono num"><b>${inr(c.share)}</b></td></tr>`).join("")}</table>
     <div class="foot"><button class="btn primary sm" id="approveSplit">${icon("check", 13)}Approve split draft</button><button class="btn ghost sm">Query victim</button><span class="muted" style="font-size:11.5px;margin-left:auto">draft for BNSS s.503 / SOP order</span></div>`;
   $("#approveSplit").addEventListener("click", async () => { const h = await sha("approve" + selAcct + Date.now()); toast(`Split draft approved for ${selAcct}`, `audit ${h.slice(0, 12)}… · status sent to ${proRata(selAcct).claims.length} victims`); });
@@ -898,9 +1066,9 @@ function drawGraph(cl) {
   cl.groups.forEach((g, gi) => { const bw = (W - 20) * widths[gi] / tw; [0, 1, 2, 3].forEach(l => { const ns = g.filter(n => layer(n) === l); ns.forEach((n, i) => nodes[n] = { x: x0 + bw * (i + .5) / ns.length, y: 40 + l * 58 }); }); boxes.push([x0, bw, g]); x0 += bw; });
   const selGroup = cl.groups.findIndex(g => g.includes("acct:" + selAcct));
   let s = `<defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
-  boxes.forEach(([bx, bw, g], gi) => { const on = gi === selGroup; s += `<rect x="${bx + 4}" y="8" width="${bw - 8}" height="${H - 16}" rx="12" fill="${on ? "rgba(242,184,75,.05)" : "none"}" stroke="${on ? "rgba(242,184,75,.55)" : "rgba(255,255,255,.08)"}" ${on ? "" : 'stroke-dasharray="4 4"'}/><text x="${bx + 14}" y="24" fill="${on ? "#ffd98a" : "#717789"}" font-size="10.5" font-weight="600" letter-spacing=".08em">CLUSTER ${String.fromCharCode(65 + gi)}</text>`; });
+  boxes.forEach(([bx, bw, g], gi) => { const on = gi === selGroup; s += `<rect x="${bx + 4}" y="8" width="${bw - 8}" height="${H - 16}" rx="12" fill="${on ? "rgba(242,184,75,.05)" : "none"}" stroke="${on ? "rgba(242,184,75,.55)" : "rgba(255,255,255,.08)"}" ${on ? "" : 'stroke-dasharray="4 4"'}/><text x="${bx + 14}" y="24" fill="${on ? "#ffd98a" : "#8b91a3"}" font-size="10.5" font-weight="600" letter-spacing=".08em">CLUSTER ${String.fromCharCode(65 + gi)}</text>`; });
   cl.edges.forEach(([a, b]) => { const on = cl.groups[selGroup].includes(a); s += `<line x1="${nodes[a].x}" y1="${nodes[a].y}" x2="${nodes[b].x}" y2="${nodes[b].y}" stroke="${on ? "rgba(242,184,75,.45)" : "rgba(255,255,255,.12)"}" stroke-width="${on ? 1.6 : 1.2}"/>`; });
-  Object.entries(nodes).forEach(([n, p]) => { const on = cl.groups[selGroup].includes(n); s += `<g class="gnode" data-n="${n}"><circle cx="${p.x}" cy="${p.y}" r="13" fill="${col(n)}" opacity="${on ? .16 : .06}"/><circle class="core" cx="${p.x}" cy="${p.y}" r="6.5" fill="${col(n)}" stroke="#090c14" stroke-width="2" ${on ? 'filter="url(#glow)"' : ""}/><text x="${p.x}" y="${p.y + 22}" text-anchor="middle" font-size="10" fill="${on ? "#d6d9e2" : "#717789"}" font-family="Inter, system-ui">${lbl(n)}</text></g>`; });
+  Object.entries(nodes).forEach(([n, p]) => { const on = cl.groups[selGroup].includes(n); s += `<g class="gnode" data-n="${n}"><circle cx="${p.x}" cy="${p.y}" r="13" fill="${col(n)}" opacity="${on ? .16 : .06}"/><circle class="core" cx="${p.x}" cy="${p.y}" r="6.5" fill="${col(n)}" stroke="#090c14" stroke-width="2" ${on ? 'filter="url(#glow)"' : ""}/><text x="${p.x}" y="${p.y + 22}" text-anchor="middle" font-size="10" fill="${on ? "#d6d9e2" : "#8b91a3"}" font-family="Inter, system-ui">${lbl(n)}</text></g>`; });
   svg.innerHTML = s;
   const tip = $("#gtip"), wrap = $("#graphwrap");
   svg.querySelectorAll(".gnode").forEach(g => { g.addEventListener("mouseenter", () => { const n = g.dataset.n, [t, v] = n.split(":"); let html = ""; if (t === "case") { const c = CASES.find(x => x.id === v); html = `<b>${c.victim} · ${c.id}</b><span>${inr(c.amount)} · ${c.type}</span>`; } else if (t === "vpa") { const cs = CASES.filter(x => x.vpa === v); html = `<b>${v}</b><span>${cs.length} victim payment${cs.length > 1 ? "s" : ""} · ${inr(cs.reduce((a, c) => a + c.amount, 0))}</span>`; } else if (t === "acct") { html = `<b>Account ${v}</b><span>Lien ${inr(LIENS[v])} · phone ${ACCT_PHONE[v]}</span>`; } else { const as = Object.entries(ACCT_PHONE).filter(([, p]) => p === v).map(([a]) => a); html = `<b>${v}</b><span>Linked to ${as.join(", ")}</span>`; } tip.innerHTML = html; const r = g.getBoundingClientRect(), wr = wrap.getBoundingClientRect(); tip.style.left = Math.min(wr.width - 190, Math.max(6, r.left - wr.left - 70)) + "px"; tip.style.top = (r.top - wr.top - 58) + "px"; tip.classList.add("on"); }); g.addEventListener("mouseleave", () => tip.classList.remove("on")); g.addEventListener("click", () => { const n = g.dataset.n; const c = n.startsWith("case") ? CASES.find(x => x.id === n.split(":")[1]) : null; if (c) { selAcct = c.acct; renderConsole(); } else if (n.startsWith("acct")) { selAcct = n.split(":")[1]; renderConsole(); } }); });
@@ -913,15 +1081,15 @@ function drawGraph(cl) {
 function charts() {
   const fm = n => n.toLocaleString("en-IN");
   { const d = [["Lost", 1673.85, "#3987e5", ""], ["Frozen", 771.98, "#3987e5", "46% of lost"], ["Returned", 83.84, "#d95926", "≈5% of lost · ≈11% of frozen"]]; const x0 = 96, w = 340, mx = 1700; let s = "";
-    [0, 500, 1000, 1500].forEach(v => { const x = x0 + w * v / mx; s += `<line x1="${x}" x2="${x}" y1="12" y2="206" stroke="rgba(255,255,255,.07)"/><text x="${x}" y="226" text-anchor="middle" font-size="11" fill="#717789">${fm(v)}</text>`; });
+    [0, 500, 1000, 1500].forEach(v => { const x = x0 + w * v / mx; s += `<line x1="${x}" x2="${x}" y1="12" y2="206" stroke="rgba(255,255,255,.07)"/><text x="${x}" y="226" text-anchor="middle" font-size="11" fill="#8b91a3">${fm(v)}</text>`; });
     d.forEach(([l, v, c, n], i) => { const y = 24 + i * 62, bw = Math.max(4, w * v / mx); s += `<text x="${x0 - 12}" y="${y + 22}" text-anchor="end" font-size="13" fill="#aeb2bf" font-weight="600">${l}</text><path d="M${x0},${y} h${bw - 4} a4,4 0 0 1 4,4 v28 a4,4 0 0 1 -4,4 h-${bw - 4} z" fill="${c}"/><text x="${x0 + bw + 8}" y="${y + 16}" font-size="14" fill="#f3f1ec" font-weight="700">₹${fm(Math.round(v))} cr</text>${n ? `<text x="${x0 + bw + 8}" y="${y + 32}" font-size="11.5" fill="#aeb2bf">${n}</text>` : ""}`; });
     $("#ch1").innerHTML = s + `<line x1="${x0}" x2="${x0}" y1="12" y2="206" stroke="rgba(255,255,255,.25)"/>`; }
   { const d = [["TN 2024", 83.84 / 771.98], ["TN Jan–Jul 2025", 62.4 / 314], ["Chennai Jan–May 2025", 10.45 / 48]]; const x0 = 170, w = 300; let s = "";
-    [0, 25, 50, 75, 100].forEach(v => { const x = x0 + w * v / 100; s += `<line x1="${x}" x2="${x}" y1="12" y2="206" stroke="rgba(255,255,255,.07)"/><text x="${x}" y="226" text-anchor="middle" font-size="11" fill="#717789">${v}%</text>`; });
+    [0, 25, 50, 75, 100].forEach(v => { const x = x0 + w * v / 100; s += `<line x1="${x}" x2="${x}" y1="12" y2="206" stroke="rgba(255,255,255,.07)"/><text x="${x}" y="226" text-anchor="middle" font-size="11" fill="#8b91a3">${v}%</text>`; });
     d.forEach(([l, v], i) => { const y = 28 + i * 60, bw = w * v; s += `<text x="${x0 - 12}" y="${y + 20}" text-anchor="end" font-size="13" fill="#aeb2bf" font-weight="600">${l}</text><rect x="${x0}" y="${y}" width="${w}" height="32" rx="4" fill="rgba(255,255,255,.04)"/><path d="M${x0},${y} h${bw - 4} a4,4 0 0 1 4,4 v24 a4,4 0 0 1 -4,4 h-${bw - 4} z" fill="#d95926"/><text x="${x0 + bw + 8}" y="${y + 21}" font-size="14" fill="#f3f1ec" font-weight="700">${(v * 100).toFixed(1)}%</text>`; });
     $("#ch2").innerHTML = s + `<line x1="${x0}" x2="${x0}" y1="12" y2="206" stroke="rgba(255,255,255,.25)"/>`; }
   { const d = [["2023", 7465.18], ["2024", 22845.73]]; const y0 = 200, h = 165, mx = 25000; let s = "";
-    [0, 10000, 20000].forEach(v => { const y = y0 - h * v / mx; s += `<line x1="70" x2="540" y1="${y}" y2="${y}" stroke="rgba(255,255,255,.07)"/><text x="62" y="${y + 4}" text-anchor="end" font-size="11" fill="#717789">${fm(v)}</text>`; });
+    [0, 10000, 20000].forEach(v => { const y = y0 - h * v / mx; s += `<line x1="70" x2="540" y1="${y}" y2="${y}" stroke="rgba(255,255,255,.07)"/><text x="62" y="${y + 4}" text-anchor="end" font-size="11" fill="#8b91a3">${fm(v)}</text>`; });
     d.forEach(([l, v], i) => { const x = 170 + i * 180, bh = h * v / mx, bw = 90; s += `<path d="M${x},${y0} v-${bh - 4} a4,4 0 0 1 4,-4 h${bw - 8} a4,4 0 0 1 4,4 v${bh - 4} z" fill="#3987e5"/><text x="${x + bw / 2}" y="${y0 - bh - 7}" text-anchor="middle" font-size="13" fill="#f3f1ec" font-weight="700">₹${fm(Math.round(v))} cr</text><text x="${x + bw / 2}" y="${y0 + 18}" text-anchor="middle" font-size="12.5" fill="#aeb2bf" font-weight="600">${l}</text>`; });
     $("#ch3").innerHTML = s + `<line x1="70" x2="540" y1="${y0}" y2="${y0}" stroke="rgba(255,255,255,.25)"/>`; }
 }
@@ -982,27 +1150,35 @@ async function autoplay() {
 /* ================= Try it yourself (real OCR, in-browser) ================= */
 const TRY = { worker: null, lastText: "" };
 function loadScript(src) { return new Promise((res, rej) => { if (window.Tesseract) return res(); const sc = document.createElement("script"); sc.src = src; sc.onload = res; sc.onerror = () => rej(new Error("Could not load OCR engine")); document.head.appendChild(sc); }); }
-function openTry() { $("#tryModal").classList.add("open"); }
-function closeTry() { $("#tryModal").classList.remove("open"); }
+let tryReturnFocus = null;
+function openTry() { const m = $("#tryModal"); if (!m.classList.contains("open")) tryReturnFocus = document.activeElement; m.classList.add("open"); m.removeAttribute("aria-hidden"); document.body.classList.add("modal-open"); if (!params.has("autoplay")) setTimeout(() => { const f = $("#buildPlan") || $("#sampleBtn"); if (f && m.classList.contains("open")) f.focus({ preventScroll: true }); }, 60); }
+function closeTry() { const m = $("#tryModal"); const was = m.classList.contains("open"); m.classList.remove("open"); m.setAttribute("aria-hidden", "true"); document.body.classList.remove("modal-open"); if (was && tryReturnFocus && tryReturnFocus.focus && document.contains(tryReturnFocus)) tryReturnFocus.focus({ preventScroll: true }); tryReturnFocus = null; }
+function setStep(n) { document.querySelectorAll("#trySteps li").forEach((li, i) => { li.classList.toggle("on", i === n - 1); li.classList.toggle("done", i < n - 1); if (i === n - 1) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current"); }); }
 $("#tryBtn").addEventListener("click", openTry);
+$("#tryTop").addEventListener("click", openTry);
 $("#tryNav").addEventListener("click", openTry);
 $("#tryNavM").addEventListener("click", openTry);
 $("#tryClose").addEventListener("click", closeTry);
 $("#tryModal").addEventListener("click", e => { if (e.target.id === "tryModal") closeTry(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeTry(); });
 const drop = $("#drop");
+drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("#tryFile").click(); } });
 ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
 ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
 drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) runOCR(f); });
 $("#tryFile").addEventListener("change", e => { const f = e.target.files[0]; if (f) runOCR(f); });
 $("#sampleBtn").addEventListener("click", async e => { e.preventDefault(); e.stopPropagation(); const blob = await sampleReceipt(); runOCR(blob); });
 
+function sampleWhen() {
+  const d = new Date(Date.now() - 3 * 3600e3 + 330 * 6e4), h = d.getUTCHours() % 12 || 12;
+  return `${d.getUTCDate()} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getUTCMonth()]} ${d.getUTCFullYear()}, ${h}:${String(d.getUTCMinutes()).padStart(2, "0")} ${d.getUTCHours() < 12 ? "am" : "pm"}`;
+}
 async function sampleReceipt() {
   const c = document.createElement("canvas"); c.width = 720; c.height = 900; const g = c.getContext("2d");
   g.fillStyle = "#ffffff"; g.fillRect(0, 0, 720, 900);
   g.fillStyle = "#188038"; g.font = "bold 34px Inter, Arial"; g.fillText("Payment successful", 60, 110);
   g.fillStyle = "#111"; g.font = "bold 76px Inter, Arial"; g.fillText("₹ 25,500", 60, 220);
-  const rows = [["Paid to", "luckydraw.demo@upi"], ["UPI Ref No.", "512398447016"], ["Date", "14 Nov 2026, 11:42 am"], ["From", "Demo Bank XXXX 8812"]];
+  const rows = [["Paid to", "luckydraw.demo@upi"], ["UPI Ref No.", "512398447016"], ["Date", sampleWhen()], ["From", "Demo Bank XXXX 8812"]];
   g.font = "30px Inter, Arial"; rows.forEach(([a, b], i) => { const y = 340 + i * 90; g.fillStyle = "#666"; g.fillText(a, 60, y); g.fillStyle = "#111"; g.fillText(b, 300, y); g.fillStyle = "#e5e5e5"; g.fillRect(60, y + 28, 600, 2); });
   g.fillStyle = "rgba(208,59,59,.18)"; g.font = "bold 90px Inter, Arial"; g.save(); g.translate(360, 700); g.rotate(-0.35); g.textAlign = "center"; g.fillText("SYNTHETIC", 0, 0); g.restore();
   return new Promise(r => c.toBlob(r, "image/png"));
@@ -1030,23 +1206,28 @@ async function runOCR(file) {
 
 function parseReceipt(t) { return GH.parseReceipt(t); }
 const escAttr = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const toLocalInput = d => d ? new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16) : "";
+// Date fields show and read IST on every device (receipts, deadlines and drafts are all in IST).
+const toLocalInput = d => d ? new Date(d.getTime() + 330 * 6e4).toISOString().slice(0, 16) : "";
+const fromISTInput = v => v ? new Date(v + ":00+05:30") : null;
 
 function renderTry(f) {
   const found = k => f[k] ? `<span class="pill good">${icon("check", 11)} found</span>` : `<span class="pill warn">${icon("alert", 11)} add</span>`;
-  $("#tryRes").innerHTML = `<h4>${icon("scan", 15, 'style="color:var(--gold)"')}Fields read from your screenshot <span class="muted" style="font-weight:400;font-size:12px">edit anything the OCR got wrong</span></h4>
+  setStep(2);
+  $("#tryRes").innerHTML = `<h4 class="reshead"><span class="stepn" data-n="2" aria-hidden="true"></span>Check the fields read from the screenshot <span class="muted" style="font-weight:400;font-size:12px">edit anything the OCR got wrong</span></h4>
   <table class="tbl2">
-    <tr><td>Amount paid (₹)</td><td><input id="f-amt" value="${escAttr(f.amount)}" inputmode="decimal"></td><td>${found("amount")}</td></tr>
-    <tr><td>UTR / UPI Ref</td><td><input id="f-utr" value="${escAttr(f.utr)}" maxlength="12" inputmode="numeric"></td><td>${found("utr")}</td></tr>
-    <tr><td>Paid to (VPA)</td><td><input id="f-vpa" value="${escAttr(f.vpa)}"></td><td>${found("vpa")}</td></tr>
-    <tr><td>Paid at</td><td><input id="f-when" type="datetime-local" value="${toLocalInput(f.when)}"></td><td>${f.when && !f.timeFound ? `<span class="pill warn">${icon("alert", 11)} check time</span>` : found("when")}</td></tr>
-    <tr><td>Reported to 1930 at</td><td><input id="f-rep" type="datetime-local" value="${f.when ? toLocalInput(new Date(f.when.getTime() + 40 * 6e4)) : ""}"></td><td><span class="pill neutral">you add</span></td></tr>
-    <tr><td>NCRP ack no. (14 digits)</td><td><input id="f-ack" placeholder="from the 1930 SMS (optional)" maxlength="16" inputmode="numeric"></td><td><span class="pill neutral">you add</span></td></tr>
-    <tr><td>Held in scammer a/c (₹)</td><td><input id="f-held" value="${escAttr(f.amount)}" inputmode="decimal"></td><td><span class="pill neutral">from police SMS</span></td></tr>
+    <tr><td><label for="f-amt">Amount paid (₹)</label></td><td><input id="f-amt" value="${escAttr(f.amount)}" inputmode="decimal"></td><td>${found("amount")}</td></tr>
+    <tr><td><label for="f-utr">UTR / UPI Ref</label></td><td><input id="f-utr" value="${escAttr(f.utr)}" maxlength="12" inputmode="numeric"></td><td>${found("utr")}</td></tr>
+    <tr><td><label for="f-vpa">Paid to (VPA)</label></td><td><input id="f-vpa" value="${escAttr(f.vpa)}"></td><td>${found("vpa")}</td></tr>
+    <tr><td><label for="f-when">Paid at</label></td><td><input id="f-when" type="datetime-local" value="${toLocalInput(f.when)}"></td><td>${f.when && !f.timeFound ? `<span class="pill warn">${icon("alert", 11)} check time</span>` : found("when")}</td></tr>
+    <tr><td><label for="f-rep">Reported to 1930 at</label></td><td><input id="f-rep" type="datetime-local" value="${f.when ? toLocalInput(new Date(f.when.getTime() + 40 * 6e4)) : ""}"></td><td><span class="pill neutral">you add</span></td></tr>
+    <tr><td><label for="f-ack">NCRP ack no. (14 digits)</label></td><td><input id="f-ack" placeholder="from the 1930 SMS (optional)" maxlength="16" inputmode="numeric"></td><td><span class="pill neutral">you add</span></td></tr>
+    <tr><td><label for="f-held">Held in scammer a/c (₹)</label></td><td><input id="f-held" value="${escAttr(f.amount)}" inputmode="decimal"></td><td><span class="pill neutral">from police SMS</span></td></tr>
   </table>
   ${f.aadhaar ? `<div class="callout" style="margin-top:8px">${icon("lock", 15)}<div>An Aadhaar-like number was detected. It is never shown or stored.</div></div>` : ""}
-  <div style="display:flex;gap:8px;margin-top:10px;align-items:center"><button class="btn primary sm" id="buildPlan">${icon("route", 13)}Build my recovery plan</button><button class="btn ghost sm" id="showRaw">Show raw OCR text</button></div>
+  <div class="buildrow"><button class="btn primary" id="buildPlan">${icon("route", 15)}Build my recovery plan</button><button class="btn ghost sm" id="showRaw">Show raw OCR text</button></div>
   <div class="raw" id="raw" hidden></div><div class="outcome" id="outcome"></div>`;
+  $("#sampleBtn").classList.replace("primary", "ghost");
+  if (!params.has("autoplay") && innerWidth <= 860) $("#tryRes").scrollIntoView({ block: "start" });
   $("#showRaw").onclick = () => { const r = $("#raw"); r.hidden = !r.hidden; r.textContent = TRY.lastText.replace(/\b[2-9][0-9]{3}\s[0-9]{4}\s[0-9]{4}\b/g, "XXXX XXXX XXXX") || "(no text read)"; };
   $("#buildPlan").onclick = buildTryPlan;
 }
@@ -1054,26 +1235,29 @@ function renderTry(f) {
 function buildTryPlan() {
   const num = v => { const n = Number(String(v || "").replace(/[₹,\s]/g, "")); return isFinite(n) && n > 0 ? n : 0; };
   const c = { amount: num($("#f-amt").value), held: num($("#f-held").value), utr: $("#f-utr").value.replace(/\s/g, ""), vpa: $("#f-vpa").value.trim(),
-    ack: ($("#f-ack").value || "").replace(/\s/g, ""), paidAt: $("#f-when").value ? new Date($("#f-when").value) : null, reportedAt: $("#f-rep").value ? new Date($("#f-rep").value) : null };
+    ack: ($("#f-ack").value || "").replace(/\s/g, ""), paidAt: fromISTInput($("#f-when").value), reportedAt: fromISTInput($("#f-rep").value) };
   const errs = GH.validate(c);
-  if (errs.length) { $("#outcome").innerHTML = `<div class="callout">${icon("alert", 15)}<div>Please add: ${errs.join(", ")}.</div></div>`; return; }
+  if (errs.length) { $("#outcome").innerHTML = `<div class="callout err" role="alert">${icon("alert", 15)}<div>Please add: ${errs.join(", ")}.</div></div>`; return; }
   const p = GH.planCase(c, new Date());
   TRY.case = c; TRY.plan = p; TRY.doc = p.primary; TRY.lang = TRY.lang || "ta";
   const pill = (cls, txt) => `<span class="pill ${cls}">${txt}</span>`;
-  $("#outcome").innerHTML = `<div style="display:flex;gap:8px;flex-wrap:wrap">${pill(p.golden ? "good" : "warn", p.golden ? icon("check", 11) + " reported inside the golden hour" : icon("alert", 11) + ` reported after ${p.mins} min`)}${p.held ? pill(p.big ? "warn" : "good", p.big ? "court order needed (above ₹50,000)" : "no court order needed") : ""}${pill("gold", icon("clock", 11) + " bank by " + GH.fmtD(p.bankDue))}${p.held ? pill(p.holdDaysLeft <= 15 ? "crit" : "neutral", `hold: ${Math.max(0, p.holdDaysLeft)} days left`) : ""}</div>` +
+  setStep(3);
+  $("#outcome").innerHTML = `<h4 class="reshead" id="planHead" tabindex="-1"><span class="stepn" data-n="3" aria-hidden="true"></span>Your recovery plan</h4><div style="display:flex;gap:8px;flex-wrap:wrap">${pill(p.golden ? "good" : "warn", p.golden ? icon("check", 11) + " reported inside the golden hour" : icon("alert", 11) + ` reported after ${p.mins} min`)}${p.held ? pill(p.big ? "warn" : "good", p.big ? "court order needed (above ₹50,000)" : "no court order needed") : ""}${pill("gold", icon("clock", 11) + " bank by " + GH.fmtD(p.bankDue))}${p.held ? pill(p.holdDaysLeft <= 15 ? "crit" : "neutral", `hold: ${Math.max(0, p.holdDaysLeft)} days left`) : ""}</div>` +
     p.routes.map(r => `<div class="route ${r.rec ? "rec" : ""}"><h4>${r.rec ? pill("gold", "Do this first") + " " : ""}${r.title}</h4><p style="margin:0">${r.desc}</p></div>`).join("") +
-    `<div class="route docbox"><h4 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${icon("file", 14)}Your drafts <span class="seg" id="langSeg" style="margin-left:auto"><span data-l="ta" class="ta">தமிழ்</span><span data-l="en">English</span></span></h4>
+    `<div class="route docbox"><h4 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${icon("file", 14)}Your drafts, ready to check and file <span class="seg" id="langSeg" role="group" aria-label="Draft language" style="margin-left:auto"><span data-l="ta" class="ta" role="button" tabindex="0">தமிழ்</span><span data-l="en" role="button" tabindex="0">English</span></span></h4>
       <div class="doctabs" id="docTabs">${p.docs.map(d => `<button class="btn ghost sm" data-d="${d}">${GH.DOC_NAMES[d][0]}</button>`).join("")}</div>
       <pre class="docprev" id="docPrev"></pre>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary sm" id="dlDraft">${icon("file", 13)}Download this draft</button><button class="btn ghost sm" id="pdfDraft">${icon("file", 13)}Save as PDF</button><span class="muted" style="font-size:11.5px">Generated on this device. You check it and file it yourself.</span></div></div>
-    <div class="route handoff"><h4>${icon("bank", 14)}Agents that win together</h4><p style="margin:0 0 8px">Send the same case packet to the bank's fraud desk. Their reconciliation agent adds your claim to the hold on the scammer's account and splits it fairly between all victims.</p><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary sm" id="sendBank">${icon("bank", 13)}Send case packet to bank desk</button><span class="muted" id="sendInfo" style="font-size:11.5px">Synthetic bank, demo account. Only payment facts are shared: no name, PAN or Aadhaar.</span></div></div>
+    <div class="route handoff"><h4><span class="stepn" data-n="4" aria-hidden="true"></span>Agents that win together</h4><p style="margin:0 0 10px">Send the same case packet to the bank's fraud desk. Their reconciliation agent adds your claim to the hold on the scammer's account and splits it fairly between all victims.</p><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn primary" id="sendBank">${icon("bank", 15)}Send case packet to bank desk</button><span class="muted" id="sendInfo" style="font-size:11.5px">Synthetic bank, demo account. Only payment facts are shared: no name, PAN or Aadhaar.</span></div></div>
     <div class="callout">${icon("shield", 15)}<div><b>Golden Hour never charges a fee and never asks for your OTP or PIN.</b> Anyone who offers to “recover” your money for a fee is running a second scam. Free legal aid: 15100.</div></div>`;
   $("#langSeg").onclick = e => { const l = e.target.dataset.l; if (l) { TRY.lang = l; showDoc(); } };
+  $("#langSeg").onkeydown = e => { if ((e.key === "Enter" || e.key === " ") && e.target.dataset.l) { e.preventDefault(); e.target.click(); } };
   $("#docTabs").onclick = e => { const d = e.target.closest("[data-d]"); if (d) { TRY.doc = d.dataset.d; showDoc(); } };
   $("#dlDraft").onclick = () => { const name = `golden-hour-${TRY.doc}-${TRY.lang}.txt`; if (params.has("autoplay")) { toast("Draft generated on this device", name); return; } const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["\ufeff" + GH.draft(TRY.doc, TRY.lang, TRY.case, TRY.plan)], { type: "text/plain;charset=utf-8" })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); };
   $("#sendBank").onclick = sendToBank;
   $("#pdfDraft").onclick = savePdf;
   showDoc();
+  if (!params.has("autoplay")) { const h = $("#planHead"); h.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); h.focus({ preventScroll: true }); }
 }
 function savePdf() {
   // Browser print keeps Tamil shaping intact (jsPDF / pdf-lib break Tamil vowel signs). Nothing leaves the device.
@@ -1089,14 +1273,15 @@ async function sendToBank() {
   const c = TRY.case, p = TRY.plan, pk = GH.casePacket(c, p), h = await sha(JSON.stringify(pk));
   const match = CASES.find(x => x.vpa === c.vpa && !x.mine), acct = match ? match.acct : "XXXX4471";
   const prev = CASES.findIndex(x => x.mine); if (prev >= 0) CASES.splice(prev, 1);
-  CASES.unshift({ id: "C-" + (1042 + Math.floor(Math.random() * 900)), mine: true, victim: "You", city: "Demo", amount: c.amount, vpa: c.vpa || "your-payee@upi", acct, type: "Your case packet", fraudAt: new Date(c.paidAt).toISOString(), reportedAt: new Date(c.reportedAt).toISOString(), ack: c.ack || "", status: "Packet received", av: ["#fff1c9", "#f2b84b"], hash: h, packet: pk });
-  $("#sendInfo").innerHTML = `Sent · packet <span class="mono">#${h.slice(0, 12)}</span>`;
+  CASES.unshift({ id: "C-" + (1042 + Math.floor(Math.random() * 900)), mine: true, victim: "You", city: "Demo", amount: c.amount, vpa: c.vpa || "your-payee@upi", acct, type: "Your case packet", fraudAt: new Date(c.paidAt).toISOString(), reportedAt: new Date(c.reportedAt).toISOString(), ack: c.ack || "", status: "Packet received", av: ["#fff1c9", "#f2b84b"], hash: h, packet: pk,
+    query: p.held && p.held !== LIENS[acct] ? `Victim reports ${inr(p.held)} held; bank record shows ${inr(LIENS[acct])} on ${acct}. Reconciliation uses the bank record and raises a query to the investigating officer.` : null });
+  setStep(4); $("#sendInfo").innerHTML = `Sent · packet <span class="mono">#${h.slice(0, 12)}</span>`;
   toast("Case packet received by the bank desk", `#${h.slice(0, 12)} · joined the hold on ${acct}`);
   await sleep(params.has("autoplay") ? 900 : 450); closeTry(); selAcct = acct; consoleBuilt = false; show("console");
 }
 function showDoc() {
   if (!TRY.plan.docs.includes(TRY.doc)) TRY.doc = TRY.plan.docs[0];
-  document.querySelectorAll("#langSeg span").forEach(s => s.classList.toggle("on", s.dataset.l === TRY.lang));
+  document.querySelectorAll("#langSeg span").forEach(s => { s.classList.toggle("on", s.dataset.l === TRY.lang); s.setAttribute("aria-pressed", s.dataset.l === TRY.lang); });
   document.querySelectorAll("#docTabs [data-d]").forEach(b => b.classList.toggle("on", b.dataset.d === TRY.doc));
   const pre = $("#docPrev"); pre.textContent = GH.draft(TRY.doc, TRY.lang, TRY.case, TRY.plan); pre.classList.toggle("ta", TRY.lang === "ta"); pre.scrollTop = 0;
 }
@@ -1118,10 +1303,13 @@ function showDoc() {
 })();
 
 /* ================= Boot ================= */
+if (params.has("autoplay")) document.body.classList.add("autoplay");
+$("#tryModal").setAttribute("aria-hidden", "true");
 charts(); rulesTable(); buildPipeline(); const VIEWS = ["victim", "console", "impact", "rules"]; if (!VIEWS.includes(params.get("view"))) params.delete("view"); show(params.get("view") || "victim");
 if (params.has("autoplay")) autoplay();
 else if (params.get("view") === "console") { /* console shown */ }
 else { SPEED = Number(params.get("speed") || 0.45); runVictim(false); }
 </script>
+<script src="features.js"></script>
 </body>
 </html>
