@@ -21,7 +21,7 @@ FinTech track · K! Hacks 4.0 (CEG Tech Forum, Anna University) · Team Golden H
 | Tests | **35 named cases** run on every push ([`tests/engine.test.js`](tests/engine.test.js)): ₹50,000 vs ₹50,001, 31 Dec 2026 vs 1 Jan 2027, weekend deadlines, compensation caps, exact pro-rata to the rupee |
 | OCR | **60 synthetic receipts** (3 layouts × 4 conditions), English + Tamil model: amount 60/60, UTR 60/60, date 60/60, payee UPI ID 56/60, median 0.3 s per image on-device ([`bench/ocr-bench.json`](bench/ocr-bench.json), `node tools/ocr-bench.js`) |
 | Honesty | [What is real and what is scripted](#what-is-real-in-the-prototype) |
-| Real-world voices | [`data/evidence.json`](data/evidence.json): 14 quotes from victims, courts and Tamil Nadu police, verbatim with source and date (shown in the app's **Two-minute tour**) |
+| Real-world voices | [`data/evidence.json`](data/evidence.json): 15 quotes from victims, courts and Tamil Nadu police, verbatim with source and date (shown in the app's **Two-minute tour**) |
 
 ### Who does what: code, model or person
 

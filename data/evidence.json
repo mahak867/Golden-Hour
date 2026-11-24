@@ -152,5 +152,16 @@
   "date": "undated",
   "verified": "snippet",
   "tamil_nadu": false
+ },
+ {
+  "kind": "victim",
+  "quote": "My lien amount release but I didn't get the money",
+  "speaker": "A cyber-fraud victim (question title on a free legal-advice forum)",
+  "context": "Even after the hold was released, the money had not reached the victim.",
+  "source": "Vidhikarya free legal advice",
+  "url": "https://www.vidhikarya.com/FreeLegalAdvice/54530/my-lien-amount-release-but-i-didnt-get-the-money",
+  "date": "undated",
+  "verified": "snippet",
+  "tamil_nadu": false
  }
 ]
