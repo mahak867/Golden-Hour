@@ -3,6 +3,8 @@
 **A multi-agent copilot that turns frozen scam money into filed refund claims.**
 FinTech track · K! Hacks 4.0 (CEG Tech Forum, Anna University) · Team Golden Hour, Chennai Institute of Technology
 
+**▶ Live demo: [golden-hour-khacks.vercel.app](https://golden-hour-khacks.vercel.app)** · open **Try your screenshot** to run it on your own UPI receipt · [demo video](video/golden-hour-demo.mp4) · ![tests](https://github.com/mahak867/Golden-Hour/actions/workflows/test.yml/badge.svg)
+
 ![Golden Hour: victim journey and agent orchestration](screenshots/victim-evidence.png)
 
 > **Concept prototype for the Round 1 idea submission.** It runs entirely on synthetic data. It does not connect to any real bank, police or government portal. The finals build will be developed during the 24-hour hackathon, as the rules require.
@@ -49,7 +51,15 @@ Two crews of agents share one case packet.
 ## Demo
 
 ### Try it on your own screenshot
-Open the demo and click **Try your screenshot** in the sidebar. Drop in a UPI payment screenshot, or use the synthetic sample. Golden Hour reads it with real OCR (Tesseract, bundled in `vendor/`) and pulls out the amount, UTR, payee UPI ID and time. You can correct any field, then it builds your recovery plan and a draft restoration request you can download. **Everything runs in your browser and nothing is uploaded.** In Chrome or Edge you can also describe the scam by voice in Tamil or English.
+Open the [live demo](https://golden-hour-khacks.vercel.app) and click **Try your screenshot** in the sidebar. Drop in a UPI payment screenshot, or use the synthetic sample. Golden Hour reads it with real OCR (Tesseract, bundled in `vendor/`) and pulls out the amount, UTR, payee UPI ID and time. You can correct any field, then it builds your recovery plan:
+
+- **Up to ₹50,000 held:** NCRP Money Restoration request, no court order needed.
+- **Above ₹50,000 held:** a BNSS s.503 magistrate petition comes first (Madras HC: the NCRP acknowledgement is enough, no need to wait for an FIR), with a s.106(3) notice request and an MRM + FIR filing in parallel.
+- **Every case:** a bank dispute letter with its reporting deadline (2017 rules, or the RBI 2027 rules by payment date), RBI small-value compensation where it applies, a 90-day hold countdown and the Ombudsman step.
+
+Each draft (restoration request, s.503 petition, bank letter) is generated **in Tamil and in English**, previewed on screen and downloadable.
+
+Measured in headless Chromium on a 4-core test machine: the first read takes about 1.6 s including loading the OCR engine, then about 0.3 s per screenshot. OCR runs on the user's device, so it costs us nothing per case. **Everything runs in your browser and nothing is uploaded.** In Chrome or Edge you can also describe the scam by voice in Tamil or English.
 
 ![Try it on your own screenshot](screenshots/try-it.png)
 
@@ -58,7 +68,7 @@ Open the demo and click **Try your screenshot** in the sidebar. Drop in a UPI pa
 - **Run it locally:** serve the folder (`python3 -m http.server`) and open `http://localhost:8000`. The scripted walkthrough also works straight from `index.html`, but the OCR worker needs a web server.
   - `index.html?autoplay=1&captions=1` plays the scripted walkthrough with captions.
   - `index.html?view=bank` opens the bank console. Click any case to reconcile its account.
-- **Host it:** enable GitHub Pages for this repo (Settings → Pages → Deploy from branch → `main` / root). The demo is then served at `https://mahak867.github.io/Golden-Hour/`.
+- **Hosted:** every push to `main` deploys to [golden-hour-khacks.vercel.app](https://golden-hour-khacks.vercel.app).
 
 The prototype has four views:
 
@@ -77,7 +87,9 @@ The prototype has four views:
 
 These parts are working code:
 
-- **Route planner:** deterministic rules over the case fields (held amount, report time, payment type).
+- **Rules engine ([`engine.js`](engine.js)):** deterministic route planning over the case fields (held amount, report time, payment date), deadlines, and the Tamil/English drafts. Every rule value has a source and a status (official, reported, or our policy), shown in the **Rules & sources** view.
+- **Tests ([`tests/engine.test.js`](tests/engine.test.js)):** 12 unit tests on routes, deadlines, compensation, the 90-day hold and the drafts, run on every push. Run them with `node --test tests/engine.test.js`.
+- **OCR:** Tesseract in the browser, on real screenshots.
 - **Deadline calculations:** working-day arithmetic.
 - **Pro-rata lien reconciliation:** rounding is exact to the rupee.
 - **Mule clustering:** union-find over graph edges.
@@ -101,6 +113,8 @@ Golden Hour is free for victims. It is a B2B2C product: banks pay per case or pe
 | Path | What it is |
 |---|---|
 | `index.html` | Clickable prototype (victim crew + bank crew) |
+| `engine.js` | Rules engine and Tamil/English drafts, shared by the demo and the tests |
+| `tests/` | Unit tests (`node --test tests/engine.test.js`) |
 | `fonts/` | Inter, JetBrains Mono, Noto Sans Tamil (SIL Open Font License) |
 | `video/` | Demo walkthrough (MP4) |
 | `screenshots/` | Prototype screenshots |
@@ -121,8 +135,9 @@ ffmpeg -i video/raw/*.webm -c:v libx264 -pix_fmt yuv420p video/golden-hour-demo.
 2. DT Next – Chennai Jan–May 2025: ₹48 cr frozen, ₹10.45 cr returned; TN Jan–Jul 2025: ₹1,010 cr lost, ₹314 cr frozen, ₹62.4 cr refunded
 3. Scroll – MHA/I4C in Lok Sabha: ₹7,465 cr (2023) → ₹22,845.73 cr (2024) lost to cyber fraud
 4. MHA SOP for NCRP-CFCFRMS (02.01.2026); Business Standard (Jan 2026)
-5. RBI customer-liability circular (6 Jul 2017) and Third Amendment Directions (24 Jun 2026, effective 1 Jan 2027); RB-IOS 2026
-6. RBI Ombudsman Annual Report 2024-25
+5. MHA / I4C SOP (02.01.2026): s.106(3) notice route, 90-day hold with one extension; Madras HC circular on s.503 release without an FIR (DT Next)
+6. RBI customer-liability circular (6 Jul 2017) and Third Amendment Directions (24 Jun 2026, effective 1 Jan 2027); RB-IOS 2026
+7. RBI Ombudsman Annual Report 2024-25
 
 ## Team
 

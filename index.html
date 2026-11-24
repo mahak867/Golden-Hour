@@ -354,6 +354,11 @@ tr:last-child td { border-bottom: 0; }
 .raw { font-family: var(--mono); font-size: 11px; color: var(--muted); max-height: 90px; overflow: auto; background: #080b12; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; white-space: pre-wrap; margin-top: 8px; }
 .outcome { margin-top: 12px; display: grid; gap: 8px; }
 .outcome .route { padding: 9px 11px; }
+.doctabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 8px; }
+.doctabs .btn.on { border-color: rgba(242,184,75,.55); color: var(--text); background: rgba(242,184,75,.1); }
+.docprev { font-family: var(--mono); font-size: 11.5px; line-height: 1.55; color: var(--text-2); background: #080b12; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; white-space: pre-wrap; max-height: 260px; overflow: auto; margin: 0 0 8px; }
+.docprev.ta { font-family: "Noto Sans Tamil", var(--font); font-size: 12.5px; }
+#langSeg span { cursor: pointer; }
 .micbtn.rec { background: rgba(242,85,90,.15); border-color: rgba(242,85,90,.5); color: #ff9ea1; }
 @media (max-width: 860px) { .mgrid { grid-template-columns: 1fr; } }
 /* ---------- Toasts, cursor, captions, title cards ---------- */
@@ -616,6 +621,7 @@ tr:last-child td { border-bottom: 0; }
 <div id="caption"></div>
 <div id="card"><div class="inner" id="cardinner"></div></div>
 
+<script src="engine.js"></script>
 <script>
 "use strict";
 /* ================= Synthetic data ================= */
@@ -633,15 +639,7 @@ const LIENS = { XXXX4471: 80000, XXXX8820: 30000, XXXX1190: 77500, XXXX7302: 980
 const ACCT_PHONE = { XXXX4471: "+91 9XXXX 21407", XXXX8820: "+91 9XXXX 21407", XXXX1190: "+91 8XXXX 66310", XXXX7302: "+91 7XXXX 90452" };
 
 /* ================= Rules engine (deterministic) ================= */
-const RULES = [
-  { key: "SOP_SMALL_HOLD", value: 50000, unit: "₹ per held account", use: "Restoration without court order at or below this amount in any single account; FIR required above it", src: "MHA SOP for NCRP-CFCFRMS, 02.01.2026 (Business Standard, Free Press Journal, LiveLaw)", status: "verify" },
-  { key: "HOLD_LIFT_DAYS", value: 90, unit: "days", use: "Hold may be lifted if no restoration request or court order arrives", src: "MHA SOP for NCRP-CFCFRMS (as reported)", status: "verify" },
-  { key: "BANK_REPORT_WD", value: 3, unit: "working days", use: "Report to remitting bank for zero-liability window", src: "RBI circular on limiting customer liability, 6 Jul 2017", status: "official" },
-  { key: "AUTH_FRAUD_COVER", value: "1 Jan 2027", unit: "effective", use: "Fraud where the customer was tricked into authorising the payment is covered; bank must prove customer liability", src: "RBI Responsible Business Conduct Third Amendment Directions, 24 Jun 2026", status: "official" },
-  { key: "OMBUDSMAN_DAYS", value: 90, unit: "days", use: "Escalation window to RBI Ombudsman", src: "RB-IOS 2026 (from 1 Jul 2026, as reported)", status: "verify" },
-  { key: "MAGISTRATE_ROUTE", value: "BNSS s.503", unit: "", use: "Court-ordered release; Madras HC: no separate FIR where NCRP ack exists", src: "BNSS 2023; DT Next report on Madras HC circular", status: "official" },
-  { key: "PII_RETENTION", value: 30, unit: "days", use: "Delete screenshots and SMS after case packet is filed", src: "Golden Hour policy under DPDP Act 2023 / Rules 2025", status: "policy" },
-];
+const RULES = GH.RULES;
 const R = Object.fromEntries(RULES.map(r => [r.key, r.value]));
 const addWD = (d, n) => { const x = new Date(d); let c = 0; while (c < n) { x.setDate(x.getDate() + 1); const w = x.getDay(); if (w && w !== 6) c++; } return x; };
 const addD = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
@@ -1077,6 +1075,7 @@ function renderTry(f) {
     <tr><td>Paid to (VPA)</td><td><input id="f-vpa" value="${escAttr(f.vpa)}"></td><td>${found("vpa")}</td></tr>
     <tr><td>Paid at</td><td><input id="f-when" type="datetime-local" value="${toLocalInput(f.when)}"></td><td>${f.when && !f.timeFound ? `<span class="pill warn">${icon("alert", 11)} check time</span>` : found("when")}</td></tr>
     <tr><td>Reported to 1930 at</td><td><input id="f-rep" type="datetime-local" value="${f.when ? toLocalInput(new Date(f.when.getTime() + 40 * 6e4)) : ""}"></td><td><span class="pill neutral">you add</span></td></tr>
+    <tr><td>NCRP ack no. (14 digits)</td><td><input id="f-ack" placeholder="from the 1930 SMS (optional)" maxlength="16" inputmode="numeric"></td><td><span class="pill neutral">you add</span></td></tr>
     <tr><td>Held in scammer a/c (₹)</td><td><input id="f-held" value="${escAttr(f.amount)}" inputmode="decimal"></td><td><span class="pill neutral">from police SMS</span></td></tr>
   </table>
   ${f.aadhaar ? `<div class="callout" style="margin-top:8px">${icon("lock", 15)}<div>An Aadhaar-like number was detected. It is never shown or stored.</div></div>` : ""}
@@ -1088,26 +1087,30 @@ function renderTry(f) {
 
 function buildTryPlan() {
   const num = v => { const n = Number(String(v || "").replace(/[₹,\s]/g, "")); return isFinite(n) && n > 0 ? n : 0; };
-  const amt = num($("#f-amt").value), held = num($("#f-held").value);
-  const when = $("#f-when").value ? new Date($("#f-when").value) : null, rep = $("#f-rep").value ? new Date($("#f-rep").value) : null;
-  const utr = $("#f-utr").value.replace(/\s/g, ""), vpa = $("#f-vpa").value.trim();
-  const errs = []; if (!amt) errs.push("amount"); if (!/^[0-9]{12}$/.test(utr)) errs.push("12-digit UTR"); if (!when) errs.push("payment time"); if (!rep) errs.push("report time");
-  if (when && rep && rep < when) errs.push("a report time after the payment time");
+  const c = { amount: num($("#f-amt").value), held: num($("#f-held").value), utr: $("#f-utr").value.replace(/\s/g, ""), vpa: $("#f-vpa").value.trim(),
+    ack: ($("#f-ack").value || "").replace(/\s/g, ""), paidAt: $("#f-when").value ? new Date($("#f-when").value) : null, reportedAt: $("#f-rep").value ? new Date($("#f-rep").value) : null };
+  const errs = GH.validate(c);
   if (errs.length) { $("#outcome").innerHTML = `<div class="callout">${icon("alert", 15)}<div>Please add: ${errs.join(", ")}.</div></div>`; return; }
-  const mins = Math.round((rep - when) / 6e4), fir = held > R.SOP_SMALL_HOLD, bankDue = addWD(when, R.BANK_REPORT_WD), holdLift = addD(rep, R.HOLD_LIFT_DAYS), now = new Date();
-  const golden = mins >= 0 && mins <= 60;
-  const daysLeft = Math.ceil((bankDue - now) / 864e5);
-  const routes = [
-    [held > 0 ? "gold" : "neutral", "NCRP Money Restoration request" + (fir ? " + FIR" : ""), held > 0 ? (fir ? `${inr(held)} is held, above the ${inr(R.SOP_SMALL_HOLD)} per-account limit, so an FIR goes with the request.` : `${inr(held)} is held, within the ${inr(R.SOP_SMALL_HOLD)} per-account limit: no court order needed.`) : "Nothing reported as held yet. Report on 1930 / cybercrime.gov.in first; restoration needs a hold."],
-    ["warn", "Bank dispute", daysLeft >= 0 ? `Report to your bank by ${fmtD(bankDue)} (${daysLeft} day${daysLeft === 1 ? "" : "s"} left).` : `The ${R.BANK_REPORT_WD}-working-day window ended on ${fmtD(bankDue)}. Still file it; the RBI Ombudsman is the next step.`],
-    ["info", "Magistrate release petition · BNSS s.503", "If several victims claim the same account, or the bank does not release the money, the court route applies."],
-    ["neutral", "Watch the hold", `If no restoration request or court order is filed, the hold may lift around ${fmtD(holdLift)}.`],
-  ];
-  const draft = `MONEY RESTORATION REQUEST (draft prepared with Golden Hour, to be checked and filed by the victim)\n\nTransaction: UPI Ref ${utr}, ${inr(amt)} paid to ${vpa || "[payee VPA]"} on ${when.toLocaleString("en-IN")}.\nReported to 1930 / NCRP: ${rep.toLocaleString("en-IN")} (${mins} minutes after payment).\nAmount held in beneficiary account: ${held ? inr(held) : "[from police SMS]"}.\nNCRP acknowledgement no.: [14 digits]\nVictim bank account: [your account] · PAN: [your PAN]\n${fir ? "Attachments: payment screenshot, NCRP SMS, FIR copy (held amount above SOP limit)." : "Attachments: payment screenshot, NCRP SMS."}\n\nI request restoration of the amount held, which was obtained from me by deception.\n\nThis draft is information, not legal advice. Golden Hour never charges fees and never asks for OTP or PIN.`;
-  $("#outcome").innerHTML = `<div style="display:flex;gap:8px;flex-wrap:wrap"><span class="pill ${golden ? "good" : "warn"}">${golden ? icon("check", 11) + " reported inside the golden hour" : icon("alert", 11) + ` reported after ${mins} min`}</span><span class="pill ${fir ? "warn" : "good"}">${fir ? "FIR needed" : "no court order needed"}</span><span class="pill gold">${icon("clock", 11)} bank by ${fmtD(bankDue)}</span></div>` +
-    routes.map(([c, n, d]) => `<div class="route ${c === "gold" ? "rec" : ""}"><h4>${n}</h4><p style="margin:0">${d}</p></div>`).join("") +
-    `<div style="display:flex;gap:8px;align-items:center"><button class="btn primary sm" id="dlDraft">${icon("file", 13)}Download draft request (.txt)</button><span class="muted" style="font-size:11.5px">Generated on this device</span></div>`;
-  $("#dlDraft").onclick = () => { if (params.has("autoplay")) { toast("Draft generated on this device", "golden-hour-restoration-draft.txt"); return; } const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([draft], { type: "text/plain" })); a.download = "golden-hour-restoration-draft.txt"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); };
+  const p = GH.planCase(c, new Date());
+  TRY.case = c; TRY.plan = p; TRY.doc = p.primary; TRY.lang = TRY.lang || "ta";
+  const pill = (cls, txt) => `<span class="pill ${cls}">${txt}</span>`;
+  $("#outcome").innerHTML = `<div style="display:flex;gap:8px;flex-wrap:wrap">${pill(p.golden ? "good" : "warn", p.golden ? icon("check", 11) + " reported inside the golden hour" : icon("alert", 11) + ` reported after ${p.mins} min`)}${p.held ? pill(p.big ? "warn" : "good", p.big ? "court order needed (above ₹50,000)" : "no court order needed") : ""}${pill("gold", icon("clock", 11) + " bank by " + GH.fmtD(p.bankDue))}${p.held ? pill(p.holdDaysLeft <= 15 ? "crit" : "neutral", `hold: ${Math.max(0, p.holdDaysLeft)} days left`) : ""}</div>` +
+    p.routes.map(r => `<div class="route ${r.rec ? "rec" : ""}"><h4>${r.rec ? pill("gold", "Do this first") + " " : ""}${r.title}</h4><p style="margin:0">${r.desc}</p></div>`).join("") +
+    `<div class="route docbox"><h4 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${icon("file", 14)}Your drafts <span class="seg" id="langSeg" style="margin-left:auto"><span data-l="ta" class="ta">தமிழ்</span><span data-l="en">English</span></span></h4>
+      <div class="doctabs" id="docTabs">${p.docs.map(d => `<button class="btn ghost sm" data-d="${d}">${GH.DOC_NAMES[d][0]}</button>`).join("")}</div>
+      <pre class="docprev" id="docPrev"></pre>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary sm" id="dlDraft">${icon("file", 13)}Download this draft</button><span class="muted" style="font-size:11.5px">Generated on this device. You check it and file it yourself.</span></div></div>
+    <div class="callout">${icon("shield", 15)}<div><b>Golden Hour never charges a fee and never asks for your OTP or PIN.</b> Anyone who offers to “recover” your money for a fee is running a second scam. Free legal aid: 15100.</div></div>`;
+  $("#langSeg").onclick = e => { const l = e.target.dataset.l; if (l) { TRY.lang = l; showDoc(); } };
+  $("#docTabs").onclick = e => { const d = e.target.closest("[data-d]"); if (d) { TRY.doc = d.dataset.d; showDoc(); } };
+  $("#dlDraft").onclick = () => { const name = `golden-hour-${TRY.doc}-${TRY.lang}.txt`; if (params.has("autoplay")) { toast("Draft generated on this device", name); return; } const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["\ufeff" + GH.draft(TRY.doc, TRY.lang, TRY.case, TRY.plan)], { type: "text/plain;charset=utf-8" })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); };
+  showDoc();
+}
+function showDoc() {
+  if (!TRY.plan.docs.includes(TRY.doc)) TRY.doc = TRY.plan.docs[0];
+  document.querySelectorAll("#langSeg span").forEach(s => s.classList.toggle("on", s.dataset.l === TRY.lang));
+  document.querySelectorAll("#docTabs [data-d]").forEach(b => b.classList.toggle("on", b.dataset.d === TRY.doc));
+  const pre = $("#docPrev"); pre.textContent = GH.draft(TRY.doc, TRY.lang, TRY.case, TRY.plan); pre.classList.toggle("ta", TRY.lang === "ta"); pre.scrollTop = 0;
 }
 
 /* Voice: browser speech recognition, Tamil or English */
