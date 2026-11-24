@@ -22,7 +22,7 @@ When a scam is reported quickly, the money often gets frozen. It rarely comes ba
   - a magistrate petition under BNSS s.503
   - a bank dispute
   - the RBI Ombudsman
-- **There is a deadline.** If no restoration request or court order arrives, banks can lift the hold. Reports put this at about 90 days.
+- **There is a clock.** For holds up to ₹50,000, the hold lapses after about 90 days if no restoration request or court order arrives. Above ₹50,000 the hold stays, but the money is released only on a court order, so the victim has to file a BNSS s.503 petition.
 
 ![Share of frozen money returned](charts/frozen-returned-share.png)
 
@@ -100,7 +100,7 @@ These parts are scripted for the demo:
 - **Speech-to-text and vision extraction:** in production they are model calls (Sarvam or AI4Bharat for Tamil speech, a vision LLM for screenshots).
 - **Data:** every case, VPA (UPI ID), account and phone number is synthetic and marked as such.
 
-Rule thresholds such as the ₹50,000 SOP limit and the 90-day hold are taken from news reports. They must be checked against the official texts before any real use.
+Rule thresholds such as the ₹50,000 SOP limit and the 90-day hold (which applies only to holds up to ₹50,000) are taken from news reports and legal commentary. They must be checked against the official texts before any real use.
 
 ## Market
 

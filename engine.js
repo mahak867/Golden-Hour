@@ -7,7 +7,7 @@
 
   const RULES = [
     { key: "SOP_SMALL_HOLD", value: 50000, unit: "₹ per held account", use: "At or below this, restoration without a court order (NCRP Money Restoration Module). Above it, a court order (BNSS s.503) or FIR is needed", src: "MHA / I4C SOP for NCRP-CFCFRMS, 02.01.2026 (Business Standard, LiveLaw)", status: "verify" },
-    { key: "HOLD_LIFT_DAYS", value: 90, unit: "days", use: "Hold lapses if no lawful direction arrives; bank warns police 15 days before", src: "MHA / I4C SOP, 02.01.2026 (as reported)", status: "verify" },
+    { key: "HOLD_LIFT_DAYS", value: 90, unit: "days", use: "Holds up to ₹50,000 lapse if no lawful direction arrives (bank warns police 15 days before). Above ₹50,000 the hold continues until the investigation ends or a court orders release", src: "MHA / I4C SOP, 02.01.2026 (LiveLaw, Jun 2026, as reported)", status: "verify" },
     { key: "HOLD_EXTENSION_DAYS", value: 90, unit: "days, once", use: "Investigating officer may extend the hold once", src: "MHA / I4C SOP, 02.01.2026 (as reported)", status: "verify" },
     { key: "S106_REPLY_DAYS", value: 15, unit: "days", use: "Account holder must justify the transaction after a BNSS s.106(3) notice, else release on indemnity bond", src: "MHA / I4C SOP, 02.01.2026 (legal commentary)", status: "verify" },
     { key: "BANK_REPORT_WD", value: 3, unit: "working days", use: "Zero-liability reporting window for payments before 1 Jan 2027", src: "RBI circular on limiting customer liability, 6 Jul 2017", status: "official" },
@@ -51,6 +51,7 @@
     const rbi2027 = paid >= new Date(R.RBI_2027_FROM + "T00:00:00+05:30");
     const bankDue = rbi2027 ? addD(paid, R.RBI_2027_REPORT_DAYS) : addWD(paid, R.BANK_REPORT_WD);
     const bankDaysLeft = Math.ceil((bankDue - now) / DAY);
+    const holdLapses = held > 0 && held <= R.SOP_SMALL_HOLD;
     const holdLift = addD(rep, R.HOLD_LIFT_DAYS), holdLiftMax = addD(holdLift, R.HOLD_EXTENSION_DAYS);
     const holdDaysLeft = Math.ceil((holdLift - now) / DAY);
     const claim = Math.min(held, amount);
@@ -74,13 +75,15 @@
       desc: compEligible ? `Your loss is up to ${inr(R.SMALL_COMP_MAX_LOSS)}, so you can claim about ${inr(compAmount)} (85%, up to ₹25,000) once through your bank.`
         : amount > R.SMALL_COMP_MAX_LOSS ? `Only covers losses up to ${inr(R.SMALL_COMP_MAX_LOSS)} and pays at most ₹25,000. Getting the frozen money back matters more for you.`
           : "Only for payments made on or after 1 Jan 2027. Your payment is earlier, so it does not apply." });
-    if (held) routes.push({ id: "hold", tone: holdDaysLeft <= 15 ? "crit" : "neutral", title: "Watch the 90-day hold",
+    if (holdLapses) routes.push({ id: "hold", tone: holdDaysLeft <= 15 ? "crit" : "neutral", title: "Watch the 90-day hold",
       desc: `If no restoration or court order arrives, the hold can lapse around ${fmtD(holdLift)} (${Math.max(0, holdDaysLeft)} days). The officer can extend it once, to about ${fmtD(holdLiftMax)}. We remind you at 30, 15 and 5 days.` });
+    else if (held) routes.push({ id: "hold", tone: "neutral", title: "Track the hold",
+      desc: "Above ₹50,000 the hold generally stays until the investigation ends or a court orders release. It will not lapse on its own, but the money only reaches you through a court order, so file the petition rather than wait. We check the case status every 15 days." });
     routes.push({ id: "ombudsman", tone: "neutral", title: "RBI Ombudsman (cms.rbi.org.in)", desc: `If the bank rejects your claim or does not reply, escalate within ${R.OMBUDSMAN_DAYS} days. Free, online.` });
 
     const docs = ["restoration", "s503", "bank"].filter(d => held || d === "bank");
     const primary = (routes.find(r => r.rec && r.doc) || {}).doc || "bank";
-    return { mins, golden, big, rbi2027, bankDue, bankDaysLeft, holdLift, holdLiftMax, holdDaysLeft, claim, held, amount, compEligible, compAmount, routes, docs, primary };
+    return { mins, golden, big, holdLapses, rbi2027, bankDue, bankDaysLeft, holdLift, holdLiftMax, holdDaysLeft, claim, held, amount, compEligible, compAmount, routes, docs, primary };
   }
 
   const ph = (v, fill) => v ? v : fill;
@@ -135,7 +138,7 @@ NCRP acknowledgement no.: ${ack}
 2. The petitioner reported the fraud on the 1930 helpline / cybercrime.gov.in on ${rep}, ${p.mins} minutes later.
 3. ${held} is now held in the beneficiary account [account number, bank].
 4. This money belongs to the petitioner. Under the Madras High Court circular, the NCRP acknowledgement is sufficient and the petitioner need not wait for an FIR.
-5. Under the MHA SOP of 2 January 2026, the hold may lapse around ${fmtD(p.holdLift)}. Urgent orders are therefore requested.
+5. The amount has been held since ${rep}. Under the MHA SOP of 2 January 2026, amounts above ₹50,000 can be released to the victim only on a court order. The petitioner has no other remedy and requests early orders.
 
 PRAYER: The petitioner prays that this Hon'ble Court direct the bank to release ${claim} to the petitioner's account [account number, IFSC], on such terms as this Court thinks fit, including an indemnity bond.
 
@@ -153,7 +156,7 @@ NCRP ஒப்புகை எண்: ${ack}
 2. மனுதாரர் ${rep} அன்று, அதாவது ${p.mins} நிமிடங்களில், 1930 உதவி எண் / cybercrime.gov.in-ல் புகார் அளித்தார்.
 3. பயனாளர் கணக்கில் [கணக்கு எண், வங்கி] ${held} தொகை தற்போது முடக்கப்பட்டுள்ளது.
 4. இந்தப் பணம் மனுதாரருக்கே உரியது. சென்னை உயர் நீதிமன்ற சுற்றறிக்கையின்படி NCRP ஒப்புகை எண் போதுமானது; FIR-க்காகக் காத்திருக்கத் தேவையில்லை.
-5. உள்துறை அமைச்சகத்தின் 2 ஜனவரி 2026 SOP-ன்படி இந்த முடக்கம் சுமார் ${fmtD(p.holdLift)} அன்று நீங்கக்கூடும். எனவே அவசர உத்தரவு கோரப்படுகிறது.
+5. இந்தத் தொகை ${rep} முதல் முடக்கத்தில் உள்ளது. உள்துறை அமைச்சகத்தின் 2 ஜனவரி 2026 SOP-ன்படி, ₹50,000-க்கு மேற்பட்ட தொகையை நீதிமன்ற உத்தரவின் மூலம் மட்டுமே பாதிக்கப்பட்டவருக்கு விடுவிக்க முடியும். மனுதாரருக்கு வேறு தீர்வு இல்லாததால், விரைவான உத்தரவு கோரப்படுகிறது.
 
 கோரிக்கை: முடக்கப்பட்ட ${claim} தொகையை மனுதாரரின் கணக்கிற்கு [கணக்கு எண், IFSC] விடுவிக்குமாறு, இழப்பீட்டுப் பிணைப் பத்திரம் உட்பட இந்நீதிமன்றம் பொருத்தமெனக் கருதும் நிபந்தனைகளுடன், வங்கிக்கு உத்தரவிட வேண்டுமென மனுதாரர் பணிவுடன் கேட்டுக்கொள்கிறார்.
 

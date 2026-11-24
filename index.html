@@ -653,6 +653,7 @@ function plan(c) {
   const fir = held > R.SOP_SMALL_HOLD;
   const multi = CASES.filter(x => x.acct === c.acct).length > 1;
   const bankDue = addWD(fraud, R.BANK_REPORT_WD), holdLift = addD(rep, R.HOLD_LIFT_DAYS);
+  const holdLapses = held <= R.SOP_SMALL_HOLD;
   const routes = [
     { name: "NCRP Money Restoration request" + (fir ? " + FIR" : ""), rec: true, tag: ["gold", "Recommended"], desc: fir ? "Held amount is above the SOP small-hold limit, so the restoration request needs an FIR. Both are pre-filled." : "Held amount within SOP small-hold limit: restoration without a court order.",
       checks: [[true, "NCRP acknowledgement present (14 digits)"], [true, `Reported within golden hour (${mins} min)`], [fir, `Held ${inr(held)} > ${inr(R.SOP_SMALL_HOLD)} → FIR required`]], src: "MHA SOP for NCRP-CFCFRMS, 02.01.2026" },
@@ -663,7 +664,7 @@ function plan(c) {
     { name: "RBI Ombudsman · RB-IOS 2026", tag: ["neutral", "If bank rejects"], desc: `Escalate on rejection or no resolution; ${R.OMBUDSMAN_DAYS}-day window.`,
       checks: [[false, "Bank response received"], [true, "Complaint eligible for CMS portal"]], src: "RB-IOS 2026" },
   ];
-  return { held, mins, fir, multi, bankDue, holdLift, fraud, rep, routes };
+  return { held, mins, fir, multi, bankDue, holdLift, holdLapses, fraud, rep, routes };
 }
 function proRata(acct) {
   const claims = CASES.filter(c => c.acct === acct), total = claims.reduce((s, c) => s + c.amount, 0), lien = LIENS[acct], ratio = Math.min(1, lien / total);
@@ -770,7 +771,7 @@ function paneRoutes() {
   <div class="trace"><span class="c"># rule trace · deterministic, no LLM in the decision path</span><br>
   <span class="k">held_amount</span>(<span class="v">${P0.held}</span>) <span class="o">&gt;</span> <span class="k">SOP_SMALL_HOLD</span>(<span class="v">${R.SOP_SMALL_HOLD}</span>) <span class="o">→</span> FIR_REQUIRED = <span class="v">${P0.fir}</span><br>
   <span class="k">claimants</span>(${C0.acct}) = <span class="v">${CASES.filter(x => x.acct === C0.acct).length}</span> <span class="o">→</span> PARALLEL_ROUTE = <span class="v">"BNSS_503"</span><br>
-  <span class="k">bank_due</span> = fraud_at + <span class="v">${R.BANK_REPORT_WD}</span> working days <span class="o">=</span> <span class="v">"${fmtD(P0.bankDue)}"</span> · <span class="k">hold_lift</span> = reported_at + <span class="v">${R.HOLD_LIFT_DAYS}</span>d <span class="o">=</span> <span class="v">"${fmtD(P0.holdLift)}"</span></div>`;
+  <span class="k">bank_due</span> = fraud_at + <span class="v">${R.BANK_REPORT_WD}</span> working days <span class="o">=</span> <span class="v">"${fmtD(P0.bankDue)}"</span> · ${P0.holdLapses ? `<span class="k">hold_lift</span> = reported_at + <span class="v">${R.HOLD_LIFT_DAYS}</span>d <span class="o">=</span> <span class="v">"${fmtD(P0.holdLift)}"</span>` : `<span class="k">hold</span> = held <span class="o">&gt;</span> <span class="v">${R.SOP_SMALL_HOLD}</span> <span class="o">→</span> <span class="v">"until court order"</span>`}</div>`;
 }
 function paneDrafts() {
   $("#p-drafts").innerHTML = `<div class="drafts">
@@ -799,7 +800,7 @@ function paneDeadlines() {
     ["past", "check", "Reported to 1930 / NCRP", `${P0.mins} min after payment · inside the golden hour`, fmtD(P0.rep) + " · " + fmtT(P0.rep)],
     ["now", "clock", "Bank dispute deadline", `${R.BANK_REPORT_WD} working days · RBI liability framework`, fmtD(P0.bankDue)],
     ["", "file", "Restoration request + FIR", "Drafted · awaiting victim approval", "Today"],
-    ["risk", "alert", "Hold may lift", `If no restoration request or court order within ${R.HOLD_LIFT_DAYS} days`, fmtD(P0.holdLift)],
+    P0.holdLapses ? ["risk", "alert", "Hold may lift", `If no restoration request or court order within ${R.HOLD_LIFT_DAYS} days`, fmtD(P0.holdLift)] : ["risk", "alert", "Hold stays until a court order", `Above ${inr(R.SOP_SMALL_HOLD)} held, money is released only on a court order, so the s.503 petition goes in now`, "no fixed date"],
   ];
   $("#p-deadlines").innerHTML = `<div class="dl">
     <div><div class="ringwrap"><svg width="190" height="190" viewBox="0 0 190 190"><defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd98a"/><stop offset="1" stop-color="#e8892f"/></linearGradient></defs><circle cx="95" cy="95" r="${r}" fill="none" stroke="#1c2233" stroke-width="12"/><circle id="ringarc" cx="95" cy="95" r="${r}" fill="none" stroke="url(#gg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c}" transform="rotate(-90 95 95)" style="transition:stroke-dashoffset 1.2s var(--ease-in-out)" data-target="${c * (1 - frac)}"/></svg>

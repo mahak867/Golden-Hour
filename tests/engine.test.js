@@ -71,8 +71,14 @@ test("compensation does not apply to 2026 payments or losses above ₹50,000", (
   assert.equal(GH.planCase({ ...base, amount: 60000, paidAt: at("2027-02-01T10:00:00"), reportedAt: at("2027-02-01T10:10:00") }, NOW).compEligible, false);
 });
 
-test("hold lapses 90 days after the report, extendable once by 90", () => {
+test("holds up to ₹50,000 lapse after 90 days (extendable once); larger holds do not", () => {
   const p = GH.planCase(base, NOW);
+  assert.equal(p.holdLapses, true);
+  assert.equal(p.routes.find(r => r.id === "hold").title, "Watch the 90-day hold");
+  const big = GH.planCase({ ...base, amount: 120000, held: 90000 }, NOW);
+  assert.equal(big.holdLapses, false);
+  assert.equal(big.routes.find(r => r.id === "hold").title, "Track the hold");
+  assert.ok(!GH.draft("s503", "en", { ...base, amount: 120000, held: 90000 }, big).includes("may lapse"));
   assert.equal(Math.round((p.holdLift - base.reportedAt) / 864e5), 90);
   assert.equal(Math.round((p.holdLiftMax - base.reportedAt) / 864e5), 180);
 });
