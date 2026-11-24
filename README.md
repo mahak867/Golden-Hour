@@ -3,7 +3,7 @@
 **A multi-agent copilot that turns frozen scam money into filed refund claims.**
 FinTech track · K! Hacks 4.0 (CEG Tech Forum, Anna University) · Team Golden Hour, Chennai Institute of Technology
 
-**▶ Live demo: [golden-hour-khacks.vercel.app](https://golden-hour-khacks.vercel.app)** · open **Try your screenshot** to run it on your own UPI receipt · [demo video](video/golden-hour-demo.mp4) · ![tests](https://github.com/mahak867/Golden-Hour/actions/workflows/test.yml/badge.svg)
+**▶ Live demo: [golden-hour-khacks.vercel.app](https://golden-hour-khacks.vercel.app)** · open **Try your screenshot** to run it on your own UPI receipt · [demo video (2 min, captions)](https://drive.google.com/file/d/1mC8Nr5rlyJqHMhf_2SrzIVd3lz25Z-X4/view?usp=sharing) · ![tests](https://github.com/mahak867/Golden-Hour/actions/workflows/test.yml/badge.svg)
 
 ![Golden Hour: victim journey and agent orchestration](screenshots/victim-evidence.png)
 
@@ -94,7 +94,7 @@ Measured in headless Chromium on a 4-core test machine: the first read takes abo
 ![Try it on your own screenshot](screenshots/try-it.png)
 
 
-- **Video (125 s, with on-screen captions, no voice-over):** [`video/golden-hour-demo.mp4`](video/golden-hour-demo.mp4)
+- **Video (125 s, with on-screen captions, no voice-over):** [watch on Google Drive](https://drive.google.com/file/d/1mC8Nr5rlyJqHMhf_2SrzIVd3lz25Z-X4/view?usp=sharing) · [`video/golden-hour-demo.mp4`](video/golden-hour-demo.mp4)
 - **Run it locally:** serve the folder (`python3 -m http.server`) and open `http://localhost:8000`. The scripted walkthrough also works straight from `index.html`, but the OCR worker needs a web server.
   - `index.html?autoplay=1&captions=1` plays the scripted walkthrough with captions.
   - `index.html?view=bank` opens the bank console. Click any case to reconcile its account.
