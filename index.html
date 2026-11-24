@@ -577,7 +577,7 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
   .mbrand { display: flex; } .crumb { display: none; }
   #v-victim { display: none; } #v-victim.active { display: flex; } #v-victim .journey { flex: none; }
   .intro { grid-template-columns: 1fr; } .intro-cta { align-self: stretch; }
-  .mnav { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--surface); border-top: 1px solid var(--line-2); padding: 0 4px env(safe-area-inset-bottom); }
+  .mnav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--surface); border-top: 1px solid var(--line-2); padding: 0 4px env(safe-area-inset-bottom); }
   .mnav button { border: 0; background: transparent; color: var(--ink-3); display: grid; justify-items: center; gap: 3px; font-size: 11px; padding: 9px 2px 8px; cursor: pointer; position: relative; }
   .mnav button.active { color: var(--ink); font-weight: 500; }
   .mnav button.active::before { content: ""; position: absolute; top: -1px; left: 22%; right: 22%; height: 2px; background: var(--accent); }
@@ -635,6 +635,40 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
   #card h1 { font-size: 44px; } #card p { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-property: opacity, color, background-color, border-color !important; } }
+
+/* Tour */
+#docTabs { scroll-margin-top: 150px; }
+
+.tour { display: grid; gap: 16px; max-width: 1180px; margin: 0 auto; padding-bottom: 24px; }
+.tourhead { display: flex; gap: 24px; align-items: flex-end; justify-content: space-between; }
+.tourhead h2 { margin: 6px 0 6px; font-family: var(--serif); font-size: 28px; font-weight: 500; letter-spacing: -.01em; line-height: 1.15; }
+.tourhead p { margin: 0; max-width: 680px; }
+.stills { display: grid; grid-template-columns: minmax(0, 1fr) 260px; }
+.still { margin: 0; padding: 16px; border-right: 1px solid var(--line); display: grid; gap: 12px; }
+.still .frame { border: 1px solid var(--line-2); border-radius: var(--r-2); overflow: hidden; background: var(--sunken); aspect-ratio: 16 / 10; }
+.still img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+.still figcaption { display: flex; gap: 12px; align-items: baseline; font-size: 14px; color: var(--ink); line-height: 1.55; min-height: 44px; }
+.stepno { color: var(--accent-ink); font-size: 12px; flex: none; }
+.stillnav { display: flex; gap: 8px; justify-content: flex-end; }
+.stilllist { list-style: none; margin: 0; padding: 8px; display: grid; align-content: start; gap: 2px; counter-reset: st; }
+.stilllist button { width: 100%; text-align: left; display: flex; gap: 10px; align-items: baseline; padding: 8px; border: 1px solid transparent; border-radius: var(--r-2); background: transparent; color: var(--ink-2); font: inherit; cursor: pointer; }
+.stilllist button .mono { color: var(--ink-3); font-size: 11.5px; }
+.stilllist button[aria-current="step"] { background: var(--accent-tint); border-color: var(--accent-line); color: var(--ink); }
+.stilllist button[aria-current="step"] .mono { color: var(--accent-ink); }
+@media (hover: hover) and (pointer: fine) { .stilllist button:hover:not([aria-current]) { background: rgba(28,27,24,.04); color: var(--ink); } }
+.vidp video { display: block; width: 100%; aspect-ratio: 16 / 10; background: var(--ink); border-radius: 0 0 var(--r-3) var(--r-3); }
+.evlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.ev { padding: 16px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); display: grid; gap: 8px; align-content: start; }
+.ev blockquote { margin: 0; font-family: var(--serif); font-size: 16px; line-height: 1.45; color: var(--ink); }
+.ev .meta { font-size: 12px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.ev .meta a { color: var(--ink-2); }
+.ev .kind { font-family: var(--mono); font-size: 11px; color: var(--ink-3); text-transform: lowercase; }
+.ev .ver { font-size: 11px; padding: 1px 6px; border: 1px solid var(--line-2); border-radius: var(--r-1); color: var(--ink-3); }
+@media (max-width: 900px) {
+  .tourhead { flex-direction: column; align-items: stretch; } .tourhead h2 { font-size: 23px; }
+  .stills { grid-template-columns: minmax(0, 1fr); } .still { border-right: 0; border-bottom: 1px solid var(--line); padding: 12px; }
+  .stilllist { grid-template-columns: repeat(2, minmax(0, 1fr)); } .evlist { grid-template-columns: minmax(0, 1fr); }
+}
 </style>
 </head>
 <body>
@@ -674,6 +708,7 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
     </div>
     <nav class="nav" aria-label="Views">
       <div class="grp">Workspace</div>
+      <button data-view="demo"><svg width="16" height="16" aria-hidden="true"><use href="#i-file"/></svg>2-minute tour</button>
       <button data-view="victim" class="active"><svg width="16" height="16" aria-hidden="true"><use href="#i-phone"/></svg>Victim journey</button>
       <button data-view="console"><svg width="16" height="16" aria-hidden="true"><use href="#i-bank"/></svg>Fraud-ops console<span class="count" id="consoleCount">7</span></button>
       <button id="tryNav" class="trynav"><svg width="16" height="16" aria-hidden="true"><use href="#i-scan"/></svg>Try it on a screenshot</button>
@@ -718,7 +753,7 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
             <li><span class="n">2</span><div><b>Six agents build the plan</b>Routes, deadlines, Tamil and English drafts</div></li>
             <li><span class="n">3</span><div><b>The bank reconciles the hold</b>Pro-rata split and mule graph; an analyst approves</div></li>
           </ol>
-          <div class="intro-foot">Below, a synthetic case replays step by step. Figures and rules are sourced on <button class="linkbtn" data-go="impact">Impact</button> and <button class="linkbtn" data-go="rules">Rules</button>.</div>
+          <div class="intro-foot">Short on time? Take the <button class="linkbtn" data-go="demo">two-minute tour</button> (stills and a captioned video). Below, a synthetic case replays step by step. Figures and rules are sourced on <button class="linkbtn" data-go="impact">Impact</button> and <button class="linkbtn" data-go="rules">Rules</button>.</div>
         </div>
         <div class="journey">
           <div class="device" aria-label="Telegram conversation">
@@ -783,6 +818,28 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
       </section>
 
       <!-- Impact -->
+      <!-- Tour -->
+      <section class="view" id="v-demo" aria-label="Two-minute tour">
+        <div class="tour">
+          <header class="tourhead">
+            <div><div class="eyebrow">Two-minute tour · synthetic data</div><h2>How Golden Hour works, step by step</h2>
+            <p class="muted">Eight stills from the running prototype, then the same flow as a captioned video. Every number on screen is either computed by the code or sourced on the Impact page.</p></div>
+            <button class="btn primary" data-try>Try it yourself</button>
+          </header>
+          <div class="panel stills">
+            <figure class="still"><div class="frame"><img id="stillImg" alt="" width="1440" height="900" decoding="async"></div>
+              <figcaption><span class="stepno mono" id="stillNo">01 / 08</span><span id="stillCap"></span></figcaption>
+              <div class="stillnav"><button class="btn ghost sm" id="stillPrev" aria-label="Previous step">← Previous</button><button class="btn sm" id="stillNext" aria-label="Next step">Next →</button></div>
+            </figure>
+            <ol class="stilllist" id="stillList" aria-label="Tour steps"></ol>
+          </div>
+          <div class="panel vidp"><div class="ph"><h3>Captioned walkthrough</h3><span class="sub">125 s · no sound needed · recorded from this prototype</span></div>
+            <video id="tourVideo" controls playsinline preload="none" poster="screenshots/demo/01-landing.jpg" src="video/golden-hour-demo.mp4">Your browser cannot play this video. <a href="video/golden-hour-demo.mp4">Download it</a>.</video></div>
+          <div class="panel evid"><div class="ph"><h3>What people and officials say</h3><span class="sub">Quoted word for word, with source and date. Private people are anonymised.</span></div>
+            <div class="evlist" id="evList"><p class="muted" style="padding:16px">Loading sources…</p></div></div>
+        </div>
+      </section>
+
       <section class="view" id="v-impact" aria-label="Impact">
         <div class="impact">
           <div class="hero">
@@ -835,6 +892,7 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
   </div>
 </div>
 <nav class="mnav" aria-label="Views (mobile)">
+  <button data-view="demo"><svg width="18" height="18" aria-hidden="true"><use href="#i-file"/></svg>Tour</button>
   <button data-view="victim" class="active"><svg width="18" height="18" aria-hidden="true"><use href="#i-phone"/></svg>Victim</button>
   <button data-view="console"><svg width="18" height="18"><use href="#i-bank"/></svg>Bank</button>
   <button class="try" id="tryNavM"><svg width="18" height="18"><use href="#i-scan"/></svg>Try it</button>
@@ -909,12 +967,13 @@ function avatar(c, s = 30) { return `<div class="av" style="width:${s}px;height:
 function toast(title, sub) { const t = document.createElement("div"); t.className = "toast"; t.innerHTML = `<div class="ic">${icon("check", 15)}</div><div><b>${title}</b><small>${sub}</small></div>`; $("#toasts").appendChild(t); setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateY(6px)"; setTimeout(() => t.remove(), 260); }, 3600 * SPEED); }
 
 /* ================= Navigation ================= */
-const CRUMBS = { victim: `Case replay <span class="sep">/</span> <b>C-1041 · Selvi K.</b>`, console: `Bank <span class="sep">/</span> <b>Fraud-ops console</b><span class="note">Demo Bank · Coimbatore region</span>`, impact: `Evidence <span class="sep">/</span> <b>Impact</b><span class="note">Public figures, each with its source</span>`, rules: `Evidence <span class="sep">/</span> <b>Rules &amp; sources</b>` };
+const CRUMBS = { demo: `Start here <span class="sep">/</span> <b>Two-minute tour</b>`, victim: `Case replay <span class="sep">/</span> <b>C-1041 · Selvi K.</b>`, console: `Bank <span class="sep">/</span> <b>Fraud-ops console</b><span class="note">Demo Bank · Coimbatore region</span>`, impact: `Evidence <span class="sep">/</span> <b>Impact</b><span class="note">Public figures, each with its source</span>`, rules: `Evidence <span class="sep">/</span> <b>Rules &amp; sources</b>` };
 function show(v) {
   document.querySelectorAll(".nav button[data-view], .mnav button[data-view]").forEach(b => { b.classList.toggle("active", b.dataset.view === v); if (b.dataset.view === v) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
   document.querySelectorAll(".view").forEach(x => x.classList.toggle("active", x.id === "v-" + v));
   $("#crumb").innerHTML = CRUMBS[v];
   if (v === "console") renderConsole();
+  if (v === "demo") initTour(); else { const tv = $("#tourVideo"); if (tv && !tv.paused) tv.pause(); }
 }
 document.querySelectorAll(".nav button[data-view], .mnav button[data-view]").forEach(b => b.addEventListener("click", () => { show(b.dataset.view); if (innerWidth <= 1180) scrollTo({ top: 0 }); }));
 document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => { show(b.dataset.go); scrollTo({ top: 0 }); }));
@@ -1214,7 +1273,7 @@ async function autoplay() {
   $("#f-amt").value = "120000"; $("#f-held").value = "90000"; await moveTo($("#f-held")); await sleep(900);
   await clickEl($("#buildPlan")); await sleep(2600);
   caption("The <b>BNSS s.503 petition</b> is drafted in <b>Tamil</b> and English, ready to check, save as PDF and file.");
-  $("#docPrev").scrollIntoView({ block: "center", behavior: "smooth" }); await sleep(900); await moveTo($("#docPrev")); await sleep(3600);
+  $("#docTabs").scrollIntoView({ block: "start", behavior: "smooth" }); await sleep(900); await moveTo($("#docPrev")); await sleep(3600);
   await clickEl(document.querySelector('#langSeg [data-l="en"]')); await sleep(2400);
   caption("<b>Agents that win together</b>: the same case packet goes to the bank desk, with one hash on both sides.");
   $("#sendBank").scrollIntoView({ block: "center", behavior: "smooth" }); await sleep(900);
@@ -1384,10 +1443,51 @@ function showDoc() {
   });
 })();
 
+/* ================= Two-minute tour ================= */
+const STILLS = [
+  ["01-landing", "Start here", "Start here: the problem in one sentence and one button to try it."],
+  ["02-replay", "The case replay", "A synthetic victim reports a ₹48,000 scam on Telegram. Six agents build her case: evidence, routes, Tamil drafts, deadlines, consent."],
+  ["03-try-ocr", "Try it: read a receipt", "Try it yourself: the sample receipt, or yours, is read on your device in about 0.3 s. Every field can be corrected."],
+  ["04-plan", "Above ₹50,000: court route", "₹90,000 is held, above ₹50,000, so the plan puts the BNSS s.503 court petition first, with the police notice and the MRM request in parallel."],
+  ["05-tamil-draft", "Tamil petition", "The petition is drafted in Tamil and English, ready to check, save as PDF or hear read aloud. The victim files it; Golden Hour never does."],
+  ["06-handoff", "Hand-off to the bank", "The same case packet reaches the bank desk with one hash on both sides. The claim joins the hold and is split fairly; a mismatch raises a query."],
+  ["07-impact", "Why it matters", "Why it matters: in 2024 Tamil Nadu froze ₹772 cr and about ₹84 cr reached victims. Every figure is sourced."],
+  ["08-rules", "Rules and sources", "Every rule the agents use is listed with its source, and marked as official text, reported, or still to verify."],
+];
+let stillAt = 0, tourReady = false;
+function showStill(i) {
+  stillAt = (i + STILLS.length) % STILLS.length; const [f, , cap] = STILLS[stillAt];
+  const img = $("#stillImg"); img.src = `screenshots/demo/${f}.jpg`; img.alt = cap;
+  $("#stillCap").textContent = cap; $("#stillNo").textContent = `${String(stillAt + 1).padStart(2, "0")} / ${String(STILLS.length).padStart(2, "0")}`;
+  document.querySelectorAll("#stillList button").forEach((b, k) => k === stillAt ? b.setAttribute("aria-current", "step") : b.removeAttribute("aria-current"));
+  const nx = STILLS[(stillAt + 1) % STILLS.length][0]; new Image().src = `screenshots/demo/${nx}.jpg`;
+}
+async function loadEvidence() {
+  const box = $("#evList"), esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  try {
+    const r = await fetch("data/evidence.json", { cache: "no-cache" }); if (!r.ok) throw 0;
+    const items = await r.json();
+    const order = { victim: 0, court: 1, official: 2, number: 3 };
+    items.sort((a, b) => (order[a.kind] ?? 9) - (order[b.kind] ?? 9) || (b.tamil_nadu === true) - (a.tamil_nadu === true));
+    box.innerHTML = items.map(e => `<article class="ev"><span class="kind">${esc(e.kind)}${e.tamil_nadu ? " · Tamil Nadu" : ""}</span><blockquote>“${esc(e.quote)}”</blockquote>
+      <div class="meta"><span>${esc(e.speaker)}</span><span>·</span><a href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(e.source)}</a><span>·</span><span class="mono">${esc(e.date)}</span><span class="ver" title="${e.verified === "page" ? "Checked on the source page" : "Taken from search-result text; open the link to read it in context"}">${e.verified === "page" ? "read on page" : "search excerpt"}</span></div>
+      ${e.context ? `<div class="muted" style="font-size:12.5px">${esc(e.context)}</div>` : ""}</article>`).join("");
+  } catch { if (location.protocol === "file:") box.innerHTML = `<p class="muted" style="padding:16px">Sources load when the prototype is served over the web (open the live demo).</p>`; else box.closest(".evid").hidden = true; }
+}
+function initTour() {
+  if (tourReady) return; tourReady = true;
+  $("#stillList").innerHTML = STILLS.map(([f, title], i) => `<li><button type="button" data-i="${i}"><span class="mono">${String(i + 1).padStart(2, "0")}</span><span>${title}</span></button></li>`).join("");
+  $("#stillList").onclick = e => { const b = e.target.closest("[data-i]"); if (b) showStill(+b.dataset.i); };
+  $("#stillPrev").onclick = () => showStill(stillAt - 1); $("#stillNext").onclick = () => showStill(stillAt + 1);
+  document.addEventListener("keydown", e => { if (!$("#v-demo").classList.contains("active") || $("#tryModal").classList.contains("open") || /INPUT|TEXTAREA|VIDEO/.test(document.activeElement.tagName)) return; if (e.key === "ArrowRight") showStill(stillAt + 1); if (e.key === "ArrowLeft") showStill(stillAt - 1); });
+  document.querySelectorAll("#v-demo [data-try]").forEach(b => b.onclick = () => openTry());
+  showStill(0); loadEvidence();
+}
+
 /* ================= Boot ================= */
 if (params.has("autoplay")) document.body.classList.add("autoplay");
 $("#tryModal").setAttribute("aria-hidden", "true");
-charts(); rulesTable(); buildPipeline(); const VIEWS = ["victim", "console", "impact", "rules"]; if (!VIEWS.includes(params.get("view"))) params.delete("view"); show(params.get("view") || "victim");
+charts(); rulesTable(); buildPipeline(); const VIEWS = ["demo", "victim", "console", "impact", "rules"]; if (!VIEWS.includes(params.get("view"))) params.delete("view"); show(params.get("view") || "victim");
 if (params.has("autoplay")) autoplay();
 else if (params.get("view") === "console") { /* console shown */ }
 else { SPEED = Number(params.get("speed") || 0.45); runVictim(false); }

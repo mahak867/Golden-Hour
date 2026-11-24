@@ -15,8 +15,6 @@ const SPEED = Number(process.argv[2] || 1.15);
   p.on('requestfailed', r => console.log(ts(), 'REQFAILED', r.url(), r.failure() && r.failure().errorText));
   await p.addInitScript(() => {
     addEventListener('DOMContentLoaded', () => {
-      // Keep captions, cursor and toasts above the Try-it modal (z-index 80). No-op once index.html layers them itself.
-      const st = document.createElement('style'); st.textContent = '#caption{z-index:90}#cursor{z-index:96}.ripple{z-index:95}.toasts{z-index:91}'; document.head.appendChild(st);
       const log = (k, el) => console.log('GH-CAP ' + k + ' ' + el.textContent.replace(/\s+/g, ' ').trim().slice(0, 110));
       new MutationObserver(() => log('caption', document.getElementById('caption'))).observe(document.getElementById('caption'), { childList: true, subtree: true });
       new MutationObserver(() => { const c = document.getElementById('card'); if (c.classList.contains('show')) log('card', c); }).observe(document.getElementById('card'), { attributes: true, attributeFilter: ['class'] });
