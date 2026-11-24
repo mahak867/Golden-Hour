@@ -92,7 +92,7 @@ Measured in headless Chromium on a 4-core test machine: the first read takes abo
 ![Try it on your own screenshot](screenshots/try-it.png)
 
 
-- **Video (125 s, captions; [narration script](video/narration-script.md)):** [`video/golden-hour-demo.mp4`](video/golden-hour-demo.mp4)
+- **Video (125 s, with on-screen captions, no voice-over):** [`video/golden-hour-demo.mp4`](video/golden-hour-demo.mp4)
 - **Run it locally:** serve the folder (`python3 -m http.server`) and open `http://localhost:8000`. The scripted walkthrough also works straight from `index.html`, but the OCR worker needs a web server.
   - `index.html?autoplay=1&captions=1` plays the scripted walkthrough with captions.
   - `index.html?view=bank` opens the bank console. Click any case to reconcile its account.
