@@ -961,10 +961,20 @@ async function autoplay() {
   await clickEl($("#tryNav")); await sleep(700);
   await clickEl($("#sampleBtn"));
   for (let i = 0; i < 300 && !$("#buildPlan"); i++) await new Promise(r => setTimeout(r, 100));
-  await sleep(1400); await clickEl($("#buildPlan")); await sleep(4200);
-  await clickEl($("#dlDraft"), 0, 0).catch(() => {}); await sleep(900); closeTry(); await sleep(500);
+  await sleep(1400); await clickEl($("#buildPlan")); await sleep(3600);
+  caption("Above <b>₹50,000 held</b>, money comes back only on a court order. Watch the plan change.");
+  $("#f-amt").value = "120000"; $("#f-held").value = "90000"; await moveTo($("#f-held")); await sleep(900);
+  await clickEl($("#buildPlan")); await sleep(2600);
+  caption("The <b>BNSS s.503 petition</b> is drafted in <b>Tamil</b> and English, ready to check, save as PDF and file.");
+  $("#docPrev").scrollIntoView({ block: "center", behavior: "smooth" }); await sleep(900); await moveTo($("#docPrev")); await sleep(3600);
+  await clickEl(document.querySelector('#langSeg [data-l="en"]')); await sleep(2400);
+  caption("<b>Agents that win together</b>: the same case packet goes to the bank desk, with one hash on both sides.");
+  $("#sendBank").scrollIntoView({ block: "center", behavior: "smooth" }); await sleep(900);
+  await clickEl($("#sendBank")); await sleep(2200);
+  caption("The victim's claim joins the hold on the scammer's account and is <b>split fairly with every other victim</b>, to the rupee.");
+  await moveTo($("#recon .bar")); await sleep(4200);
   capEl.classList.remove("show"); cur.classList.remove("on");
-  titleCard(`${markBig}<h1>Golden Hour</h1><p>Two agent crews, one case packet: guided recovery in Tamil for the victim, reconciled and explainable cases for the bank.</p><div class="chips"><span>No fees</span><span>Never holds money</span><span>Human approves every decision</span></div><small>Team Golden Hour · Chennai Institute of Technology · github.com/mahak867/Golden-Hour</small>`);
+  titleCard(`${markBig}<h1>Golden Hour</h1><p>Two agent crews, one case packet: guided recovery in Tamil for the victim, reconciled and explainable cases for the bank.</p><div class="chips"><span>No fees</span><span>Never holds money</span><span>Human approves every decision</span></div><small>Team Golden Hour · Chennai Institute of Technology · live: golden-hour-khacks.vercel.app · github.com/mahak867/Golden-Hour</small>`);
   await sleep(5200); document.title = "DONE";
 }
 
