@@ -183,7 +183,9 @@ All other code in this repository was written by the team for K! Hacks 4.0.
 
 | Role | Name | College |
 |---|---|---|
-| Lead · Agents & Backend | Mahak Fahad | Chennai Institute of Technology (B.E. CSE) |
-| Frontend & UI/UX | Roshini R | Chennai Institute of Technology (B.E. CSE) |
+| Lead · Agents & Rules (rules engine, tests, OCR) | Mahak Fahad | Chennai Institute of Technology (B.E. CSE, 2nd year) |
+| Frontend & UX (demo UI, Tamil drafts, video) | Roshini R | Chennai Institute of Technology (B.E. CSE, 2nd year) |
+| Bank side & Data (console, OCR benchmark, deployment) | Kanish Karthikeyan | Chennai Institute of Technology (B.E. CSE, 2nd year) |
+| Research & Pitch (legal research, deck, user validation) | Annika Meril | Chennai Institute of Technology (B.E. CSE, 2nd year) |
 
 *Golden Hour gives information, not legal advice. Victims review and file every document themselves.*
