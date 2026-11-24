@@ -637,6 +637,8 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-property: opacity, color, background-color, border-color !important; } }
 
 /* Tour */
+.gnode { outline: none; } .gnode:focus-visible > circle:first-child { stroke: var(--accent); stroke-width: 2.5; }
+.pane:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 #docTabs { scroll-margin-top: 150px; }
 
 .tour { display: grid; gap: 16px; max-width: 1180px; margin: 0 auto; padding-bottom: 24px; }
@@ -786,7 +788,7 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
             </div>
             <div class="panel pipeline" id="pipeline"><div class="rail"><i id="railfill"></i></div></div>
             <div class="panel inspector">
-              <div class="itabs" id="itabs"></div>
+              <div class="itabs" id="itabs" role="tablist" aria-label="Agent outputs"></div>
               <div class="ibody" id="ibody"></div>
             </div>
           </div>
@@ -992,11 +994,12 @@ function buildPipeline() {
   AG.forEach(([n], i) => { const d = document.createElement("div"); d.className = "node"; d.id = "n" + i; d.innerHTML = `<div class="ix"><span class="mk">${icon("check", 9)}</span>${String(i + 1).padStart(2, "0")}</div><b>${n}</b><small>queued</small>`; p.appendChild(d); });
   $("#railfill").style.width = "0";
   const tabs = $("#itabs"); tabs.innerHTML = "";
-  TABS.forEach(([k, l]) => { const b = document.createElement("button"); b.className = "itab"; b.dataset.k = k; b.disabled = true; b.textContent = l; b.onclick = () => openTab(k); tabs.appendChild(b); });
-  $("#ibody").innerHTML = TABS.map(([k]) => `<div class="pane" id="p-${k}"></div>`).join("") + `<div class="pane active" id="p-empty"><div class="empty"><div><div class="glyph">${icon("sun", 20)}</div><b>Waiting for the victim's first message</b><div style="margin-top:4px">Each agent's output appears here as it completes.</div></div></div></div>`;
+  TABS.forEach(([k, l]) => { const b = document.createElement("button"); b.className = "itab"; b.dataset.k = k; b.disabled = true; b.textContent = l; b.id = "tab-" + k; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", "false"); b.setAttribute("aria-controls", "p-" + k); b.tabIndex = -1; b.onclick = () => openTab(k); tabs.appendChild(b); });
+  tabs.onkeydown = e => { const on = [...tabs.querySelectorAll(".itab:not([disabled])")], i = on.indexOf(document.activeElement); if (i < 0) return; let j = null; if (e.key === "ArrowRight") j = (i + 1) % on.length; else if (e.key === "ArrowLeft") j = (i - 1 + on.length) % on.length; else if (e.key === "Home") j = 0; else if (e.key === "End") j = on.length - 1; if (j === null) return; e.preventDefault(); openTab(on[j].dataset.k); on[j].focus(); };
+  $("#ibody").innerHTML = TABS.map(([k]) => `<div class="pane" id="p-${k}" role="tabpanel" aria-labelledby="tab-${k}" tabindex="0"></div>`).join("") + `<div class="pane active" id="p-empty"><div class="empty"><div><div class="glyph">${icon("sun", 20)}</div><b>Waiting for the victim's first message</b><div style="margin-top:4px">Each agent's output appears here as it completes.</div></div></div></div>`;
 }
 function setNode(i, s, label) { const n = $("#n" + i); n.classList.remove("run", "done"); if (s) n.classList.add(s); n.querySelector("small").textContent = label; }
-function openTab(k) { document.querySelectorAll(".itab").forEach(t => t.classList.toggle("active", t.dataset.k === k)); document.querySelectorAll(".pane").forEach(p => p.classList.toggle("active", p.id === "p-" + k)); }
+function openTab(k) { document.querySelectorAll(".itab").forEach(t => { const on = t.dataset.k === k; t.classList.toggle("active", on); t.setAttribute("aria-selected", on); t.tabIndex = on ? 0 : -1; }); document.querySelectorAll(".pane").forEach(p => p.classList.toggle("active", p.id === "p-" + k)); }
 function readyTab(k) { const t = document.querySelector(`.itab[data-k="${k}"]`); t.disabled = false; t.classList.add("ready"); }
 async function logEvent(ev) { const prev = audit.length ? audit[audit.length - 1].h : "0".repeat(64); const h = await sha(prev + JSON.stringify(ev)); audit.push({ ...ev, h }); renderAudit(); }
 function tick() { const s = (performance.now() - t0) / 1000; $("#st-time").textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${(s % 60).toFixed(1).padStart(4, "0")}`; }
@@ -1214,6 +1217,10 @@ function drawGraph(cl) {
   Object.entries(nodes).forEach(([n, p]) => { const on = cl.groups[selGroup].includes(n); s += `<g class="gnode" data-n="${n}" opacity="${on ? 1 : .55}"><circle cx="${p.x}" cy="${p.y}" r="12" fill="transparent"/>${shape(n, p.x, p.y)}<text x="${p.x}" y="${p.y + 21}" text-anchor="middle" font-size="10.5" fill="${on ? "#1c1b18" : "#696459"}">${lbl(n)}</text></g>`; });
   svg.innerHTML = s;
   const tip = $("#gtip"), wrap = $("#graphwrap");
+  svg.setAttribute("role", "group"); svg.setAttribute("aria-label", "Mule graph. Tab through nodes; Enter selects a case or account.");
+  svg.querySelectorAll(".gnode").forEach(g => { const [t, v] = g.dataset.n.split(":"); g.setAttribute("tabindex", "0"); g.setAttribute("role", "button"); g.setAttribute("aria-label", ({ case: "Victim case", vpa: "Payee UPI ID", acct: "Account", phone: "Phone" }[t] || t) + " " + v);
+    g.addEventListener("focus", () => g.dispatchEvent(new Event("mouseenter"))); g.addEventListener("blur", () => g.dispatchEvent(new Event("mouseleave")));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); const n = g.dataset.n; g.dispatchEvent(new MouseEvent("click")); requestAnimationFrame(() => { const again = document.querySelector(`.gnode[data-n="${CSS.escape(n)}"]`); if (again) again.focus(); }); } }); });
   svg.querySelectorAll(".gnode").forEach(g => { g.addEventListener("mouseenter", () => { const n = g.dataset.n, [t, v] = n.split(":"); let html = ""; if (t === "case") { const c = CASES.find(x => x.id === v); html = `<b>${c.victim} · ${c.id}</b><span>${inr(c.amount)} · ${c.type}</span>`; } else if (t === "vpa") { const cs = CASES.filter(x => x.vpa === v); html = `<b>${v}</b><span>${cs.length} victim payment${cs.length > 1 ? "s" : ""} · ${inr(cs.reduce((a, c) => a + c.amount, 0))}</span>`; } else if (t === "acct") { html = `<b>Account ${v}</b><span>Lien ${inr(LIENS[v])} · phone ${ACCT_PHONE[v]}</span>`; } else { const as = Object.entries(ACCT_PHONE).filter(([, p]) => p === v).map(([a]) => a); html = `<b>${v}</b><span>Linked to ${as.join(", ")}</span>`; } tip.innerHTML = html; const r = g.getBoundingClientRect(), wr = wrap.getBoundingClientRect(); tip.style.left = Math.min(wr.width - 190, Math.max(6, r.left - wr.left - 70)) + "px"; tip.style.top = (r.top - wr.top - 58) + "px"; tip.classList.add("on"); }); g.addEventListener("mouseleave", () => tip.classList.remove("on")); g.addEventListener("click", () => { const n = g.dataset.n; const c = n.startsWith("case") ? CASES.find(x => x.id === n.split(":")[1]) : null; if (c) { selAcct = c.acct; renderConsole(); } else if (n.startsWith("acct")) { selAcct = n.split(":")[1]; renderConsole(); } }); });
   const big = cl.groups[selGroup], accts = big.filter(n => n.startsWith("acct")).map(n => n.split(":")[1]), vic = big.filter(n => n.startsWith("case")).length, vp = big.filter(n => n.startsWith("vpa")).length, amt = CASES.filter(c => accts.includes(c.acct)).reduce((a, c) => a + c.amount, 0);
   $("#clcount").textContent = `${cl.groups.length} clusters`;
