@@ -14,7 +14,7 @@
     { key: "RBI_2027_FROM", value: "2027-01-01", unit: "payment date", use: "Payments a victim was tricked into authorising are covered; burden of proof on the bank; 45-day resolution", src: "RBI Responsible Business Conduct (Third Amendment) Directions, 24 Jun 2026", status: "official" },
     { key: "RBI_2027_REPORT_DAYS", value: 5, unit: "days", use: "No customer loss if reported within this window and the fault lies with the bank or a third party", src: "RBI directions, 24 Jun 2026 (as reported)", status: "verify" },
     { key: "SMALL_COMP_MAX_LOSS", value: 50000, unit: "₹ net loss", use: "One-time small-value compensation: 85% of net loss, capped at ₹25,000, once per customer", src: "RBI directions, 24 Jun 2026 (Business Standard, Business Today)", status: "verify" },
-    { key: "OMBUDSMAN_DAYS", value: 90, unit: "days", use: "Escalation window to the RBI Ombudsman after the bank rejects or does not resolve", src: "RB-IOS 2026 (from 1 Jul 2026, as reported)", status: "verify" },
+    { key: "OMBUDSMAN_DAYS", value: 365, unit: "days", use: "Complain to the RBI Ombudsman within one year of the bank's reply, or after 30 days with no reply", src: "RB-IOS 2021, cl. 10; carried into RB-IOS 2026 (as reported)", status: "verify" },
     { key: "MAGISTRATE_ROUTE", value: "BNSS s.503", unit: "", use: "Court-ordered release; Madras HC: an NCRP acknowledgement is enough, no need to wait for an FIR", src: "BNSS 2023; DT Next report on Madras HC circular (2025)", status: "official" },
     { key: "PII_RETENTION", value: 30, unit: "days", use: "Delete screenshots and SMS after the case packet is filed", src: "Golden Hour policy under DPDP Act 2023 / Rules 2025", status: "policy" },
   ];
@@ -80,7 +80,7 @@
       desc: `If no restoration or court order arrives, the hold can lapse around ${fmtD(holdLift)} (${Math.max(0, holdDaysLeft)} days). The officer can extend it once, to about ${fmtD(holdLiftMax)}. We remind you at 30, 15 and 5 days.` });
     else if (held) routes.push({ id: "hold", tone: "neutral", title: "Track the hold",
       desc: "Above ₹50,000 the hold generally stays until the investigation ends or a court orders release. It will not lapse on its own, but the money only reaches you through a court order, so file the petition rather than wait. We check the case status every 15 days." });
-    routes.push({ id: "ombudsman", tone: "neutral", title: "RBI Ombudsman (cms.rbi.org.in)", desc: `If the bank rejects your claim or does not reply, escalate within ${R.OMBUDSMAN_DAYS} days. Free, online.` });
+    routes.push({ id: "ombudsman", tone: "neutral", title: "RBI Ombudsman (cms.rbi.org.in)", desc: "If the bank rejects your claim, or does not reply within 30 days, complain online at cms.rbi.org.in within one year. It is free." });
 
     const docs = ["restoration", "s503", "bank"].filter(d => held || d === "bank");
     const primary = (routes.find(r => r.rec && r.doc) || {}).doc || "bank";

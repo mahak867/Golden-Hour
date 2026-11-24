@@ -749,7 +749,7 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
             <small>Sample screenshot included. Runs in your browser; nothing is uploaded.</small>
           </div>
           <ol class="how" aria-label="How it works">
-            <li><span class="n">1</span><div><b>The victim shares proof</b>Screenshot or Tamil voice note, on Telegram</div></li>
+            <li><span class="n">1</span><div><b>The victim shares proof</b>A payment screenshot today; Tamil voice on Telegram in the finals build</div></li>
             <li><span class="n">2</span><div><b>Six agents build the plan</b>Routes, deadlines, Tamil and English drafts</div></li>
             <li><span class="n">3</span><div><b>The bank reconciles the hold</b>Pro-rata split and mule graph; an analyst approves</div></li>
           </ol>
@@ -774,7 +774,7 @@ details.raw-json summary { cursor: pointer; font-size: 12.5px; color: var(--ink-
           <div class="orch">
             <div class="orch-head">
               <div>
-                <div class="kicker">Case replay · six agents, one state machine</div>
+                <div class="kicker">Scripted replay of a synthetic case · six agents, one state machine</div>
                 <h2>C-1041 · Selvi K., Coimbatore</h2>
                 <div class="sub">UPI investment scam · ₹48,000 · reported to 1930 after 47 min</div>
               </div>
@@ -1022,7 +1022,7 @@ function paneEvidence() {
   $("#p-evidence").innerHTML = `<div class="ev">
     <div class="scan" id="scan">${receiptHTML()}<div class="scanline" id="scanline"></div></div>
     <div>
-      <h3 class="sec">Extracted fields</h3><p class="secsub">Vision model → strict JSON schema → regex and checksum validators</p>
+      <h3 class="sec">Extracted fields</h3><p class="secsub">On-device OCR (Tesseract) → parser → UTR and acknowledgement checks · vision-model fallback in the finals build</p>
       <table class="fields"><tr><th>Field</th><th>Value</th><th class="num">Conf.</th><th>Check</th></tr>
         ${row(1, "Amount", inr(C0.amount), "0.99", ok("format"))}
         ${row(2, "Payee VPA", C0.vpa, "0.97", ok("syntax"))}
@@ -1382,7 +1382,7 @@ function buildTryPlan() {
   const fact = (cls, label, val) => `<div class="${cls}"><span>${label}</span><b>${val}</b></div>`;
   setStep(3);
   $("#outcome").innerHTML = `<h4 class="reshead" id="planHead" tabindex="-1"><span class="stepn" data-n="3" aria-hidden="true"></span>Your recovery plan</h4>
-    <div class="facts">${fact(p.golden ? "good" : "warn", "Reported to 1930", p.golden ? "Inside the golden hour" : `After ${p.mins} min`)}${p.held ? fact(p.big ? "warn" : "good", "Court order", p.big ? "Needed (above ₹50,000)" : "Not needed") : fact("", "Held amount", "None yet")}${fact("gold", "Report to bank by", GH.fmtD(p.bankDue))}${p.held ? fact(p.holdDaysLeft <= 15 ? "crit" : "", "Hold", `${Math.max(0, p.holdDaysLeft)} days left`) : fact("", "Hold", "Not placed yet")}</div>
+    <div class="facts">${fact(p.golden ? "good" : "warn", "Reported to 1930", p.golden ? "Inside the golden hour" : `After ${p.mins} min`)}${p.held ? fact(p.big ? "warn" : "good", "Court order", p.big ? "Needed (above ₹50,000)" : "Not needed") : fact("", "Held amount", "None yet")}${fact("gold", "Report to bank by", GH.fmtD(p.bankDue))}${p.held ? (p.holdLapses ? fact(p.holdDaysLeft <= 15 ? "crit" : "", "Hold", `${Math.max(0, p.holdDaysLeft)} days left`) : fact("", "Hold", "Until a court order")) : fact("", "Hold", "Not placed yet")}</div>
     <div class="plan-routes">${p.routes.map((r, i) => `<div class="route ${r.rec ? "rec" : ""}" data-i="${String(i + 1).padStart(2, "0")}"><h4>${r.title}${r.rec ? ' <span class="pill gold">Do this first</span>' : ""}</h4><p style="margin:0">${r.desc}</p></div>`).join("")}</div>
     <section class="docsec" aria-labelledby="docsHead"><h4 class="reshead" id="docsHead" style="margin-bottom:4px">Your drafts <span class="muted">Ready to check, sign and file yourself.</span></h4>
       <div class="bar1"><div class="doctabs" id="docTabs">${p.docs.map(d => `<button class="btn ghost sm" data-d="${d}">${GH.DOC_NAMES[d][0]}</button>`).join("")}</div><span class="seg" id="langSeg" role="group" aria-label="Draft language"><span data-l="ta" class="ta" role="button" tabindex="0">தமிழ்</span><span data-l="en" role="button" tabindex="0">English</span></span></div>
@@ -1446,7 +1446,7 @@ function showDoc() {
 /* ================= Two-minute tour ================= */
 const STILLS = [
   ["01-landing", "Start here", "Start here: the problem in one sentence and one button to try it."],
-  ["02-replay", "The case replay", "A synthetic victim reports a ₹48,000 scam on Telegram. Six agents build her case: evidence, routes, Tamil drafts, deadlines, consent."],
+  ["02-replay", "The case replay", "A scripted replay: a synthetic victim reports a ₹48,000 scam (Telegram intake is planned for the finals). Six agents build her case: evidence, routes, Tamil drafts, deadlines, consent."],
   ["03-try-ocr", "Try it: read a receipt", "Try it yourself: the sample receipt, or yours, is read on your device in about 0.3 s. Every field can be corrected."],
   ["04-plan", "Above ₹50,000: court route", "₹90,000 is held, above ₹50,000, so the plan puts the BNSS s.503 court petition first, with the police notice and the MRM request in parallel."],
   ["05-tamil-draft", "Tamil petition", "The petition is drafted in Tamil and English, ready to check, save as PDF or hear read aloud. The victim files it; Golden Hour never does."],
