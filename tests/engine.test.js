@@ -224,3 +224,24 @@ test("case packet: same fields for victim and bank, no PII beyond the payment", 
   assert.equal(pk.utr, "436512907781"); assert.equal(pk.route, "mrm"); assert.equal(pk.rbi_regime, "2017");
   assert.ok(!("name" in pk) && !("pan" in pk) && !("aadhaar" in pk));
 });
+
+/* ---------- Receipt parser: OCR misreads seen in bench/ocr-bench.json ---------- */
+test("parser: ₹ misread as a digit is removed only when Indian grouping proves it", () => {
+  assert.equal(GH.parseReceipt("Paid successfully\n348,000\nTo: ab@ybl").amount, 48000);
+  assert.equal(GH.parseReceipt("₹ 3,48,000").amount, 348000);
+  assert.equal(GH.parseReceipt("3 75,000").amount, 75000);
+  assert.equal(GH.parseReceipt("T 1,999").amount, 1999);
+});
+
+test("parser: misread UPI handle snaps to a known handle", () => {
+  assert.equal(GH.parseReceipt("Paid to kycupdate78@yhbl").vpa, "kycupdate78@ybl");
+  assert.equal(GH.parseReceipt("Paid to someone@okaxis").vpa, "someone@okaxis");
+  assert.equal(GH.parseReceipt("Write to support@bank.com").vpa, null);
+});
+
+test("parser: UTR, date, time and Aadhaar masking flag", () => {
+  const f = GH.parseReceipt("UPI Ref No. 512398447016\nDate 14 Nov 2026, 11:42 am\n2345 6789 1234");
+  assert.equal(f.utr, "512398447016");
+  assert.equal(f.when.getDate(), 14); assert.equal(f.when.getHours(), 11);
+  assert.equal(f.aadhaar, true);
+});

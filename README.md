@@ -7,6 +7,34 @@ FinTech track · K! Hacks 4.0 (CEG Tech Forum, Anna University) · Team Golden H
 
 ![Golden Hour: victim journey and agent orchestration](screenshots/victim-evidence.png)
 
+## Judges: start here (3 minutes)
+
+1. Open the **[live demo](https://golden-hour-khacks.vercel.app)** → **Try it live** → **Use our synthetic sample** (or drop in any UPI screenshot; it never leaves your browser).
+2. Click **Build my recovery plan**. Change *Held in scammer a/c* to `90000` and rebuild: the plan switches to a BNSS s.503 court petition, because holds above ₹50,000 need a court order.
+3. Switch the drafts to **தமிழ்**, then **Save as PDF**.
+4. Click **Send case packet to bank desk**: the bank console receives the same packet (same SHA-256 hash) and splits the hold fairly across every victim of that account.
+
+| What | Evidence |
+|---|---|
+| Rules engine | [`engine.js`](engine.js): every rule value cites its source and is marked *official*, *reported* or *our policy* |
+| Tests | **34 named cases** run on every push ([`tests/engine.test.js`](tests/engine.test.js)): ₹50,000 vs ₹50,001, 31 Dec 2026 vs 1 Jan 2027, weekend deadlines, compensation caps, exact pro-rata to the rupee |
+| OCR | **60 synthetic receipts** (3 layouts × 4 conditions): UTR 60/60, amount 58/60, date 60/60, payee UPI ID 56/60, median 0.3 s per image on-device ([`bench/ocr-bench.json`](bench/ocr-bench.json), `node tools/ocr-bench.js`) |
+| Honesty | [What is real and what is scripted](#what-is-real-in-the-prototype) |
+
+### Who does what: code, model or person
+
+| Agent | Today in the prototype | In the finals build |
+|---|---|---|
+| Intake & Triage | Browser speech (`ta-IN`), scripted chat | Model: Sarvam / AI4Bharat Tamil speech |
+| Evidence | **Code**: Tesseract OCR + parser, UTR/ack validation, Aadhaar masking | Code + vision model fallback |
+| Route Planner | **Code**: deterministic rules with sources | Code (a model never decides the route) |
+| Drafter | **Code**: Tamil/English templates | Code templates + model read-back in Tamil |
+| Deadline Guardian | **Code**: date rules | Code + reminders |
+| Safety & Consent | **Code**: consent, redaction, hash-chained audit | Code |
+| Reconciliation (bank) | **Code**: pro-rata split to the rupee | Code |
+| Mule-graph explainer (bank) | **Code**: union-find clusters | Code, fed by bank flags (e.g. MuleHunter.AI) |
+| Every filing and every bank action | **Person**: the victim files; an analyst approves | Person |
+
 > **Concept prototype for the Round 1 idea submission.** It runs entirely on synthetic data. It does not connect to any real bank, police or government portal. The finals build will be developed during the 24-hour hackathon, as the rules require.
 
 ## The problem
@@ -57,7 +85,7 @@ Open the [live demo](https://golden-hour-khacks.vercel.app) and click **Try your
 - **Above ₹50,000 held:** a BNSS s.503 magistrate petition comes first (Madras HC: the NCRP acknowledgement is enough, no need to wait for an FIR), with a s.106(3) notice request and an MRM + FIR filing in parallel.
 - **Every case:** a bank dispute letter with its reporting deadline (2017 rules, or the RBI 2027 rules by payment date), RBI small-value compensation where it applies, a 90-day hold countdown and the Ombudsman step.
 
-Each draft (restoration request, s.503 petition, bank letter) is generated **in Tamil and in English**, previewed on screen and downloadable.
+Each draft (restoration request, s.503 petition, bank letter) is generated **in Tamil and in English**, previewed on screen, and downloadable as text or saved as a PDF. **Send case packet to bank desk** hands the same packet to the bank console, where it joins the hold on the scammer's account.
 
 Measured in headless Chromium on a 4-core test machine: the first read takes about 1.6 s including loading the OCR engine, then about 0.3 s per screenshot. OCR runs on the user's device, so it costs us nothing per case. **Everything runs in your browser and nothing is uploaded.** In Chrome or Edge you can also describe the scam by voice in Tamil or English.
 
@@ -88,7 +116,7 @@ The prototype has four views:
 These parts are working code:
 
 - **Rules engine ([`engine.js`](engine.js)):** deterministic route planning over the case fields (held amount, report time, payment date), deadlines, and the Tamil/English drafts. Every rule value has a source and a status (official, reported, or our policy), shown in the **Rules & sources** view.
-- **Tests ([`tests/engine.test.js`](tests/engine.test.js)):** 12 unit tests on routes, deadlines, compensation, the 90-day hold and the drafts, run on every push. Run them with `node --test tests/engine.test.js`.
+- **Tests ([`tests/engine.test.js`](tests/engine.test.js)):** 34 named cases on routes, deadlines, compensation, the hold rules, pro-rata splits, mule clusters, the receipt parser and the drafts, run on every push. Run them with `node --test tests/engine.test.js`.
 - **OCR:** Tesseract in the browser, on real screenshots.
 - **Deadline calculations:** working-day arithmetic.
 - **Pro-rata lien reconciliation:** rounding is exact to the rupee.
@@ -115,6 +143,7 @@ Golden Hour is free for victims. It is a B2B2C product: banks pay per case or pe
 | `index.html` | Clickable prototype (victim crew + bank crew) |
 | `engine.js` | Rules engine and Tamil/English drafts, shared by the demo and the tests |
 | `tests/` | Unit tests (`node --test tests/engine.test.js`) |
+| `bench/` | OCR benchmark results (`node tools/ocr-bench.js`) |
 | `fonts/` | Inter, JetBrains Mono, Noto Sans Tamil (SIL Open Font License) |
 | `video/` | Demo walkthrough (MP4) |
 | `screenshots/` | Prototype screenshots |
@@ -138,6 +167,16 @@ ffmpeg -i video/raw/*.webm -c:v libx264 -pix_fmt yuv420p video/golden-hour-demo.
 5. MHA / I4C SOP (02.01.2026): s.106(3) notice route, 90-day hold with one extension; Madras HC circular on s.503 release without an FIR (DT Next)
 6. RBI customer-liability circular (6 Jul 2017) and Third Amendment Directions (24 Jun 2026, effective 1 Jan 2027); RB-IOS 2026
 7. RBI Ombudsman Annual Report 2024-25
+
+## Third-party software
+
+| Component | Licence |
+|---|---|
+| Tesseract.js 5.1.1 and the English model (`vendor/tesseract/`) | Apache-2.0 |
+| Inter, JetBrains Mono, Noto Sans Tamil (`fonts/`) | SIL Open Font License 1.1 |
+| Playwright (dev tools only) | Apache-2.0 |
+
+All other code in this repository was written by the team for K! Hacks 4.0.
 
 ## Team
 

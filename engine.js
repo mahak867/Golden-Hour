@@ -231,9 +231,69 @@ Name: [your name]    Mobile: [number]    Date: [date]`,
       deadlines: { bank_report: new Date(p.bankDue).toISOString().slice(0, 10), hold_lift: p.holdLapses ? new Date(p.holdLift).toISOString().slice(0, 10) : null } };
   }
 
+  /* ---------- Receipt parsing (shared by the demo and tests/ocr-bench) ---------- */
+  const INDIAN = /^[0-9]{1,2}(?:,[0-9]{2})*,[0-9]{3}(?:\.[0-9]{1,2})?$|^[0-9]{1,3}(?:\.[0-9]{1,2})?$/;
+  const AMOUNT_ONLY = /^[0-9]{1,3}(?:,[0-9]{2,3})+(?:\.[0-9]{1,2})?$/;
+  // The English OCR model often reads the ₹ glyph as 3, 2, T, ¥, <, %, ? or F. On a line that holds only an
+  // amount, treat that glyph as ₹. A digit is only treated as ₹ when the full number breaks Indian digit
+  // grouping and the rest fits it (₹48,000 → "348,000" → 48,000; a real ₹3,48,000 is never touched).
+  function fixRupee(txt) {
+    return txt.split("\n").map(line => {
+      const l = line.trim();
+      let m = l.match(/^([3T¥<%?zZF2])\s+([0-9][0-9,]*(?:\.[0-9]{1,2})?)$/);
+      if (m && AMOUNT_ONLY.test(m[2])) return "₹" + m[2];
+      m = l.match(/^([T¥<%?zZF])([0-9][0-9,]*(?:\.[0-9]{1,2})?)$/);
+      if (m && AMOUNT_ONLY.test(m[2])) return "₹" + m[2];
+      m = l.match(/^([32])([0-9][0-9,]*(?:\.[0-9]{1,2})?)$/);
+      if (m && AMOUNT_ONLY.test(m[1] + m[2]) && !INDIAN.test(m[1] + m[2]) && INDIAN.test(m[2])) return "₹" + m[2];
+      return line;
+    }).join("\n");
+  }
+  const HANDLES = ["ybl", "ibl", "axl", "okaxis", "oksbi", "okhdfcbank", "okicici", "paytm", "upi", "apl", "sbi", "icici", "hdfcbank", "axisbank", "kotak", "idfcbank", "fbl", "jupiteraxis", "freecharge", "airtel", "demo"];
+  function lev(a, b) { const d = Array.from({ length: a.length + 1 }, (_, i) => [i]); for (let j = 1; j <= b.length; j++) d[0][j] = j; for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; }
+  // Snap a misread handle (e.g. "yhbl") to a known UPI handle when exactly one is a single edit away.
+  function fixHandle(vpa) {
+    const [u, h] = vpa.split("@"); if (!h || HANDLES.includes(h)) return vpa;
+    const near = HANDLES.filter(x => lev(x, h) === 1);
+    return near.length === 1 ? u + "@" + near[0] : vpa;
+  }
+
+  function parseReceipt(t) {
+      const txt = fixRupee((t || "").replace(/[|]/g, " "));
+    const out = { amount: null, utr: null, vpa: null, when: null, ack: null, aadhaar: false };
+    const amt = [...txt.matchAll(/(?:₹|Rs\.?|INR|%|\?)\s?([0-9]{1,3}(?:,[0-9]{2,3})+(?:\.[0-9]{1,2})?|[0-9]+(?:\.[0-9]{1,2})?)(?![0-9])/gi)].map(m => Number(m[1].replace(/,/g, ""))).filter(n => n >= 1 && n < 1e8);
+    if (amt.length) out.amount = Math.max(...amt);
+    if (!out.amount) {
+      const lines = txt.split(/\n/).map(l => l.trim());
+      const hit = lines.map(l => l.match(/^[^0-9A-Za-z]{0,3}([0-9]{1,2}(?:,[0-9]{2})*,[0-9]{3}(?:\.[0-9]{1,2})?|[0-9]{3,6}\.[0-9]{2})[^0-9A-Za-z]{0,3}$/)).find(Boolean);
+      if (hit) out.amount = Number(hit[1].replace(/,/g, ""));
+    }
+    const ref = txt.match(/(?:UTR|UPI\s*Ref(?:erence)?\.?\s*(?:No\.?|ID)?|UPI\s*transaction\s*ID|Ref(?:erence)?\s*No\.?|RRN)[^0-9]{0,12}([0-9]{12})(?![0-9])/i);
+    out.utr = ref ? ref[1] : ((txt.match(/(?<![0-9])([0-9]{12})(?![0-9])/) || [])[1] || null);
+    // UPI IDs end in a handle with no dot-domain after it (excludes emails such as support@bank.com)
+    const vpas = [...txt.matchAll(/([a-zA-Z0-9.\-_]{2,})\s?@\s?([a-zA-Z][a-zA-Z0-9]{1,})(?![.a-zA-Z0-9])/g)].map(m => (m[1] + "@" + m[2]).toLowerCase());
+    if (vpas.length) out.vpa = fixHandle(vpas[0]);
+    const MON = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+    let Y, Mo, D;
+    let m = txt.match(/([0-3]?[0-9])(?:st|nd|rd|th)?\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?,?\s+(20[0-9]{2})/i);
+    if (m) { D = +m[1]; Mo = MON[m[2].slice(0, 3).toLowerCase()]; Y = +m[3]; }
+    else if ((m = txt.match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+([0-3]?[0-9]),?\s+(20[0-9]{2})/i))) { D = +m[2]; Mo = MON[m[1].slice(0, 3).toLowerCase()]; Y = +m[3]; }
+    else if ((m = txt.match(/([0-3]?[0-9])[\/\-.]([0-1]?[0-9])[\/\-.](20[0-9]{2})/))) { D = +m[1]; Mo = +m[2] - 1; Y = +m[3]; }
+    if (Y && Mo >= 0 && Mo < 12 && D >= 1 && D <= 31) {
+      const TIME = /\b([0-2]?[0-9]):([0-5][0-9])(?::[0-5][0-9])?\s*(am|pm|AM|PM)?/;
+      const near = txt.slice(Math.max(0, m.index - 30), m.index + m[0].length + 30);
+      let hh = 0, mm = 0; const tm = near.match(TIME) || txt.match(TIME);
+      if (tm) { hh = +tm[1]; mm = +tm[2]; if (tm[3] && /pm/i.test(tm[3]) && hh < 12) hh += 12; if (tm[3] && /am/i.test(tm[3]) && hh === 12) hh = 0; if (hh > 23) hh = 0; }
+      out.when = new Date(Y, Mo, D, hh, mm); out.timeFound = !!tm;
+    }
+    const a = txt.match(/(?<![0-9])([0-9]{14})(?![0-9])/); if (a) out.ack = a[1];
+    out.aadhaar = /\b[2-9][0-9]{3}\s[0-9]{4}\s[0-9]{4}\b/.test(txt);
+    return out;
+  }
+
   const DOC_NAMES = { restoration: ["Restoration request", "மீட்பு விண்ணப்பம்"], s503: ["s.503 petition", "பிரிவு 503 மனு"], bank: ["Bank letter", "வங்கிக் கடிதம்"] };
 
-  const GH = { RULES, R, addWD, addD, fmtD, fmtDT, inr, validate, planCase, draft, splitLien, clusterGraph, casePacket, DOC_NAMES };
+  const GH = { RULES, R, addWD, addD, fmtD, fmtDT, inr, validate, planCase, draft, parseReceipt, splitLien, clusterGraph, casePacket, DOC_NAMES };
   if (typeof module !== "undefined" && module.exports) module.exports = GH;
   root.GH = GH;
 })(typeof window !== "undefined" ? window : globalThis);

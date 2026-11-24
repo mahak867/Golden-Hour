@@ -1,0 +1,725 @@
+{
+ "summary": {
+  "receipts": 60,
+  "generated": "2026-11-24",
+  "note": "Synthetic receipts, 3 generic layouts x 5 transactions x 4 conditions. Headless Chromium, 4-core machine, English model.",
+  "correct": {
+   "amount": "58/60",
+   "utr": "60/60",
+   "payee_upi_id": "56/60",
+   "date": "60/60",
+   "time": "60/60",
+   "all_four_key_fields": "54/60"
+  },
+  "median_ms_per_image": 310,
+  "by_condition": {
+   "clean": {
+    "amount": "15/15",
+    "utr": "15/15",
+    "vpa": "14/15",
+    "date": "15/15",
+    "time": "15/15"
+   },
+   "jpeg-q40": {
+    "amount": "15/15",
+    "utr": "15/15",
+    "vpa": "14/15",
+    "date": "15/15",
+    "time": "15/15"
+   },
+   "rotate-2deg": {
+    "amount": "14/15",
+    "utr": "15/15",
+    "vpa": "14/15",
+    "date": "15/15",
+    "time": "15/15"
+   },
+   "scale-75%": {
+    "amount": "14/15",
+    "utr": "15/15",
+    "vpa": "14/15",
+    "date": "15/15",
+    "time": "15/15"
+   }
+  },
+  "by_layout": {
+   "0": {
+    "amount": "18/20",
+    "utr": "20/20",
+    "vpa": "20/20",
+    "date": "20/20",
+    "time": "20/20"
+   },
+   "1": {
+    "amount": "20/20",
+    "utr": "20/20",
+    "vpa": "16/20",
+    "date": "20/20",
+    "time": "20/20"
+   },
+   "2": {
+    "amount": "20/20",
+    "utr": "20/20",
+    "vpa": "20/20",
+    "date": "20/20",
+    "time": "20/20"
+   }
+  }
+ },
+ "rows": [
+  {
+   "layout": 0,
+   "cond": "clean",
+   "ms": 372,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "jpeg-q40",
+   "ms": 310,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "rotate-2deg",
+   "ms": 457,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "scale-75%",
+   "ms": 291,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "clean",
+   "ms": 242,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "jpeg-q40",
+   "ms": 214,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "rotate-2deg",
+   "ms": 414,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "scale-75%",
+   "ms": 187,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "clean",
+   "ms": 220,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "jpeg-q40",
+   "ms": 217,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "rotate-2deg",
+   "ms": 418,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "scale-75%",
+   "ms": 192,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "clean",
+   "ms": 218,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "jpeg-q40",
+   "ms": 220,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "rotate-2deg",
+   "ms": 454,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "scale-75%",
+   "ms": 216,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "clean",
+   "ms": 274,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "jpeg-q40",
+   "ms": 259,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "rotate-2deg",
+   "ms": 600,
+   "want": [
+    4500,
+    "quickcash49@ibl"
+   ],
+   "got": [
+    34500,
+    "quickcash49@ibl"
+   ],
+   "text": "EE. | Payment successful | 34,500 | Paid to quickcash49@ibl | UPI Ref No. 419164977401 | Date 9 Jul 2026, 7:43 am",
+   "amount": false,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 0,
+   "cond": "scale-75%",
+   "ms": 209,
+   "want": [
+    4500,
+    "quickcash49@ibl"
+   ],
+   "got": [
+    34500,
+    "quickcash49@ibl"
+   ],
+   "text": "Payment successful | 34,500 |  | Paid to quickcash49@ibl | UPI Ref No. 419164977401 | Date 9 Jul 2026, 7:43 am",
+   "amount": false,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "clean",
+   "ms": 197,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "jpeg-q40",
+   "ms": 199,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "rotate-2deg",
+   "ms": 515,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "scale-75%",
+   "ms": 226,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "clean",
+   "ms": 313,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "jpeg-q40",
+   "ms": 251,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "rotate-2deg",
+   "ms": 591,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "scale-75%",
+   "ms": 201,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "clean",
+   "ms": 241,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "jpeg-q40",
+   "ms": 197,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "rotate-2deg",
+   "ms": 510,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "scale-75%",
+   "ms": 192,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "clean",
+   "ms": 216,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "jpeg-q40",
+   "ms": 208,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "rotate-2deg",
+   "ms": 392,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "scale-75%",
+   "ms": 163,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "clean",
+   "ms": 199,
+   "want": [
+    150000,
+    "jobportal11@okaxis"
+   ],
+   "got": [
+    150000,
+    "jobportalll@okaxis"
+   ],
+   "text": "Paid successfully | <1,50,000 | To: jobportalll@okaxis | 11/07/2026 20:21 | UPI transaction ID | 362332292318",
+   "amount": true,
+   "utr": true,
+   "vpa": false,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "jpeg-q40",
+   "ms": 194,
+   "want": [
+    150000,
+    "jobportal11@okaxis"
+   ],
+   "got": [
+    150000,
+    "jobportalll@okaxis"
+   ],
+   "text": "Paid successfully | <1,50,000 | To: jobportalll@okaxis | 11/07/2026 20:21 | UPI transaction ID | 362332292318",
+   "amount": true,
+   "utr": true,
+   "vpa": false,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "rotate-2deg",
+   "ms": 392,
+   "want": [
+    150000,
+    "jobportal11@okaxis"
+   ],
+   "got": [
+    150000,
+    "jobportal11l@okaxis"
+   ],
+   "text": "TE. | Paid successfully | %1,50,000 | To: jobportal11l @okaxis | 11/07/2026 20:21 | UPI transaction ID",
+   "amount": true,
+   "utr": true,
+   "vpa": false,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 1,
+   "cond": "scale-75%",
+   "ms": 173,
+   "want": [
+    150000,
+    "jobportal11@okaxis"
+   ],
+   "got": [
+    150000,
+    "jobportalll@okaxis"
+   ],
+   "text": "Paid successfully | %1,50,000 | To: jobportalll@okaxis | 11/07/2026 20:21 | UPI transaction ID | 362332292318",
+   "amount": true,
+   "utr": true,
+   "vpa": false,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "clean",
+   "ms": 500,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "jpeg-q40",
+   "ms": 449,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "rotate-2deg",
+   "ms": 656,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "scale-75%",
+   "ms": 342,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "clean",
+   "ms": 385,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "jpeg-q40",
+   "ms": 460,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "rotate-2deg",
+   "ms": 643,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "scale-75%",
+   "ms": 280,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "clean",
+   "ms": 326,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "jpeg-q40",
+   "ms": 328,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "rotate-2deg",
+   "ms": 608,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "scale-75%",
+   "ms": 280,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "clean",
+   "ms": 328,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "jpeg-q40",
+   "ms": 440,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "rotate-2deg",
+   "ms": 701,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "scale-75%",
+   "ms": 427,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "clean",
+   "ms": 362,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "jpeg-q40",
+   "ms": 328,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "rotate-2deg",
+   "ms": 734,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  },
+  {
+   "layout": 2,
+   "cond": "scale-75%",
+   "ms": 278,
+   "amount": true,
+   "utr": true,
+   "vpa": true,
+   "date": true,
+   "time": true
+  }
+ ]
+}
